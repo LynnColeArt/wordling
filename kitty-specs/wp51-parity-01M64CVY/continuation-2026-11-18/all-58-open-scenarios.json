@@ -1,0 +1,526 @@
+[
+  {
+    "scenario": "CMD51-008",
+    "title": "Split document screens into windows",
+    "status": "unimplemented",
+    "evidence_or_gap": "Navigation, blocks, and editing. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "I1"
+    ]
+  },
+  {
+    "scenario": "CMD51-010",
+    "title": "Select a keyboard then restore Original",
+    "status": "unimplemented",
+    "evidence_or_gap": "Navigation, blocks, and editing. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "I2"
+    ]
+  },
+  {
+    "scenario": "CMD51-041",
+    "title": "Confirm delete to end of page",
+    "status": "partial",
+    "evidence_or_gap": "Hard pages and the sampled automatic hard-return page boundary preserve following text and support Undelete. Other automatic page boundary types still need DOS comparison. [DOS evidence](everyday-contract-2026-11-05/qualification/issue7-auto-page-delete/files.json).",
+    "family_dependencies": [
+      "E1"
+    ]
+  },
+  {
+    "scenario": "CMD51-045",
+    "title": "Character deletion restoration differs for paired attributes",
+    "status": "partial",
+    "evidence_or_gap": "Related motion, formatting or search works. This exact branch or the general input set still needs qualification. [Evidence](../../tests/everyday_qualification/coverage.md)",
+    "family_dependencies": [
+      "E1"
+    ]
+  },
+  {
+    "scenario": "CMD51-051",
+    "title": "Backspace deletes code immediately before cursor",
+    "status": "partial",
+    "evidence_or_gap": "Related motion, formatting or search works. This exact branch or the general input set still needs qualification. [Evidence](../../tests/everyday_qualification/coverage.md)",
+    "family_dependencies": [
+      "E1"
+    ]
+  },
+  {
+    "scenario": "CMD51-064",
+    "title": "Lowercase conversion preserves sentence/I exceptions",
+    "status": "partial",
+    "evidence_or_gap": "Matches the captured ASCII sentence initials and uppercase I followed by apostrophe. Extended character identities and other punctuation remain open. [DOS evidence](reference-runs/mission1-word-nav/lowercase.txt)",
+    "family_dependencies": [
+      "E2"
+    ]
+  },
+  {
+    "scenario": "CMD51-065",
+    "title": "Retrieve inserts at the cursor",
+    "status": "partial",
+    "evidence_or_gap": "Native insertion supports a bounded set of documents [Evidence](../../internal/document/everyday.go)",
+    "family_dependencies": [
+      "E3"
+    ]
+  },
+  {
+    "scenario": "CMD51-072",
+    "title": "Configure timed backup",
+    "status": "partial",
+    "evidence_or_gap": "Timed recovery exists in the Linux workflow. Original backup configuration and startup semantics need comparison. [Evidence](../../internal/tui/recovery.go)",
+    "family_dependencies": [
+      "S1"
+    ]
+  },
+  {
+    "scenario": "CMD51-073",
+    "title": "Empty editing screen does not create a zero-byte timed backup",
+    "status": "partial",
+    "evidence_or_gap": "Timed recovery exists in the Linux workflow. Original backup configuration and startup semantics need comparison. [Evidence](../../internal/tui/recovery.go)",
+    "family_dependencies": [
+      "S1"
+    ]
+  },
+  {
+    "scenario": "CMD51-074",
+    "title": "Startup checks backups for both document screens",
+    "status": "partial",
+    "evidence_or_gap": "Timed recovery exists in the Linux workflow. Original backup configuration and startup semantics need comparison. [Evidence](../../internal/tui/recovery.go)",
+    "family_dependencies": [
+      "S2"
+    ]
+  },
+  {
+    "scenario": "CMD51-082",
+    "title": "Set a document password",
+    "status": "unimplemented",
+    "evidence_or_gap": "File commands, security and original conversions. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "S3",
+      "S4"
+    ]
+  },
+  {
+    "scenario": "CMD51-101",
+    "title": "Insert a normal tab",
+    "status": "partial",
+    "evidence_or_gap": "Default justified layout and tab support. Arbitrary layout settings remain open. [Evidence](../../internal/layout/layout.go)",
+    "family_dependencies": [
+      "L3"
+    ]
+  },
+  {
+    "scenario": "CMD51-107",
+    "title": "Advance relative and absolute positions",
+    "status": "partial",
+    "evidence_or_gap": "Position and Right keep adjacent text on screen. The sampled Right wrap uses the remaining print width and matches both the DOS native save and Standard Printer disk output. The short Position/Right case also matches the checkpoint replay. Other directions and wrap configurations remain open. [Ticket 7 comparisons](#ticket-7-advance-comparisons)",
+    "family_dependencies": [
+      "L3"
+    ]
+  },
+  {
+    "scenario": "CMD51-108",
+    "title": "Do not advance beyond the current page",
+    "status": "partial",
+    "evidence_or_gap": "Down keeps the requested 3 inches and clamps the baseline at 10 inches. The fresh save and unchanged Save As match the captured input file. Both sampled edit-and-reopen cases match DOS through the first save and subsequent Save As, including the new Fast Save Yes packet layout. The 180-byte Down printer stream matches the checkpoint replay. Other native layouts and page-boundary cases remain open. [Ticket 7 comparisons](#ticket-7-advance-comparisons)",
+    "family_dependencies": [
+      "L3"
+    ]
+  },
+  {
+    "scenario": "CMD51-109",
+    "title": "Enable hyphenation at the cursor",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L4"
+    ]
+  },
+  {
+    "scenario": "CMD51-115",
+    "title": "Create a footnote",
+    "status": "partial",
+    "evidence_or_gap": "Short ASCII notes retain number and text in native saves and match the original print fixture. Editing by number matches the native save. Larger notes and automatic continuation remain open. [Reference](reference-runs/mission1-notes/README.md).",
+    "family_dependencies": [
+      "L8"
+    ]
+  },
+  {
+    "scenario": "CMD51-116",
+    "title": "Create an endnote",
+    "status": "partial",
+    "evidence_or_gap": "Short ASCII notes retain text, dedicated numbering and the captured output placement. Other placements and explicit generation remain open. [Reference](reference-runs/mission1-notes/README.md).",
+    "family_dependencies": [
+      "L9"
+    ]
+  },
+  {
+    "scenario": "CMD51-117",
+    "title": "Configure note continuation constraints",
+    "status": "partial",
+    "evidence_or_gap": "A single multiline note splits or moves with its reference according to the setting. The Linux terminal also reproduces the four-and-two native split apart from the same two unresolved bytes. Both captured printer streams match. Additional note combinations remain open. [DOS evidence](reference-runs/mission1-note-continuation/README.md)",
+    "family_dependencies": [
+      "L10"
+    ]
+  },
+  {
+    "scenario": "CMD51-118",
+    "title": "Create and apply a named style",
+    "status": "partial",
+    "evidence_or_gap": "Create and apply a compact paired Bold style. Other types, arbitrary codes and style library operations remain open. [DOS evidence](reference-runs/mission1-style-authoring/README.md)",
+    "family_dependencies": [
+      "D1"
+    ]
+  },
+  {
+    "scenario": "CMD51-121",
+    "title": "Join selected table cells",
+    "status": "partial",
+    "evidence_or_gap": "Join the two top cells of a standalone 2 by 2 table. Confirmation, unaffected cells and Standard Printer match DOS. Vertical joins and editing combined contents remain open. [DOS evidence](reference-runs/mission1-table-join/README.md)",
+    "family_dependencies": [
+      "D2"
+    ]
+  },
+  {
+    "scenario": "CMD51-122",
+    "title": "Recalculate table formulas explicitly",
+    "status": "partial",
+    "evidence_or_gap": "Two-cell addition keeps the previous cached result until Calculate; native body and printer bytes match. Other formulas remain open. [DOS evidence](reference-runs/mission1-table-math/README.md)",
+    "family_dependencies": [
+      "D3"
+    ]
+  },
+  {
+    "scenario": "CMD51-123",
+    "title": "Copy a formula to another cell",
+    "status": "partial",
+    "evidence_or_gap": "Copy Formula \u2192 Cell adjusts two relative operands and recalculates the stored result. Other formula and reference types remain open. [DOS evidence](reference-runs/mission1-table-math/README.md)",
+    "family_dependencies": [
+      "D4"
+    ]
+  },
+  {
+    "scenario": "CMD51-125",
+    "title": "Generate or decline replacing generated material",
+    "status": "partial",
+    "evidence_or_gap": "Generate replaces or leaves the default one- or two-level contents according to confirmation, and resolves page references. Other tables, lists, indexes and authorities remain open. [DOS evidence](reference-runs/mission1-toc-generation/README.md)",
+    "family_dependencies": [
+      "D5"
+    ]
+  },
+  {
+    "scenario": "CMD51-132",
+    "title": "Repeat a macro using Repeat Value",
+    "status": "partial",
+    "evidence_or_gap": "Execution, repeat and stop have bounded support. Original recording and wider runtime behavior remain open. [Evidence](../../internal/tui/macro_original_test.go)",
+    "family_dependencies": [
+      "A2"
+    ]
+  },
+  {
+    "scenario": "CMD51-133",
+    "title": "Stop a running macro",
+    "status": "partial",
+    "evidence_or_gap": "F1 stops supported playback in the everyday editor and keeps partial edits. Original CANCEL ON/OFF overrides remain open. [Evidence](../../internal/tui/macro_record_test.go)",
+    "family_dependencies": [
+      "A2"
+    ]
+  },
+  {
+    "scenario": "CMD51-146",
+    "title": "Preview each original page-view mode",
+    "status": "partial",
+    "evidence_or_gap": "Standard Printer preview exists. Other view modes, palette controls and printer definitions remain open. [Evidence](../../internal/tui/everyday_print.go)",
+    "family_dependencies": [
+      "P3"
+    ]
+  },
+  {
+    "scenario": "CMD51-147",
+    "title": "Changing preview colors does not change printed content",
+    "status": "partial",
+    "evidence_or_gap": "Standard Printer preview exists. Other view modes, palette controls and printer definitions remain open. [Evidence](../../internal/tui/everyday_print.go)",
+    "family_dependencies": [
+      "P3"
+    ]
+  },
+  {
+    "scenario": "CMD51-148",
+    "title": "Choose a declared sheet feeder",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "P2"
+    ]
+  },
+  {
+    "scenario": "CMD51-153",
+    "title": "Select and cancel text using the mouse",
+    "status": "partial",
+    "evidence_or_gap": "Mouse and display settings are bounded. Exact selection and cursor/display variants need comparison. [Evidence](../../internal/tui/everyday_setup.go)",
+    "family_dependencies": [
+      "I3"
+    ]
+  },
+  {
+    "scenario": "CMD51-154",
+    "title": "Change the text display independently of print layout",
+    "status": "partial",
+    "evidence_or_gap": "Mouse and display settings are bounded. Exact selection and cursor/display variants need comparison. [Evidence](../../internal/tui/everyday_setup.go)",
+    "family_dependencies": [
+      "I4"
+    ]
+  },
+  {
+    "scenario": "CMD51-157",
+    "title": "Retrieve an original 4.2 document into 5.1",
+    "status": "unimplemented",
+    "evidence_or_gap": "The pinned DOS utility offers 4.2 import. The utility's export list has no 4.2 output. An original 4.2 document and the converted native result remain open. [DOS utility captures](reference-runs/mission1-convert-42/README.md)",
+    "family_dependencies": [
+      "S5",
+      "S6"
+    ]
+  },
+  {
+    "scenario": "CMD51-159",
+    "title": "Compare screen and disk document versions",
+    "status": "partial",
+    "evidence_or_gap": "One changed ASCII line with or without unchanged surrounding paragraphs matches DOS native output; the short one-line case also matches screen and print. Manual-backed removal now keeps redlined text and deletes strikeout text for bounded plain-text inputs, with explicit confirmation and atomic refusal. Multiple changes, formatted comparisons and live removal differential remain open. [Evidence and scope](reference-runs/mission1-document-compare/README.md)",
+    "family_dependencies": [
+      "S7"
+    ]
+  },
+  {
+    "scenario": "CMD51-160",
+    "title": "Set initial base font from selected printer resources",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L1"
+    ]
+  },
+  {
+    "scenario": "CMD51-161",
+    "title": "Toggle printer kerning at cursor",
+    "status": "partial",
+    "evidence_or_gap": "Native control and Standard Printer stream match the fixed-pitch capture. Proportional font resources and kerning metrics remain open. [DOS evidence](reference-runs/mission1-kerning/README.md)",
+    "family_dependencies": [
+      "L2"
+    ]
+  },
+  {
+    "scenario": "CMD51-164",
+    "title": "Set word and letter spacing independently",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L2"
+    ]
+  },
+  {
+    "scenario": "CMD51-166",
+    "title": "Choose an existing paper definition",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L5"
+    ]
+  },
+  {
+    "scenario": "CMD51-168",
+    "title": "Define and enable newspaper columns",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L6"
+    ]
+  },
+  {
+    "scenario": "CMD51-169",
+    "title": "Move through parallel columns with a hard boundary",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L7"
+    ]
+  },
+  {
+    "scenario": "CMD51-173",
+    "title": "Select a label paper definition",
+    "status": "unimplemented",
+    "evidence_or_gap": "Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "L5"
+    ]
+  },
+  {
+    "scenario": "CMD51-174",
+    "title": "Create a figure graphics box",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "G1"
+    ]
+  },
+  {
+    "scenario": "CMD51-175",
+    "title": "Convert an original graphics file with GRAPHCNV",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "G2"
+    ]
+  },
+  {
+    "scenario": "CMD51-176",
+    "title": "Create a horizontal graphics line",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "G3"
+    ]
+  },
+  {
+    "scenario": "CMD51-177",
+    "title": "Create and preview an equation fraction",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "G4"
+    ]
+  },
+  {
+    "scenario": "CMD51-179",
+    "title": "Convert a 4.x macro with MACROCNV",
+    "status": "unimplemented",
+    "evidence_or_gap": "DOS MACROCNV 1.6 launches and requests a filename. An original 4.x input, conversion result and Wordling implementation remain open. [DOS launch evidence](reference-runs/mission1-macro-converter/README.md)",
+    "family_dependencies": [
+      "A4"
+    ]
+  },
+  {
+    "scenario": "CMD51-180",
+    "title": "Enter and leave original column Math mode",
+    "status": "partial",
+    "evidence_or_gap": "Math scope, decimal tab input and an explicit subtotal in one default column match DOS native and printer evidence. Other functions and column definitions remain open. [DOS evidence](reference-runs/mission1-column-math/README.md)",
+    "family_dependencies": [
+      "A5"
+    ]
+  },
+  {
+    "scenario": "CMD51-181",
+    "title": "Set a language code at cursor",
+    "status": "partial",
+    "evidence_or_gap": "Native US to UK code and Reveal Codes match. Language-specific proofreading, formatting resources and Initial Codes remain open. [DOS evidence](reference-runs/mission1-language/README.md)",
+    "family_dependencies": [
+      "T1"
+    ]
+  },
+  {
+    "scenario": "CMD51-182",
+    "title": "Open and cancel the Thesaurus",
+    "status": "unimplemented",
+    "evidence_or_gap": "Original lookup for quick shows synonym and antonym groups, and F1 restores unchanged text. Product resource lookup remains open. [DOS evidence](reference-runs/mission1-thesaurus/README.md)",
+    "family_dependencies": [
+      "T2"
+    ]
+  },
+  {
+    "scenario": "CMD51-185",
+    "title": "Select an installed original printer definition",
+    "status": "partial",
+    "evidence_or_gap": "Standard Printer preview exists. Other view modes, palette controls and printer definitions remain open. [Evidence](../../internal/tui/everyday_print.go)",
+    "family_dependencies": [
+      "P1"
+    ]
+  },
+  {
+    "scenario": "CMD51-187",
+    "title": "Open and quit original Printer Program",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "P1"
+    ]
+  },
+  {
+    "scenario": "CMD51-188",
+    "title": "Set an editing display option",
+    "status": "partial",
+    "evidence_or_gap": "Mouse and display settings are bounded. Exact selection and cursor/display variants need comparison. [Evidence](../../internal/tui/everyday_setup.go)",
+    "family_dependencies": [
+      "I4"
+    ]
+  },
+  {
+    "scenario": "CMD51-189",
+    "title": "Run a DOS command and return to the same cursor",
+    "status": "partial",
+    "evidence_or_gap": "Linux shell return is tested. Single DOS command semantics differ in scope. [Evidence](../../tests/everyday_qualification/shell_return.py)",
+    "family_dependencies": [
+      "O2"
+    ]
+  },
+  {
+    "scenario": "CMD51-190",
+    "title": "Choose an original cursor appearance",
+    "status": "partial",
+    "evidence_or_gap": "Mouse and display settings are bounded. Exact selection and cursor/display variants need comparison. [Evidence](../../internal/tui/everyday_setup.go)",
+    "family_dependencies": [
+      "I4"
+    ]
+  },
+  {
+    "scenario": "CMD51-192",
+    "title": "Investigate shared-file access with separate user setups",
+    "status": "unimplemented",
+    "evidence_or_gap": "Graphics, data, language and utilities. No working entry point for the inventoried behavior was identified.",
+    "family_dependencies": [
+      "O1"
+    ]
+  },
+  {
+    "scenario": "CMD51-196",
+    "title": "Parse nested function text without flattening it",
+    "status": "partial",
+    "evidence_or_gap": "Nested or macro native framing exists. Broader editing and round-trip claims remain open. [Evidence](../../internal/wp51)",
+    "family_dependencies": [
+      "A3"
+    ]
+  },
+  {
+    "scenario": "CMD51-210",
+    "title": "ON ERROR handles a missing nested macro",
+    "status": "partial",
+    "evidence_or_gap": "ON ERROR handles the captured missing-child macro from a loaded document buffer. Nested calls from a new unsaved document remain unsupported. [Linux and DOS comparison](../../tests/everyday_qualification/macro_control.py)",
+    "family_dependencies": [
+      "A1"
+    ]
+  },
+  {
+    "scenario": "CMD51-212",
+    "title": "Nested child error handler is local and parent handler resumes",
+    "status": "partial",
+    "evidence_or_gap": "The captured child handler stays local and the parent resumes in a loaded document buffer. Nested calls from a new unsaved document remain unsupported. [Linux and DOS comparison](../../tests/everyday_qualification/macro_control.py)",
+    "family_dependencies": [
+      "A1"
+    ]
+  },
+  {
+    "scenario": "CMD51-213",
+    "title": "Unhandled child macro error returns to parent handler",
+    "status": "partial",
+    "evidence_or_gap": "The captured unhandled child error reaches the parent handler in a loaded document buffer. Nested calls from a new unsaved document remain unsupported. [Linux and DOS comparison](../../tests/everyday_qualification/macro_control.py)",
+    "family_dependencies": [
+      "A1"
+    ]
+  },
+  {
+    "scenario": "CMD51-230",
+    "title": "File-level BREAK in the nested macro fixture is ignored",
+    "status": "partial",
+    "evidence_or_gap": "The native macro ignores file-level BREAK in the child and resumes the parent in a loaded document buffer. Nested calls from a new unsaved document remain unsupported. [Linux and DOS comparison](../../tests/everyday_qualification/macro_control.py)",
+    "family_dependencies": [
+      "A1"
+    ]
+  }
+]

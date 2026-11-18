@@ -1,0 +1,940 @@
+{
+  "status": "proposal-only; symbolic slices are not registered WPs",
+  "mission": "wp51-parity-01M64CVY",
+  "families": [
+    {
+      "id": "E1",
+      "title": "Command-specific deletion boundaries",
+      "scenarios": [
+        "CMD51-041",
+        "CMD51-045",
+        "CMD51-051"
+      ],
+      "feature_groups": [
+        "WP51-011",
+        "WP51-013"
+      ],
+      "depends_on": [
+        "reference-route"
+      ],
+      "deliverable": "Original differential for each automatic page-boundary kind, paired Delete/Backspace and three-level history; smallest native/editor correction per mismatch.",
+      "acceptance": "Exact native codes/caret/history/cancel; both loaded and genuine New where applicable.",
+      "source_start_points": "internal/document/deletion.go; internal/document/history.go; internal/editor/editing.go; scripts/reference/extended.py; original WP78 history captures",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "E2",
+      "title": "Extended-character case conversion",
+      "scenarios": [
+        "CMD51-064"
+      ],
+      "feature_groups": [
+        "WP51-015",
+        "WP51-066"
+      ],
+      "depends_on": [
+        "language-profile"
+      ],
+      "deliverable": "Original character identities and sentence/I/punctuation rules, with native mapping and ordinary/block editor entry points.",
+      "acceptance": "Original fixtures outside ASCII; preserve opaque/paired codes and all unrelated bytes.",
+      "source_start_points": "internal/document; internal/editor; internal/wp51; existing case conversion tests",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "E3",
+      "title": "Native Retrieve insertion",
+      "scenarios": [
+        "CMD51-065"
+      ],
+      "feature_groups": [
+        "WP51-019"
+      ],
+      "depends_on": [
+        "native-relationships"
+      ],
+      "deliverable": "Broaden currently safe insertion contexts using actual original packet/code relationships; do not flatten to text.",
+      "acceptance": "Original reopen/edit/save and false/stale/unsafe insertion refuses atomically.",
+      "source_start_points": "internal/document; internal/editor; internal/storage; contracts/files-platform.md",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "I1",
+      "title": "Two-screen split windows",
+      "scenarios": [
+        "CMD51-008"
+      ],
+      "feature_groups": [
+        "WP51-006"
+      ],
+      "depends_on": [
+        "coverage-index"
+      ],
+      "deliverable": "Exact focus/geometry/independent two-document cursor, formatting and dirty state.",
+      "acceptance": "Original switching/split/cancel plus native host resize/input checks.",
+      "source_start_points": "internal/editor/workspace.go; internal/tui/workspace.go; locate exact current surfaces before claim",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "I2",
+      "title": "WPK selection/reset and keyboard editing",
+      "scenarios": [
+        "CMD51-010"
+      ],
+      "feature_groups": [
+        "WP51-003",
+        "WP51-082"
+      ],
+      "depends_on": [
+        "resource-census"
+      ],
+      "deliverable": "Original keyboard artifact decoder/preservation, select Original, edit/save/reload/remapping leaves.",
+      "acceptance": "Fresh-process native WPK reopen and real modified-key delivery, original reset semantics.",
+      "source_start_points": "internal/input; internal/tui; original resource contracts",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "I3",
+      "title": "Mouse setup/selection/cancel",
+      "scenarios": [
+        "CMD51-153"
+      ],
+      "feature_groups": [
+        "WP51-004"
+      ],
+      "depends_on": [
+        "coverage-index"
+      ],
+      "deliverable": "Separate G04 setup/type/persistence from physical selection/cancel and native event mapping.",
+      "acceptance": "Original selection/caret/range/cancel plus physical GNOME/native Windows/Mac evidence; PTY alone insufficient.",
+      "source_start_points": "internal/input; internal/tui; original mouse recipes",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "I4",
+      "title": "Editing screen and cursor settings",
+      "scenarios": [
+        "CMD51-154",
+        "CMD51-188",
+        "CMD51-190"
+      ],
+      "feature_groups": [
+        "WP51-005",
+        "WP51-077"
+      ],
+      "depends_on": [
+        "coverage-index"
+      ],
+      "deliverable": "G03 seven settings, G08 Screen, original cursor choices and terminal implementation; preserve print/layout independence.",
+      "acceptance": "Each exact option persisted/cancelled independently; raw native and printer output unchanged for display-only edits.",
+      "source_start_points": "internal/tui/everyday_settings.go; internal/tui/cursor; scripts/reference display recipes",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S1",
+      "title": "Timed backup configuration and periodic writes",
+      "scenarios": [
+        "CMD51-072",
+        "CMD51-073"
+      ],
+      "feature_groups": [
+        "WP51-021"
+      ],
+      "depends_on": [
+        "backup-contract"
+      ],
+      "deliverable": "Original directory/interval/native backup lifecycle, empty-screen no zero-byte file; safe clock scheduling.",
+      "acceptance": "Original/native artifact comparisons and deterministic bounded clock/failure cases without false save-success.",
+      "source_start_points": "internal/tui/everyday_settings.go; internal/storage/everyday_backup.go; cmd/wordling recovery",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S2",
+      "title": "Startup backup/recovery on both original screens",
+      "scenarios": [
+        "CMD51-074"
+      ],
+      "feature_groups": [
+        "WP51-021"
+      ],
+      "depends_on": [
+        "S1"
+      ],
+      "deliverable": "Original two-screen startup backup discovery/decisions integrated with existing six-buffer recovery; record adaptation rather than call modern autosave equivalent.",
+      "acceptance": "New/loaded/empty/dirty, crash points, failed writes and restore/refuse/cancel; preserve original disk targets.",
+      "source_start_points": "internal/storage/everyday_backup.go; current recovery/session setup surfaces",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S3",
+      "title": "Password native-format contract/codec",
+      "scenarios": [
+        "CMD51-082"
+      ],
+      "feature_groups": [
+        "WP51-024"
+      ],
+      "depends_on": [
+        "reference-route"
+      ],
+      "deliverable": "Correct/wrong password, malformed/encrypted native data and bounded codec from authentic original fixtures.",
+      "acceptance": "Correct-password original roundtrip, wrong-password no mutation; parser limits/fuzz budget fixed before acceptance.",
+      "source_start_points": "internal/wp51; internal/document; internal/storage; no encryption design invented by planner",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S4",
+      "title": "Password command/save flow",
+      "scenarios": [
+        "CMD51-082"
+      ],
+      "feature_groups": [
+        "WP51-024"
+      ],
+      "depends_on": [
+        "S3"
+      ],
+      "deliverable": "Original password UI/retrieve/save/change/remove semantics consuming approved codec.",
+      "acceptance": "Original artifacts and failures; atomic overwrite and explicit errors on wrong password.",
+      "source_start_points": "internal/editor; internal/tui; internal/storage save transaction",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S5",
+      "title": "Acquire authentic 4.2 document source",
+      "scenarios": [
+        "CMD51-157"
+      ],
+      "feature_groups": [
+        "WP51-026"
+      ],
+      "depends_on": [
+        "resource-census"
+      ],
+      "deliverable": "Lawful original4.2 authored fixture/producer with provenance, exact original CONVERT import/export modes and loss contract.",
+      "acceptance": "No version-byte patch or candidate-generated oracle; actual input/output hashes and genuine converter observation.",
+      "source_start_points": "docs/research/reference-runs/mission1-convert-42; contracts/files-platform.md",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S6",
+      "title": "4.2 conversion command/codec",
+      "scenarios": [
+        "CMD51-157"
+      ],
+      "feature_groups": [
+        "WP51-026"
+      ],
+      "depends_on": [
+        "S5"
+      ],
+      "deliverable": "Implement each original documented applicable mode, preserving native outputs and declared loss.",
+      "acceptance": "Native5.1 retrieve/edit/print/save, byte/no-edit invariants and malformed inputs.",
+      "source_start_points": "internal/wp51; internal/document; converter dispatch surfaces",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "S7",
+      "title": "General screen/disk comparison",
+      "scenarios": [
+        "CMD51-159"
+      ],
+      "feature_groups": [
+        "WP51-027"
+      ],
+      "depends_on": [
+        "E3"
+      ],
+      "deliverable": "Multiple/formatted changes and live removal with exact original markings/cursor/history.",
+      "acceptance": "Independent original fixtures with insert/delete/replace combinations, cancellation and native reopen.",
+      "source_start_points": "internal/document/compare.go; internal/editor/compare.go; internal/tui/compare.go",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L1",
+      "title": "Printer/font metrics and initial base font",
+      "scenarios": [
+        "CMD51-160"
+      ],
+      "feature_groups": [
+        "WP51-031",
+        "WP51-032",
+        "WP51-071",
+        "WP51-073"
+      ],
+      "depends_on": [
+        "graphics-font-profile"
+      ],
+      "deliverable": "Research exact original PRS/ALL/font metrics and substitution; select base font from real printer resources.",
+      "acceptance": "Original output glyph positions and native resource identities; text-only10cpi cannot prove proportional metrics.",
+      "source_start_points": "internal/layout; internal/document; resource-profile.json; native packet15 contracts",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L2",
+      "title": "Proportional kerning and word/letter spacing",
+      "scenarios": [
+        "CMD51-161",
+        "CMD51-164"
+      ],
+      "feature_groups": [
+        "WP51-031",
+        "WP51-037"
+      ],
+      "depends_on": [
+        "L1"
+      ],
+      "deliverable": "Separate native spacing/kerning owners and matched-resource formatter behavior; keep units/rounding explicit.",
+      "acceptance": "Zero unexplained glyph-position/page differences under fixed resources and predeclared tolerance.",
+      "source_start_points": "internal/document/kerning.go; internal/layout; internal/editor/kerning.go; locate actual spacing owner",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L3",
+      "title": "General tabs/Advance/page limits",
+      "scenarios": [
+        "CMD51-101",
+        "CMD51-107",
+        "CMD51-108"
+      ],
+      "feature_groups": [
+        "WP51-035",
+        "WP51-038"
+      ],
+      "depends_on": [
+        "layout-profile"
+      ],
+      "deliverable": "All tab types/stops/leaders, remaining Advance directions/wrap/page limits with exact native cache relations.",
+      "acceptance": "Original combinations plus raw FastSave preservation, native reopen and print comparisons.",
+      "source_start_points": "internal/layout; internal/document/tab.go; internal/document/advance.go; existing WP99 tab cache API",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L4",
+      "title": "Hyphenation resource and behavior",
+      "scenarios": [
+        "CMD51-109"
+      ],
+      "feature_groups": [
+        "WP51-039"
+      ],
+      "depends_on": [
+        "language-profile",
+        "layout-profile"
+      ],
+      "deliverable": "Decode/use admitted HYC and cursor/native zone/manual-decision behavior; integrate reflow.",
+      "acceptance": "Matched original hyphen decisions, native boundaries and pagination; missing HYC explicit refusal.",
+      "source_start_points": "internal/layout; native hyphenation owners; WP{WP}US.HYC fingerprint",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L5",
+      "title": "Paper definitions and label paper",
+      "scenarios": [
+        "CMD51-166",
+        "CMD51-173"
+      ],
+      "feature_groups": [
+        "WP51-041",
+        "WP51-053"
+      ],
+      "depends_on": [
+        "L1"
+      ],
+      "deliverable": "Original PRS paper definitions/forms dimensions/feed/default/cancel and labels placement.",
+      "acceptance": "Original paper/label native outputs and print geometry; repeated rows/pages and failed resource selection.",
+      "source_start_points": "internal/layout; internal/document; printer/labels commands",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L6",
+      "title": "Newspaper columns",
+      "scenarios": [
+        "CMD51-168"
+      ],
+      "feature_groups": [
+        "WP51-043"
+      ],
+      "depends_on": [
+        "L1",
+        "L3",
+        "L5"
+      ],
+      "deliverable": "Native column definition/enable/disable/wrapping and pagination.",
+      "acceptance": "Original multicolumn output, code edits, page boundaries and native reopen.",
+      "source_start_points": "internal/layout; internal/document; internal/editor; exact column sources after contract research",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L7",
+      "title": "Parallel columns",
+      "scenarios": [
+        "CMD51-169"
+      ],
+      "feature_groups": [
+        "WP51-043"
+      ],
+      "depends_on": [
+        "L6"
+      ],
+      "deliverable": "Independent parallel column flows and hard-boundary movement, keeping distinct from newspaper columns.",
+      "acceptance": "Original cursor/document/print evidence across hard column boundaries and page changes.",
+      "source_start_points": "internal/layout; internal/document; internal/editor",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L8",
+      "title": "Footnotes and automatic continuation",
+      "scenarios": [
+        "CMD51-115"
+      ],
+      "feature_groups": [
+        "WP51-045"
+      ],
+      "depends_on": [
+        "L1",
+        "L3"
+      ],
+      "deliverable": "Larger note flows, nested native relationships and automatic continuation.",
+      "acceptance": "Original page membership/continuation/caret/native and print cycles; no flattened note content.",
+      "source_start_points": "internal/document/note.go; internal/layout/note_flow.go; internal/editor/note.go",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L9",
+      "title": "Endnotes and explicit generation",
+      "scenarios": [
+        "CMD51-116"
+      ],
+      "feature_groups": [
+        "WP51-045"
+      ],
+      "depends_on": [
+        "L8"
+      ],
+      "deliverable": "Original alternative placements and explicit generated endnote lifecycle.",
+      "acceptance": "Original native references/order/page and print output plus regeneration/cancel.",
+      "source_start_points": "internal/document/note.go; internal/layout/note_flow.go; internal/tui/note.go",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "L10",
+      "title": "Note constraints and unresolved native bytes",
+      "scenarios": [
+        "CMD51-117"
+      ],
+      "feature_groups": [
+        "WP51-045"
+      ],
+      "depends_on": [
+        "L8"
+      ],
+      "deliverable": "Resolve two explicitly unknown native bytes and remaining continuation combinations before acceptance.",
+      "acceptance": "Native-byte explanations backed by independent experiments; printed equality alone insufficient.",
+      "source_start_points": "internal/document/note_options.go; internal/tui/note_continuation_test.go; original note fixtures",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "D1",
+      "title": "General styles and native libraries",
+      "scenarios": [
+        "CMD51-118"
+      ],
+      "feature_groups": [
+        "WP51-046"
+      ],
+      "depends_on": [
+        "layout-profile"
+      ],
+      "deliverable": "Remaining style types/arbitrary codes/native library operations; exact scope and in-document effects.",
+      "acceptance": "Native companion+document original roundtrip, cancel/no-edit identity, styles crossing supported structures.",
+      "source_start_points": "internal/document/style.go; internal/tui/style.go; existing style tests",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "D2",
+      "title": "Vertical/combined table joins",
+      "scenarios": [
+        "CMD51-121"
+      ],
+      "feature_groups": [
+        "WP51-048"
+      ],
+      "depends_on": [
+        "native-relationships"
+      ],
+      "deliverable": "Vertical joins and editing combined contents with complete native relationships.",
+      "acceptance": "Original native table edit/caret/undo and spanning content/page comparisons.",
+      "source_start_points": "internal/document table owners; internal/editor/table.go; internal/tui table integration",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "D3",
+      "title": "Table formula families",
+      "scenarios": [
+        "CMD51-122"
+      ],
+      "feature_groups": [
+        "WP51-049"
+      ],
+      "depends_on": [
+        "D2"
+      ],
+      "deliverable": "Original function/reference/expression families and recalc error/precision behavior.",
+      "acceptance": "Independent original formula fixtures, cycles/malformed/references/precision; original recalc output.",
+      "source_start_points": "internal/document table calculation APIs; internal/tui table calculation commands",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "D4",
+      "title": "Formula-copy references",
+      "scenarios": [
+        "CMD51-123"
+      ],
+      "feature_groups": [
+        "WP51-049"
+      ],
+      "depends_on": [
+        "D3"
+      ],
+      "deliverable": "Relative/absolute/reference families and copy/move semantics.",
+      "acceptance": "Original copied formula bytes and recalculated values; cancellation/invalid refs preserve document.",
+      "source_start_points": "same approved formula seam; separate independently reviewable copy slice",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "D5",
+      "title": "Generated lists/index and authorities",
+      "scenarios": [
+        "CMD51-125"
+      ],
+      "feature_groups": [
+        "WP51-050",
+        "WP51-051",
+        "WP51-089"
+      ],
+      "depends_on": [
+        "layout-profile",
+        "D1"
+      ],
+      "deliverable": "Separate child slices for lists/index versus authorities, crossreferences and broader contents; mark/sort/page numbering/replace-decline.",
+      "acceptance": "Actual original marks\u2192generate\u2192edit/regenerate, order/page references/native relationships and print; split before implementation.",
+      "source_start_points": "internal/document generated-code owners; internal/editor generation; contracts/structured-graphics.md",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "A1",
+      "title": "New nested macro composition",
+      "scenarios": [
+        "CMD51-210",
+        "CMD51-212",
+        "CMD51-213",
+        "CMD51-230"
+      ],
+      "feature_groups": [
+        "WP51-059",
+        "WP51-060"
+      ],
+      "depends_on": [
+        "reference-route"
+      ],
+      "deliverable": "WP100 product, WP101 source-reviewed original route, WP102 fresh New comparisons.",
+      "acceptance": "Actual pristine/declared edited New comparisons and no loss of authenticated child/parent/handler/first-save authority.",
+      "source_start_points": "exact files in WP100\u2013102 prompts",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "A2",
+      "title": "Repeat and CANCEL ON/OFF",
+      "scenarios": [
+        "CMD51-132",
+        "CMD51-133"
+      ],
+      "feature_groups": [
+        "WP51-007",
+        "WP51-059",
+        "WP51-060"
+      ],
+      "depends_on": [
+        "A1"
+      ],
+      "deliverable": "Independent child slices for broader RepeatValue contexts versus original operator-stop/CANCEL semantics.",
+      "acceptance": "Original session recording/native WPM/repeat/stop outcomes; host stop alone never proves original F1/CANCEL.",
+      "source_start_points": "internal/macro/runtime; internal/editor/macro_session.go; internal/tui/macro_runtime.go",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "A3",
+      "title": "Nested function-text editing/roundtrip",
+      "scenarios": [
+        "CMD51-196"
+      ],
+      "feature_groups": [
+        "WP51-060"
+      ],
+      "depends_on": [
+        "native-relationships"
+      ],
+      "deliverable": "Parse/edit/serialize actual nested function text without flattening native framing.",
+      "acceptance": "Original macro editor/native roundtrip, nesting/resource bounds and malformed corpus.",
+      "source_start_points": "internal/macro/wpm; internal/macro/runtime; macro editor commands",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "A4",
+      "title": "Authentic4.x macro source and MACROCNV",
+      "scenarios": [
+        "CMD51-179"
+      ],
+      "feature_groups": [
+        "WP51-061"
+      ],
+      "depends_on": [
+        "resource-census"
+      ],
+      "deliverable": "First acquire lawful4.x macro fixture/producer and actual MACROCNV1.6 output; then separately implement conversion codec/command.",
+      "acceptance": "Real original source\u2192converter\u2192WPM execution/roundtrip; launch-only evidence insufficient.",
+      "source_start_points": "docs/research/reference-runs/mission1-macro-converter; internal/macro",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "A5",
+      "title": "Column Math plus data/links leaf qualification",
+      "scenarios": [
+        "CMD51-180"
+      ],
+      "feature_groups": [
+        "WP51-063",
+        "WP51-064",
+        "WP51-065"
+      ],
+      "depends_on": [
+        "coverage-index"
+      ],
+      "deliverable": "Remaining original column Math functions/definitions; separate verified sorting/record/spreadsheet import/link branches identified by full source study.",
+      "acceptance": "Original operation results and refresh behavior, native fields, cancellation/error/failure cases; split math/sort/links delivery.",
+      "source_start_points": "internal/document/column_math.go; internal/tui/column_math.go; native data link owners",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "T1",
+      "title": "Language/character resource semantics",
+      "scenarios": [
+        "CMD51-181"
+      ],
+      "feature_groups": [
+        "WP51-066",
+        "WP51-067"
+      ],
+      "depends_on": [
+        "language-profile"
+      ],
+      "deliverable": "Language-specific proof/format, Initial Codes, native characters/composition and extended-language branches.",
+      "acceptance": "Original resource-matched character identities, boundary/code transitions and missing-resource errors.",
+      "source_start_points": "internal/document; internal/proof; resource provider; current US/UK fixtures",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "T2",
+      "title": "Original THS decoder and Thesaurus UI",
+      "scenarios": [
+        "CMD51-182"
+      ],
+      "feature_groups": [
+        "WP51-069"
+      ],
+      "depends_on": [
+        "language-profile"
+      ],
+      "deliverable": "Decode private pinned THS into original lookup behavior; separate codec and real UI integration slices.",
+      "acceptance": "General independent vocabulary, original lookup/sense/navigation/cancel, no bundled private redistribution.",
+      "source_start_points": "resource-profile.json; docs/research/reference-runs/mission1-thesaurus; provider/UI new exact claims after contract",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "G1",
+      "title": "WPG native formats and figure boxes",
+      "scenarios": [
+        "CMD51-174"
+      ],
+      "feature_groups": [
+        "WP51-055",
+        "WP51-056"
+      ],
+      "depends_on": [
+        "graphics-font-profile",
+        "native-relationships"
+      ],
+      "deliverable": "Native WPG/graphics data contracts then anchored boxes/captions/wrapping and editing; split codec vs product.",
+      "acceptance": "Original native no-edit/preservation, anchors/wrapping/page/glyph geometry and printed output.",
+      "source_start_points": "contracts/structured-graphics.md; internal/document; internal/layout; graphics input corpus",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "G2",
+      "title": "Original GRAPHCNV conversion",
+      "scenarios": [
+        "CMD51-175"
+      ],
+      "feature_groups": [
+        "WP51-056"
+      ],
+      "depends_on": [
+        "graphics-font-profile"
+      ],
+      "deliverable": "Pin lawful original graphics inputs/outputs and GRAPHCNV behavior, then converter command/codec.",
+      "acceptance": "Original conversion/native retrieval/print and malformed/failure tests; no new-format wrapper.",
+      "source_start_points": "original graphics utility runs; internal/document; converter entry point",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "G3",
+      "title": "Native horizontal graphics lines",
+      "scenarios": [
+        "CMD51-176"
+      ],
+      "feature_groups": [
+        "WP51-057"
+      ],
+      "depends_on": [
+        "G1"
+      ],
+      "deliverable": "Native rule representation/width/anchors and graphics printer/display behavior.",
+      "acceptance": "Original native/print geometry; original line-drawing text remains separate.",
+      "source_start_points": "internal/document; internal/layout; graphics rules commands",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "G4",
+      "title": "Equations and fraction preview",
+      "scenarios": [
+        "CMD51-177"
+      ],
+      "feature_groups": [
+        "WP51-058"
+      ],
+      "depends_on": [
+        "graphics-font-profile",
+        "L1"
+      ],
+      "deliverable": "Original equation nested representation, editor, fraction layout and preview/print; split codec/editor/layout as needed.",
+      "acceptance": "Original structured equations and native edit/save/preview/print with matched metrics.",
+      "source_start_points": "contracts/structured-graphics.md; internal/document; internal/layout; equation editor new exact claims",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "P1",
+      "title": "Installed printer definitions and utility",
+      "scenarios": [
+        "CMD51-185",
+        "CMD51-187"
+      ],
+      "feature_groups": [
+        "WP51-071",
+        "WP51-072",
+        "WP51-073"
+      ],
+      "depends_on": [
+        "graphics-font-profile"
+      ],
+      "deliverable": "Installed PRS choice/editing/font marking G01, original Printer Program utility functions, jobs/commands; split app selection from utility.",
+      "acceptance": "Original artifacts/font resources/print commands and save/cancel/failure behavior; opening menu alone insufficient.",
+      "source_start_points": "internal/document/printer_command.go; internal/tui/printer_command.go; private PRS/ALL sources",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "P2",
+      "title": "Sheet feeder and paper delivery",
+      "scenarios": [
+        "CMD51-148"
+      ],
+      "feature_groups": [
+        "WP51-070",
+        "WP51-075"
+      ],
+      "depends_on": [
+        "L5",
+        "P1"
+      ],
+      "deliverable": "Original feeder capabilities, configured choice and output/job delivery.",
+      "acceptance": "Matched capable-printer resource, exact native/job/stream commands and unsupported resource errors.",
+      "source_start_points": "printer resource contracts; internal/tui print settings; print delivery",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "P3",
+      "title": "Original page-view modes and palette",
+      "scenarios": [
+        "CMD51-146",
+        "CMD51-147"
+      ],
+      "feature_groups": [
+        "WP51-076"
+      ],
+      "depends_on": [
+        "G1",
+        "G3",
+        "G4",
+        "L1",
+        "P1"
+      ],
+      "deliverable": "Original page inspection/graphics modes and tested Linux presentation, then independent palette vs output check.",
+      "acceptance": "All mode functions and colors under admitted graphics profile; palette/view/resize leave native/print unchanged.",
+      "source_start_points": "internal/tui preview; internal/layout; graphics presentation design needs architect review",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "O1",
+      "title": "Shared-file/network profile and locking",
+      "scenarios": [
+        "CMD51-192"
+      ],
+      "feature_groups": [
+        "WP51-081"
+      ],
+      "depends_on": [
+        "resource-census"
+      ],
+      "deliverable": "First legal multiuser/network/separate-user-setup oracle profile; then locking/conflicts/session/native failure semantics.",
+      "acceptance": "Real two-user original comparisons, bounded lock races, wrong owner and failed-save preserve originals.",
+      "source_start_points": "internal/storage; contracts/files-platform.md; no-NIC current profile is insufficient",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "O2",
+      "title": "Shell and platform utility adaptation",
+      "scenarios": [
+        "CMD51-189"
+      ],
+      "feature_groups": [
+        "WP51-078",
+        "WP51-079",
+        "WP51-080",
+        "WP51-082"
+      ],
+      "depends_on": [
+        "coverage-index"
+      ],
+      "deliverable": "Disposition single-DOS-command versus current interactive Linux/PowerShell return; original utilities/startup/memory/diagnostics/PIF explicit tested mappings.",
+      "acceptance": "Retain exact document/cursor/dirty state and full Windows PowerShell default/overwrite guarantees; actual scope/baseline change needs owner decision.",
+      "source_start_points": "internal/platform; cmd/wordling; native shell tests; G09 source appendix leaves",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "Q1",
+      "title": "Remaining verified families and source leaves",
+      "scenarios": [],
+      "feature_groups": [
+        "WP51-001",
+        "WP51-002",
+        "WP51-008",
+        "WP51-009",
+        "WP51-010",
+        "WP51-012",
+        "WP51-014",
+        "WP51-016",
+        "WP51-017",
+        "WP51-018",
+        "WP51-020",
+        "WP51-022",
+        "WP51-023",
+        "WP51-025",
+        "WP51-028",
+        "WP51-029",
+        "WP51-030",
+        "WP51-033",
+        "WP51-034",
+        "WP51-036",
+        "WP51-040",
+        "WP51-042",
+        "WP51-044",
+        "WP51-047",
+        "WP51-052",
+        "WP51-054",
+        "WP51-062",
+        "WP51-068",
+        "WP51-070",
+        "WP51-074",
+        "WP51-075",
+        "WP51-077",
+        "WP51-079",
+        "WP51-080",
+        "WP51-082",
+        "WP51-089",
+        "WP51-090",
+        "WP51-091"
+      ],
+      "depends_on": [
+        "coverage-index"
+      ],
+      "deliverable": "Full-source research finds remaining subcommands/failure/resource branches beyond representative verified scenarios; issue bounded correction/qualification WPs per leaf family.",
+      "acceptance": "Zero unclassified source/menu/appendix/utility leaves, including Overstrike/paragraph numbering/G02 bulk deletion. Historical date snapshot is not rewritten as present implementation.",
+      "source_start_points": "all current feature-specific contracts/tests; preserve99 reviewed histories",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "Q2",
+      "title": "Everyday journeys and physical native input",
+      "scenarios": [],
+      "feature_groups": [
+        "WP51-001",
+        "WP51-004",
+        "WP51-006",
+        "WP51-007",
+        "WP51-008",
+        "WP51-009",
+        "WP51-011",
+        "WP51-014",
+        "WP51-018",
+        "WP51-020",
+        "WP51-021",
+        "WP51-068"
+      ],
+      "depends_on": [
+        "coverage-index",
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
+      "deliverable": "EE-A01\u201315 complete original, proofreading, native reopen, physical GNOME and actual Windows/macOS console/key/mouse/release workflows.",
+      "acceptance": "Human physical delivery is explicit evidence dependency; PTY/ConPTY do not substitute. Bundle only genuinely needed physical handoff while independent work continues.",
+      "source_start_points": "remaining-qualification.md; tests/everyday_qualification; .github/workflows/native-prerelease.yml",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "Q3",
+      "title": "Save/recovery/format invariant qualification",
+      "scenarios": [],
+      "feature_groups": [
+        "WP51-019",
+        "WP51-020",
+        "WP51-021",
+        "WP51-022",
+        "WP51-024",
+        "WP51-029"
+      ],
+      "depends_on": [
+        "S2",
+        "S4",
+        "O1"
+      ],
+      "deliverable": "Exact candidate crash/failure/overwrite/concurrency, six-buffer recovery and FC001\u2013009 native/companion cases; refresh Windows overwrite tests.",
+      "acceptance": "No-edit bytes identical, unknown/unrelated preserved, every declared fault original intact or truthful uncertainty; never false success.",
+      "source_start_points": "internal/storage save/backup/failure tests; recovery integration; existing PR12 Windows overwrite suite",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    },
+    {
+      "id": "Q4",
+      "title": "Final full mission exact-candidate acceptance",
+      "scenarios": [],
+      "feature_groups": [],
+      "depends_on": [
+        "ALL_DELIVERY_AND_LEAF_CLOSURE"
+      ],
+      "deliverable": "Integrated original/candidate native edit/print/save cycles, full host suite/CI, independent mission review, canonical matrix/verdict, accept/merge/postmerge review/retrospective.",
+      "acceptance": "SC001\u2013005 and38 obligations closed by durable exact candidate evidence; zero unclassified leaves/unexplained destructive mismatch. FC010/M2 gate stays enforced.",
+      "source_start_points": "canonical acceptance-matrix.json plus companion NFR/C/FC/SC links; native workflow-evidence.md",
+      "readiness": "Backlog proposal: source/design research and exact owned-file/subtask amendment required before execution; split if one independently reviewable delivery cannot fit."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+# Resources, original methods and actual prerequisites
+
+This is a planning inventory, not a VM grant or a declaration that all current resources are inaccessible.
+
+| Dependency | What exists | What must actually happen | Blocks |
+| --- | --- | --- | --- |
+| Canonical tool execution | Runtime has99 packages, maxT325. Root investigator found current3.2.7 two-digit WP parsing across ownership/implement/finalizers/manifest; active-sync owned-checkout policy refuses this local mode; hosted delivery/auth is not established. | Root obtains official compatible CLI or independently reviewed isolated tool correction, and honestly resolves supported checkout/sync/auth setup. Preserve99 IDs/history; no handwritten state, recycled IDs or false approvals. | Register/dispatch all new WP100+; does not prevent read-only planning. |
+| Fresh original route | Private master paths and qemu/mtools/Go/Python are present. WP38/63/64 provide guarded source-specific original history; WP70 public controller admits TEST only. | Independently review exact current original route and closure; fix actual readiness/envelope/identity/stopped-absence defects through precise source amendment; root issues fresh case/repetition/source/plan grants. | Fresh original probes, including WP102. HOST code/evidence-index work proceeds. |
+| March5.1 baseline | WP5.1 U.S. Help03/09/92, executable/resource hashes, FreeDOS1.4/QEMU8.2.2. | Per-run current master/tool/firmware/resource hashes, exclusive ownership, fresh private copies, authenticated readiness and actual stop/read-only export evidence. | All new original comparison claims. |
+| Four nested macros | Authored original WPM exports and outputs in original-cases.json, two repetitions; loaded/current ordinary VM comparison. | Genuine unsaved-New context immediately before AltF10 and fresh native outputs/reopen cycles, per exact original route. Never retrieve EMPTY.WP to prove New. | Promotion210/212/213/230. |
+| Original4.2 document | CONVERT import menu observed; no genuine4.2 input/output fixture.5.1 cannot export4.2 to create its oracle. | Lawful4.2 producer or independently sourced original fixture, provenance and actual CONVERT output; private use versus redistribution separately documented. | S5/S6, CMD157. |
+| Original4.x macro | MACROCNV1.6 launch observed, no4.x source/convertedWPM. | Lawful4.x producer/source fixture then actual converter output and original execution. No fabricated version field. | A4, CMD179. |
+| HYC/LEX/THS/languages | US HYC9676B, LEX363165B, THS358472B, declared sha256s; original Thesaurus lookup/cancel captures. Product THS decoder absent. | Admitted decoder/behavior contracts, independent vocabulary, broader actual language resources and InitialCodes; fingerprint alone is not algorithm/semantic proof. | L4,T1,T2; extended E2. |
+| Graphics/font/printer/feeder | Current Standard Printer07/17/92 is10cpi text-only, no graphics; some original ALL/DRS resources declared. | Pin capable real printer/font/graphics/feeder profile and actual metrics/input provenance. Architecture review for Linux graphics presentation if required. | L1/L2/L5, G1–G4,P1–P3; dependent geometry. |
+| HistoricalDOS/version discrepancy | Current original runs use FreeDOS1.4, not historicalMS-DOS; manuals have mixed publication dates. | Source/version reconciliation and tested discrepancy disposition; acquire a necessary lawful baseline or record actual owner decision if scope/baseline changes. | Affected SC005 comparisons; not an implicit exclusion. |
+| Multiuser/shared access | Current original profile is single-user, noNIC/nohostshare. | Separate-user/network-safe private profile, authentic original shared-file behavior and locking/failure tests. | O1, CMD192. |
+| Physical input/native hosts | Linux/native PowerShell automated tests and native CI milestone exist. | Actual GNOME and native Windows/macOS keyboard/mouse/modified function key/resize/shell-return/overwrite physical journeys. Report exact terminal/PowerShell version/resources; PTY/ConPTY is not physical confirmation. | Q2 and SC005 platform closure; do other work meanwhile. |
+
+## Exact reusable recipe methods
+
+- CMD210: `scripts/reference/advanced.py:macro_error` with `macro_start`/`macro_finish`, authentic ONERROR.WPM, expected HANDLED.
+- CMD212/213: `scripts/reference/history_loops.py:nested(local=True/False)`, `finish` and `output`, authentic CHILD/PARENT.WPM; expected PCHILDRPARENT/PCPARENT.
+- CMD230: `scripts/reference/value_secondary.py:macro_break(nested=True)`, expected PCCHILDBADRDONE.
+- `smoke.Probe` records keys/type/stable screen/export list and old smoke.main starts a fresh guest per case. That gives valuable semantic context, but not a current approved original route or complete New receiver proof.
+- `tests/everyday_qualification/macro_control.py:exercise` loads EMPTY.WP specifically for210/212/213/230. Keep it as loaded regression control; create distinct new_macro_nesting.py for New.
+- `internal/document/evidence/reference_controller/controller.py:ReferenceController.open_leaf` explicitly rejects non-TestGrant before path inspection. It is TEST-only by design. General reference identity/ownership infrastructure can be reviewed as an architectural starting point, not relabeled original.
+- `scripts/reference/macro_session.py` offers finite original session recipes and source-specific grants, but the four nested cases are absent. Do not reuse its historical grants or mutate pinned old sources. A new source-reviewed recipe/approved actual launcher closure is required.
+
+## Minimum manifest per fresh New leaf
+
+Exact case and context; repetition; baseline/resources/source/plan/candidate hashes; accepted one-use grant; exclusive root/process authority; receiver New identity/blank filename and original cursor immediately before AltF10; actual root/child WPM hashes; genuine missing-child absence; stable captures and exact command trace; actual completion/error/caret; native F10 output and unchanged WPMs; process exit/retention/export proof; expected-vs-observed comparison; original reopen/edit/print/save and Wordling reopen on declared leaves; truthful mismatch/uncertainty; independent verifier/date. Do not publish private program/resource bytes or a fake permission grant.
+
+2026-11-18 resource follow-through: the producer-authored WP4.2 attachment has now been acquired into ignored private research/cache/reference/interop/wp42-pronom-20261118. The attached provenance manifest records the 356-byte archive and two original-source documents (37/43 bytes). Source conversion and actual original behavior remain unqualified. No sample binary is committed or redistributed.
