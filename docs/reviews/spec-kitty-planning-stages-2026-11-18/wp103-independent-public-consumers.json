@@ -1,0 +1,21 @@
+[
+  {
+    "name": "early_resolve_context",
+    "result": "PASS",
+    "authoritative_ref": "release/test"
+  },
+  {
+    "name": "late_resolve_context",
+    "result": "FAIL",
+    "type": "ValueError",
+    "error": "Planning stage requires typed lane context",
+    "traceback": "Traceback (most recent call last):\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 44, in <module>\n    result = call()\n             ^^^^^^\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 41, in <lambda>\n    for name, call in [('early_resolve_context', lambda: resolve_context('WP01', 'stages', 'codex', root)), ('late_resolve_context', lambda: resolve_context('WP03', 'stages', 'codex', root)), ('materialize_worktree_topology', lambda: materialize_worktree_topology(root, 'stages'))]:\n                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/context/resolver.py\", line 270, in resolve_context\n    authoritative_ref = lane_branch_name(\n                        ^^^^^^^^^^^^^^^^^\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/lanes/branch_naming.py\", line 437, in lane_branch_name\n    raise ValueError(\"Planning stage requires typed lane context\")\nValueError: Planning stage requires typed lane context\n"
+  },
+  {
+    "name": "materialize_worktree_topology",
+    "result": "FAIL",
+    "type": "ValueError",
+    "error": "Planning stage requires typed lane context",
+    "traceback": "Traceback (most recent call last):\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 44, in <module>\n    result = call()\n             ^^^^^^\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 41, in <lambda>\n    for name, call in [('early_resolve_context', lambda: resolve_context('WP01', 'stages', 'codex', root)), ('late_resolve_context', lambda: resolve_context('WP03', 'stages', 'codex', root)), ('materialize_worktree_topology', lambda: materialize_worktree_topology(root, 'stages'))]:\n                                                                                                                                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/core/worktree_topology.py\", line 225, in materialize_worktree_topology\n    lane_branch_name(\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/lanes/branch_naming.py\", line 437, in lane_branch_name\n    raise ValueError(\"Planning stage requires typed lane context\")\nValueError: Planning stage requires typed lane context\n"
+  }
+]
