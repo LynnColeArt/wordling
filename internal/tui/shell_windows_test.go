@@ -114,7 +114,10 @@ func startNativeConsole(t *testing.T, command []string, dir string) *nativeConso
 	if err := attrs.Update(windows.PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, consoleValue, unsafe.Sizeof(c.console)); err != nil {
 		t.Fatal(err)
 	}
-	startup := windows.StartupInfoEx{StartupInfo: windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfoEx{}))}, ProcThreadAttributeList: attrs.List()}
+	// The test runner itself has redirected handles. Explicit null standard
+	// handles let ConPTY assign its console rather than inheriting CI pipes.
+	// Windows Terminal uses this same STARTF_USESTDHANDLES convention.
+	startup := windows.StartupInfoEx{StartupInfo: windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfoEx{})), Flags: windows.STARTF_USESTDHANDLES}, ProcThreadAttributeList: attrs.List()}
 	application, err := windows.UTF16PtrFromString(command[0])
 	if err != nil {
 		t.Fatal(err)
