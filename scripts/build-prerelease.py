@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -28,7 +29,10 @@ def main():
                         str(ROOT), str(folder), "--goos", host, "--goarch", arch], cwd=ROOT, check=True)
         env = dict(os.environ, GOOS=host, GOARCH=arch, CGO_ENABLED="0")
         suffix = ".exe" if host == "windows" else ""
-        for package, binary in (("./internal/storage", "storage-smoke"), ("./internal/tui", "recovery-smoke")):
+        smoke_packages = [("./internal/storage", "storage-smoke"), ("./internal/tui", "recovery-smoke")]
+        if host == "windows":
+            smoke_packages.append(("github.com/charmbracelet/ultraviolet", "console-input-smoke"))
+        for package, binary in smoke_packages:
             subprocess.run(["go", "test", "-tags=", "-trimpath", "-buildvcs=false", "-c", "-o",
                             str(folder / (binary + suffix)), package], cwd=ROOT, env=env, check=True)
         windows = host == "windows"
@@ -58,6 +62,7 @@ def main():
         else:
             lines += ["", "The filesystem must support atomic exclusive rename and atomic file exchange.",
                       "Unsupported filesystems must return an error; no multi-rename fallback is used."]
+        shutil.copyfile(ROOT / "third_party/ultraviolet/LICENSE", folder / "LICENSE-ultraviolet.txt")
         (folder / "README.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
         files = sorted(p for p in folder.iterdir() if p.is_file())
         hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files}

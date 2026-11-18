@@ -20,3 +20,6 @@ require (
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 )
+
+// Pinned upstream source plus the documented Windows console-record correction.
+replace github.com/charmbracelet/ultraviolet => ./third_party/ultraviolet

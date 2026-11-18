@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 
-PRODUCTION = ["cmd", "internal", "go.mod", "go.sum"]
+PRODUCTION = ["cmd", "internal", "third_party", "go.mod", "go.sum"]
 
 
 def capture(repo, *args, env=None):

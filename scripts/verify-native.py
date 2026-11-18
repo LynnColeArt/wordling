@@ -32,11 +32,14 @@ def main():
         if hashes["wordling" + suffix] != candidate["binary_sha256"]:
             raise RuntimeError("candidate record does not match packaged executable")
         failures = []
-        for binary, arguments in (
+        checks = [
             ("storage-smoke", ["-test.run", "^TestNativePlatform", "-test.v"]),
             ("recovery-smoke", ["-test.run", "^TestNative", "-test.v"]),
             ("wordling", ["-help"]),
-        ):
+        ]
+        if host == "windows":
+            checks.insert(0, ("console-input-smoke", ["-test.run", "^TestWordling", "-test.v"]))
+        for binary, arguments in checks:
             path = root / (binary + suffix)
             path.chmod(0o755)
             env = dict(os.environ, WORDLING_NATIVE_BINARY=str(root / ("wordling" + suffix)),
