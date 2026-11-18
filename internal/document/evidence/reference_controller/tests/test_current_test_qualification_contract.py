@@ -121,5 +121,51 @@ class StaticReaderStructuralTests(unittest.TestCase):
         self.assertFalse(static_parent_floor(Remove().visit(node)))
 
 
+
+STATIC02_CONSERVED_AST_PINS = [('elf_string_table_offset', None, 'bf3215c88b3088fa6c3fb42fec1702fa47b8e98901aa6613aebc94492adf5d6c'), ('check', '_StaticInventory', '92ed826fa3f27fe64bd3a15892020e4a3e3ad4f12ad786130511b26fd6978b00')]
+
+
+class Static02PlanStructuralTests(unittest.TestCase):
+    """Structural conservation only; never initial semantic RED or authority."""
+    def plans(self):
+        import json
+        root = Path(__file__).absolute().parents[5]
+        old = json.loads((root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json').read_text())
+        new = json.loads((root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json').read_text())
+        return old, new
+
+    def test_all_old_76_typed_items_retained_in_relative_order(self):
+        old, new = self.plans()
+        def tuples(plan):
+            return [(r['kind'], r['path']) for r in plan['fixed_item_order']]
+        before, after = tuples(old), tuples(new)
+        self.assertEqual(len(before), 76)
+        self.assertEqual(len(after), 109)
+        positions = [after.index(item) for item in before]
+        self.assertEqual(positions, sorted(positions))
+        self.assertEqual(len(after), len(set(after)))
+
+    def test_exact_typed_roster_mirror_and_original_resource_caps(self):
+        old, new = self.plans()
+        keys = [('ancestor', 'declared_exact_ancestor_metadata'), ('alias', 'declared_logical_aliases'),
+            ('directory', 'declared_metadata_only_directories'), ('ELF_seed', 'declared_ELF_seed_files'),
+            ('loader_data', 'declared_nonexecuted_loader_data_files')]
+        expected = [dict(kind=kind, path=n) for kind, key in keys for n in new[key]]
+        self.assertEqual(new['fixed_item_order'], expected)
+        for key in old['bounds']:
+            if key not in {'ancestor_metadata_count', 'alias_count', 'seed_count', 'fixed_item_count'}:
+                self.assertEqual(new['bounds'][key], old['bounds'][key])
+        self.assertEqual(new['component_operation_cap'], 38912)
+        self.assertEqual(new['argv'], old['argv'])
+        self.assertEqual(new['env'], old['env'])
+
+    def test_mapping_predicate_and_operation_ceiling_source_bodies_conserved(self):
+        # Exact AST SHA values below come from fixed bc83 source, not postimage.
+        tree = source_tree('current_test_qualification.py')
+        for name, owner, wanted in STATIC02_CONSERVED_AST_PINS:
+            node = function(tree, name, owner)
+            self.assertEqual(hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest(), wanted)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -335,8 +335,11 @@ class StaticReaderDataTests(unittest.TestCase):
     def plan(self):
         # Fixed tracked repository source DATA, not public reference discovery.
         root = Path(__file__).absolute().parents[5]
-        raw = (root / self.c._PLAN_REL).read_bytes()
-        return self.c.static_plan_bytes_data(raw)
+        raw = (root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), '58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd')
+        value = json.loads(raw)
+        self.c.static_plan_layout_data(value)
+        return value
 
     def inventory(self):
         with mock.patch.object(self.c.time, 'monotonic', return_value=0):
@@ -507,6 +510,136 @@ class StaticReaderDataTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, '^CurrentTestExecutionClosureUnresolved$'):
                     action()
             self.assertFalse(self.c.current_status()['permission_granted'])
+
+
+
+
+class Static02PartialFactsDataTests(unittest.TestCase):
+    """Additional post-STATIC01 DATA contract, never real BASE observations.
+
+    Append to the existing owned DATA test file after review. Uses its existing
+    canonical_current_data loader. No new production API or accepted role is
+    required for initial semantic RED. Mock descriptor replies are test DATA only.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.c = canonical_current_data()
+        import struct
+        import stat
+        from types import SimpleNamespace
+        cls.struct, cls.stat, cls.Namespace = struct, stat, SimpleNamespace
+
+    def fixture(self, mapping='ONE', strsz=8):
+        count = 3 if mapping == 'MULTIPLE' else 2
+        raw = bytearray(512)
+        raw[:64] = self.struct.pack('<16sHHIQQQIHHHHHH', b'\x7fELF\x02\x01\x01' + b'\0' * 9,
+            3, 62, 1, 0, 64, 0, 0, 64, 56, count, 0, 0, 0)
+        load = self.struct.pack('<IIQQQQQQ', 1, 5, 0, 0x1000, 0, 512, 512, 1)
+        dynamic = self.struct.pack('<IIQQQQQQ', 2, 4, 256, 0, 0, 64, 64, 1)
+        raw[64:64 + 56 * count] = load + (load if mapping == 'MULTIPLE' else b'') + dynamic
+        address = 0x9999 if mapping == 'ZERO' else 0x1000 + 400
+        raw[256:320] = self.struct.pack('<qQqQqQqQ', 5, address, 10, strsz, 1, 0, 0, 0)
+        raw[400:408] = b'libx.so\0'
+        return bytes(raw)
+
+    def observe(self, payload, target='BASE', unstable=False):
+        root = Path(__file__).absolute().parents[5]
+        plan = self.c.static_plan_bytes_data((root / self.c._PLAN_REL).read_bytes())
+        name = ('/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12'
+            if target == 'BASE' else '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1')
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0):
+            inv = self.c._StaticInventory(plan, 0)
+        before = self.Namespace(st_dev=1, st_ino=2, st_size=len(payload), st_mtime_ns=3,
+            st_ctime_ns=4, st_mode=self.stat.S_IFREG | 0o755, st_uid=1000, st_gid=1000)
+        after = self.Namespace(**vars(before))
+        if unstable:
+            after.st_ino = 99
+        original_item = inv.item
+        def item(entry):
+            if entry['path'] == name and entry['kind'] == 'ELF_seed':
+                return original_item(entry)
+            return dict(**entry, status='OBSERVED_UNACCEPTED_METADATA')
+        reads = []
+        def pread(fd, size, offset):
+            self.assertEqual(fd, 99)
+            reads.append((offset, size))
+            # Refused mappings/large strings must not trigger any strtab read.
+            return payload[offset:offset + size]
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(self.c.os, 'open', side_effect=AssertionError('UNEXPECTED_INSPECTED_OPEN')), \
+             mock.patch.object(self.c.os, 'readlink', side_effect=AssertionError('UNEXPECTED_READLINK')), \
+             mock.patch.object(inv, 'path_info', side_effect=[(before, 99, name, []), (after, None, name, [])]), \
+             mock.patch.object(self.c.os, 'read', return_value=payload), \
+             mock.patch.object(self.c.os, 'pread', side_effect=pread), \
+             mock.patch.object(self.c.os, 'fstat', return_value=before), \
+             mock.patch.object(self.c.os, 'close') as closed, \
+             mock.patch.object(inv, 'item', side_effect=item):
+            inventory = inv.run()
+        closed.assert_called_once_with(99)
+        row = next(r for r in inventory['items'] if r['path'] == name and r['kind'] == 'ELF_seed')
+        self.assertFalse(inventory['permission_granted'])
+        self.assertFalse(inventory['current_context_created'])
+        return row, inventory, reads
+
+    def partial(self, row, payload, stability):
+        self.assertEqual(row['status'], 'INCOMPLETE')
+        # Current canonical run/item reaches real parser refusal and returns its
+        # bare INCOMPLETE row. The assertIn below is the intended semantic RED.
+        self.assertIn('file_observation', row, 'STATIC02_PARSE_REFUSAL_DISCARDED_KNOWN_FILE_FACTS')
+        facts = row['file_observation']
+        self.assertEqual(facts['stream_sha256'], hashlib.sha256(payload).hexdigest())
+        self.assertEqual(facts['stream_bytes'], len(payload))
+        self.assertTrue(facts['stream_hash_complete'])
+        self.assertEqual(facts['stability'], stability)
+        self.assertNotIn('ELF', row, 'parse-refused partial row must not enter safe graph pool')
+        return row['ELF_diagnostic']
+
+    def test_positive_existing_stable_parser_control(self):
+        raw = self.fixture()
+        row, _, reads = self.observe(raw)
+        self.assertEqual(row['status'], 'OBSERVED_UNACCEPTED_METADATA')
+        self.assertEqual(row['sha256'], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(row['ELF']['needed'], ['libx.so'])
+        self.assertIn((400, 8), reads)
+
+    def test_zero_mapping_preserves_stable_identity_and_diagnostic(self):
+        raw = self.fixture(mapping='ZERO')
+        row, _, reads = self.observe(raw)
+        self.assertEqual(row['reason'], 'ELFStringTableMappingAmbiguous')
+        diagnostic = self.partial(row, raw, 'STABLE_IDENTITY')
+        self.assertEqual(diagnostic['mapping']['state'], 'ZERO')
+        self.assertEqual(diagnostic['mapping']['count'], 0)
+        self.assertEqual(diagnostic['dynamic']['strtab_va'], 0x9999)
+        self.assertEqual(diagnostic['dynamic']['strsz'], 8)
+        self.assertFalse(diagnostic['strtab_read_performed'])
+        self.assertEqual(reads, [(0, 64), (64, 112), (256, 64)])
+
+    def test_multiple_mapping_is_distinct_and_never_selects_first(self):
+        raw = self.fixture(mapping='MULTIPLE')
+        row, _, reads = self.observe(raw)
+        self.assertEqual(row['reason'], 'ELFStringTableMappingAmbiguous')
+        diagnostic = self.partial(row, raw, 'STABLE_IDENTITY')
+        self.assertEqual(diagnostic['mapping']['state'], 'MULTIPLE')
+        self.assertEqual(diagnostic['mapping']['count'], 2)
+        self.assertFalse(diagnostic['strtab_read_performed'])
+        self.assertEqual(reads, [(0, 64), (64, 168), (256, 64)])
+
+    def test_strsz_refusal_preserves_value_without_larger_read(self):
+        raw = self.fixture(strsz=70000)
+        row, _, reads = self.observe(raw, target='cc1')
+        self.assertEqual(row['reason'], 'ELFStringTableBound')
+        diagnostic = self.partial(row, raw, 'STABLE_IDENTITY')
+        self.assertEqual(diagnostic['dynamic']['strsz'], 70000)
+        self.assertFalse(diagnostic['strtab_read_performed'])
+        self.assertEqual(reads, [(0, 64), (64, 112), (256, 64)])
+
+    def test_parse_refusal_hash_does_not_become_stable_identity_after_change(self):
+        raw = self.fixture(mapping='ZERO')
+        row, inventory, _ = self.observe(raw, unstable=True)
+        self.partial(row, raw, 'UNSTABLE_IDENTITY')
+        self.assertNotIn('stable_identity', row['file_observation'])
+        self.assertEqual(inventory['status'], 'INCOMPLETE')
+        self.assertEqual(inventory['graph'], [])
 
 
 if __name__ == "__main__":

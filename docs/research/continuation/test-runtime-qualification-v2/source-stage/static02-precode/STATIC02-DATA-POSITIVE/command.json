@@ -1,0 +1,44 @@
+{
+  "case_id": "STATIC02-DATA-POSITIVE",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=0",
+    "--nofile=64",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+    "Static02PartialFactsDataTests.test_positive_existing_stable_parser_control",
+    "-v"
+  ],
+  "cwd": "/home/lynn/projects/wordling",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reviewed_manifest_sha256": "9599873e50f2dc63204ccfce2868e555597bec21670e746a54cbb96757e04384",
+  "execution_head": "595715a92fcfc1dcee95c2a13acff96fb91af4e6",
+  "official_baseline_head": "a404bbc3121d66c750d1018c37f1864eb520630e",
+  "new_test_hashes": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 37920,
+      "sha256": "4f7fbaade995c4ee5eb7d71c8bc42fa6089db2e1ef19e0dfa34858a855c6a2e8"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13031,
+      "sha256": "5c67fedbe7549b637165f2427e4539184d8eac64641797f19966de0378bf1dd6"
+    }
+  },
+  "raw_combined_limit": 262144,
+  "scope": "Bounded reviewed DATA/AST source-checkpoint suite; no genuine current context/reference/preparation/P/TEST/CONTROL/Original/Mac action"
+}
