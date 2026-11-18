@@ -1,0 +1,2247 @@
+{
+  "roots": [
+    "internal",
+    "cmd"
+  ],
+  "excludes": [
+    "*_test.go",
+    "historical evidence snapshots",
+    "external third_party"
+  ],
+  "query": "ItalicsOn|ItalicsOff|ToggleItalics|CopyEverydayBlock|beginBlockCopy|beginBlockAppend|BoldOn|UnderlineOn|attributeOn|attributeOff|boldAttribute|underlineAttr",
+  "files": [
+    {
+      "path": "internal/document/admission.go",
+      "sha256": "e8f85d1cb52ce56b9d64c42c40a4afd9f671e1c6d22fb208382503b92b3d3258",
+      "disposition": "Existing ordinary-body independent attribute balance/duplicate validation; source Copy admission and final native receiver candidate validation remain authorities, unchanged.",
+      "uses": [
+        {
+          "line": 317,
+          "enclosing_declaration": "func (d *Document) checkOrdinaryBody() error {",
+          "text": "boldKind := BoldOn"
+        },
+        {
+          "line": 343,
+          "enclosing_declaration": "func (d *Document) checkOrdinaryBody() error {",
+          "text": "case RedlineOn, RedlineOff, StrikeoutOn, StrikeoutOff, ItalicsOn, ItalicsOff:"
+        },
+        {
+          "line": 348,
+          "enclosing_declaration": "func (d *Document) checkOrdinaryBody() error {",
+          "text": "} else if kind == ItalicsOn || kind == ItalicsOff {"
+        },
+        {
+          "line": 351,
+          "enclosing_declaration": "func (d *Document) checkOrdinaryBody() error {",
+          "text": "on := kind == RedlineOn || kind == StrikeoutOn || kind == ItalicsOn"
+        },
+        {
+          "line": 356,
+          "enclosing_declaration": "func (d *Document) checkOrdinaryBody() error {",
+          "text": "case BoldOn:"
+        },
+        {
+          "line": 366,
+          "enclosing_declaration": "func (d *Document) checkOrdinaryBody() error {",
+          "text": "case UnderlineOn:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 317,
+          "Symbol": "BoldOn",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 343,
+          "Symbol": "ItalicsOn",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 343,
+          "Symbol": "ItalicsOff",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 348,
+          "Symbol": "ItalicsOn",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 348,
+          "Symbol": "ItalicsOff",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 351,
+          "Symbol": "ItalicsOn",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 356,
+          "Symbol": "BoldOn",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/admission.go",
+          "Line": 366,
+          "Symbol": "UnderlineOn",
+          "Function": "checkOrdinaryBody",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/block_copy.go",
+      "sha256": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+      "disposition": "WP109 sole production extension: CopyEverydayBlock independent Italics state, exact selected raw owners and necessary edge wrappers; conservative four-token budget floor retained and six actual synthesized wrappers counted.",
+      "uses": [
+        {
+          "line": 5,
+          "enclosing_declaration": "package/declarations",
+          "text": "// CopyEverydayBlock prepares a self-contained fragment for retrieval. The"
+        },
+        {
+          "line": 7,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {"
+        },
+        {
+          "line": 24,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "body = append(body, attributeOn, boldAttribute, attributeOn)"
+        },
+        {
+          "line": 28,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "body = append(body, attributeOn, underlineAttr, attributeOn)"
+        },
+        {
+          "line": 32,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "body = append(body, attributeOn, blockCopyItalicsAttribute, attributeOn)"
+        },
+        {
+          "line": 38,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "case BoldOn, BoldOff:"
+        },
+        {
+          "line": 39,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "bold = t.Kind == BoldOn"
+        },
+        {
+          "line": 40,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "case UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 41,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "underline = t.Kind == UnderlineOn"
+        },
+        {
+          "line": 42,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "case ItalicsOn, ItalicsOff:"
+        },
+        {
+          "line": 43,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "italics = t.Kind == ItalicsOn"
+        },
+        {
+          "line": 48,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "SoftReturn, DeletedSoftReturn, BoldOn, BoldOff, UnderlineOn, UnderlineOff, ItalicsOn, ItalicsOff:"
+        },
+        {
+          "line": 56,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "body = append(body, attributeOff, blockCopyItalicsAttribute, attributeOff)"
+        },
+        {
+          "line": 60,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "body = append(body, attributeOff, underlineAttr, attributeOff)"
+        },
+        {
+          "line": 64,
+          "enclosing_declaration": "func (d *Document) CopyEverydayBlock(anchor, end Cursor) (*Document, error) {",
+          "text": "body = append(body, attributeOff, boldAttribute, attributeOff)"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 3,
+          "Symbol": "blockCopyItalicsAttribute",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 7,
+          "Symbol": "CopyEverydayBlock",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 24,
+          "Symbol": "attributeOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 24,
+          "Symbol": "boldAttribute",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 24,
+          "Symbol": "attributeOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 28,
+          "Symbol": "attributeOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 28,
+          "Symbol": "underlineAttr",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 28,
+          "Symbol": "attributeOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 32,
+          "Symbol": "attributeOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 32,
+          "Symbol": "blockCopyItalicsAttribute",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 32,
+          "Symbol": "attributeOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 38,
+          "Symbol": "BoldOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 39,
+          "Symbol": "BoldOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 40,
+          "Symbol": "UnderlineOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 41,
+          "Symbol": "UnderlineOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 42,
+          "Symbol": "ItalicsOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 42,
+          "Symbol": "ItalicsOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 43,
+          "Symbol": "ItalicsOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 48,
+          "Symbol": "BoldOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 48,
+          "Symbol": "UnderlineOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 48,
+          "Symbol": "ItalicsOn",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 48,
+          "Symbol": "ItalicsOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 56,
+          "Symbol": "attributeOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 56,
+          "Symbol": "blockCopyItalicsAttribute",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 56,
+          "Symbol": "attributeOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 60,
+          "Symbol": "attributeOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 60,
+          "Symbol": "underlineAttr",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 60,
+          "Symbol": "attributeOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 64,
+          "Symbol": "attributeOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 64,
+          "Symbol": "boldAttribute",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/block_copy.go",
+          "Line": 64,
+          "Symbol": "attributeOff",
+          "Function": "CopyEverydayBlock",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/bold_authoring.go",
+      "sha256": "fda703fe18289b5b9d9529e08098cd3df78e2d474ee52192f4c0b18a66404fa9",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 20,
+          "enclosing_declaration": "package/declarations",
+          "text": "nativeBoldOn  = \"\\xc3\\x0c\\xc3\""
+        },
+        {
+          "line": 22,
+          "enclosing_declaration": "package/declarations",
+          "text": "boldPairBytes = len(nativeBoldOn) + len(nativeBoldOff)"
+        },
+        {
+          "line": 26,
+          "enclosing_declaration": "package/declarations",
+          "text": "nativeUnderlineOn  = \"\\xc3\\x0e\\xc3\""
+        },
+        {
+          "line": 28,
+          "enclosing_declaration": "package/declarations",
+          "text": "underlinePairBytes = len(nativeUnderlineOn) + len(nativeUnderlineOff)"
+        },
+        {
+          "line": 53,
+          "enclosing_declaration": "func (s *boldState) attributeKind() (Kind, Kind) {",
+          "text": "return BoldOn, BoldOff"
+        },
+        {
+          "line": 55,
+          "enclosing_declaration": "func (s *boldState) attributeKind() (Kind, Kind) {",
+          "text": "return UnderlineOn, UnderlineOff"
+        },
+        {
+          "line": 174,
+          "enclosing_declaration": "func (d *Document) beginFormat(c Cursor, attribute Attribute, everyday bool) (BoldResult, error) {",
+          "text": "on, off = nativeBoldOn, nativeBoldOff"
+        },
+        {
+          "line": 176,
+          "enclosing_declaration": "func (d *Document) beginFormat(c Cursor, attribute Attribute, everyday bool) (BoldResult, error) {",
+          "text": "on, off = nativeUnderlineOn, nativeUnderlineOff"
+        },
+        {
+          "line": 213,
+          "enclosing_declaration": "func (d *Document) formatOpenPairs(raw []byte, attribute Attribute) (int, error) {",
+          "text": "on := BoldOn"
+        },
+        {
+          "line": 215,
+          "enclosing_declaration": "func (d *Document) formatOpenPairs(raw []byte, attribute Attribute) (int, error) {",
+          "text": "on = UnderlineOn"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/bold_authoring.go",
+          "Line": 53,
+          "Symbol": "BoldOn",
+          "Function": "attributeKind",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/bold_authoring.go",
+          "Line": 55,
+          "Symbol": "UnderlineOn",
+          "Function": "attributeKind",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/bold_authoring.go",
+          "Line": 213,
+          "Symbol": "BoldOn",
+          "Function": "formatOpenPairs",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/bold_authoring.go",
+          "Line": 215,
+          "Symbol": "UnderlineOn",
+          "Function": "formatOpenPairs",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/compare.go",
+      "sha256": "edb98d1e83782cf45b96a74588eaafca0b91d4581b635e86d354c2486964e7ac",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 61,
+          "enclosing_declaration": "func (d *Document) ComparePlainText(c Cursor, other *Document) (EditResult, error) {",
+          "text": "body = append(body, attributeOn, 10, attributeOn)"
+        },
+        {
+          "line": 63,
+          "enclosing_declaration": "func (d *Document) ComparePlainText(c Cursor, other *Document) (EditResult, error) {",
+          "text": "body = append(body, attributeOff, 10, attributeOff, attributeOn, 13, attributeOn)"
+        },
+        {
+          "line": 65,
+          "enclosing_declaration": "func (d *Document) ComparePlainText(c Cursor, other *Document) (EditResult, error) {",
+          "text": "body = append(body, attributeOff, 13, attributeOff)"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 61,
+          "Symbol": "attributeOn",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 61,
+          "Symbol": "attributeOn",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 63,
+          "Symbol": "attributeOff",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 63,
+          "Symbol": "attributeOff",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 63,
+          "Symbol": "attributeOn",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 63,
+          "Symbol": "attributeOn",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 65,
+          "Symbol": "attributeOff",
+          "Function": "ComparePlainText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/compare.go",
+          "Line": 65,
+          "Symbol": "attributeOff",
+          "Function": "ComparePlainText",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/deletion.go",
+      "sha256": "de4655a98f5c79cffe6027ef0d019774be7c4f4789ee46f913c822d49f707ef7",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 146,
+          "enclosing_declaration": "func (d *Document) pairAt(index int, attribute Attribute) (int, int) {",
+          "text": "onKind, offKind = BoldOn, BoldOff"
+        },
+        {
+          "line": 148,
+          "enclosing_declaration": "func (d *Document) pairAt(index int, attribute Attribute) (int, int) {",
+          "text": "onKind, offKind = UnderlineOn, UnderlineOff"
+        },
+        {
+          "line": 197,
+          "enclosing_declaration": "func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Deletion, error) {",
+          "text": "if token.Kind != BoldOn && token.Kind != BoldOff {"
+        },
+        {
+          "line": 198,
+          "enclosing_declaration": "func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Deletion, error) {",
+          "text": "if token.Kind == UnderlineOn || token.Kind == UnderlineOff {"
+        },
+        {
+          "line": 240,
+          "enclosing_declaration": "func (d *Document) DeleteBlock(anchor, end Cursor, h History) (Deletion, error) {",
+          "text": "case BoldOn, BoldOff:"
+        },
+        {
+          "line": 242,
+          "enclosing_declaration": "func (d *Document) DeleteBlock(anchor, end Cursor, h History) (Deletion, error) {",
+          "text": "case UnderlineOn, UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/deletion.go",
+          "Line": 146,
+          "Symbol": "BoldOn",
+          "Function": "pairAt",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/deletion.go",
+          "Line": 148,
+          "Symbol": "UnderlineOn",
+          "Function": "pairAt",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/deletion.go",
+          "Line": 197,
+          "Symbol": "BoldOn",
+          "Function": "Delete",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/deletion.go",
+          "Line": 198,
+          "Symbol": "UnderlineOn",
+          "Function": "Delete",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/deletion.go",
+          "Line": 240,
+          "Symbol": "BoldOn",
+          "Function": "DeleteBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/deletion.go",
+          "Line": 242,
+          "Symbol": "UnderlineOn",
+          "Function": "DeleteBlock",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/document.go",
+      "sha256": "03a96f024eb801f9e0766b41be580adf936a7bdf682e682cf984aa526e08a7b8",
+      "disposition": "Existing native08 identification/actual ItalicsOn/Off Kind and label/render identity; no enum/parser/global-constant change. Independent original/raw08 mirrors in WP109 tests.",
+      "uses": [
+        {
+          "line": 51,
+          "enclosing_declaration": "func failure(k Category, index int, span wp51.Span) error { return &Failure{k, index, span} }",
+          "text": "BoldOn"
+        },
+        {
+          "line": 57,
+          "enclosing_declaration": "func failure(k Category, index int, span wp51.Span) error { return &Failure{k, index, span} }",
+          "text": "UnderlineOn"
+        },
+        {
+          "line": 145,
+          "enclosing_declaration": "func failure(k Category, index int, span wp51.Span) error { return &Failure{k, index, span} }",
+          "text": "ItalicsOn"
+        },
+        {
+          "line": 146,
+          "enclosing_declaration": "func failure(k Category, index int, span wp51.Span) error { return &Failure{k, index, span} }",
+          "text": "ItalicsOff"
+        },
+        {
+          "line": 253,
+          "enclosing_declaration": "func framedWidth(raw []byte) int {",
+          "text": "attributeOn       = 0xc3"
+        },
+        {
+          "line": 254,
+          "enclosing_declaration": "func framedWidth(raw []byte) int {",
+          "text": "attributeOff      = 0xc4"
+        },
+        {
+          "line": 255,
+          "enclosing_declaration": "func framedWidth(raw []byte) int {",
+          "text": "boldAttribute     = 0x0c"
+        },
+        {
+          "line": 256,
+          "enclosing_declaration": "func framedWidth(raw []byte) int {",
+          "text": "underlineAttr     = 0x0e"
+        },
+        {
+          "line": 396,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "case len(raw) == 3 && raw[0] == raw[2] && (raw[0] == attributeOn || raw[0] == attributeOff):"
+        },
+        {
+          "line": 397,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "on := raw[0] == attributeOn"
+        },
+        {
+          "line": 401,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "return ItalicsOn"
+        },
+        {
+          "line": 403,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "return ItalicsOff"
+        },
+        {
+          "line": 414,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "case boldAttribute:"
+        },
+        {
+          "line": 416,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "return BoldOn"
+        },
+        {
+          "line": 419,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "case underlineAttr:"
+        },
+        {
+          "line": 421,
+          "enclosing_declaration": "func identify(raw []byte) Kind {",
+          "text": "return UnderlineOn"
+        },
+        {
+          "line": 771,
+          "enclosing_declaration": "func displayText(kind Kind, raw []byte, reveal bool) string {",
+          "text": "case RedlineOn, RedlineOff, StrikeoutOn, StrikeoutOff, ItalicsOn, ItalicsOff:"
+        },
+        {
+          "line": 776,
+          "enclosing_declaration": "func displayText(kind Kind, raw []byte, reveal bool) string {",
+          "text": "case BoldOn:"
+        },
+        {
+          "line": 784,
+          "enclosing_declaration": "func displayText(kind Kind, raw []byte, reveal bool) string {",
+          "text": "case UnderlineOn:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/document.go",
+          "Line": 51,
+          "Symbol": "BoldOn",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 57,
+          "Symbol": "UnderlineOn",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 145,
+          "Symbol": "ItalicsOn",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 146,
+          "Symbol": "ItalicsOff",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 253,
+          "Symbol": "attributeOn",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 254,
+          "Symbol": "attributeOff",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 255,
+          "Symbol": "boldAttribute",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 256,
+          "Symbol": "underlineAttr",
+          "Function": "package declarations",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 396,
+          "Symbol": "attributeOn",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 396,
+          "Symbol": "attributeOff",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 397,
+          "Symbol": "attributeOn",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 401,
+          "Symbol": "ItalicsOn",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 403,
+          "Symbol": "ItalicsOff",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 414,
+          "Symbol": "boldAttribute",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 416,
+          "Symbol": "BoldOn",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 419,
+          "Symbol": "underlineAttr",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 421,
+          "Symbol": "UnderlineOn",
+          "Function": "identify",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 771,
+          "Symbol": "ItalicsOn",
+          "Function": "displayText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 771,
+          "Symbol": "ItalicsOff",
+          "Function": "displayText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 776,
+          "Symbol": "BoldOn",
+          "Function": "displayText",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/document.go",
+          "Line": 784,
+          "Symbol": "UnderlineOn",
+          "Function": "displayText",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/dos_text.go",
+      "sha256": "2d7d49dc88bbbac2340548d3f0295d2967f02260cd20c36a6de8ce8a43485f94",
+      "disposition": "Existing DOS text export projection explicitly removes formatting owners including Italics; conversion remains a separate declared API, unchanged.",
+      "uses": [
+        {
+          "line": 227,
+          "enclosing_declaration": "func (d *Document) ExportDOSTextAt(now time.Time) ([]byte, error) {",
+          "text": "case EndOfPage, DormantHardReturn, BoldOn, BoldOff, UnderlineOn, UnderlineOff, RedlineOn, RedlineOff, StrikeoutOn, StrikeoutOff, ItalicsOn, ItalicsOff, PageNumberPosition, SuppressPageNumber,"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/dos_text.go",
+          "Line": 227,
+          "Symbol": "BoldOn",
+          "Function": "ExportDOSTextAt",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/dos_text.go",
+          "Line": 227,
+          "Symbol": "UnderlineOn",
+          "Function": "ExportDOSTextAt",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/dos_text.go",
+          "Line": 227,
+          "Symbol": "ItalicsOn",
+          "Function": "ExportDOSTextAt",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/dos_text.go",
+          "Line": 227,
+          "Symbol": "ItalicsOff",
+          "Function": "ExportDOSTextAt",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/everyday.go",
+      "sha256": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+      "disposition": "Approved WP106 InsertDocument/InsertBlockCopy shared scan admits independently balanced Italics. Existing block-format Bold/Underline-only scope stays unchanged; no generic formatting qualification inferred.",
+      "uses": [
+        {
+          "line": 544,
+          "enclosing_declaration": "func (d *Document) nearestInlineOwner(index, step int) Kind {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 667,
+          "enclosing_declaration": "func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (EditResult, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff, ItalicsOn, ItalicsOff:"
+        },
+        {
+          "line": 669,
+          "enclosing_declaration": "func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (EditResult, error) {",
+          "text": "if t.Kind == UnderlineOn || t.Kind == UnderlineOff {"
+        },
+        {
+          "line": 672,
+          "enclosing_declaration": "func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (EditResult, error) {",
+          "text": "if t.Kind == ItalicsOn || t.Kind == ItalicsOff {"
+        },
+        {
+          "line": 675,
+          "enclosing_declaration": "func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (EditResult, error) {",
+          "text": "on := t.Kind == BoldOn || t.Kind == UnderlineOn || t.Kind == ItalicsOn"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 544,
+          "Symbol": "BoldOn",
+          "Function": "nearestInlineOwner",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 544,
+          "Symbol": "UnderlineOn",
+          "Function": "nearestInlineOwner",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 667,
+          "Symbol": "BoldOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 667,
+          "Symbol": "UnderlineOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 667,
+          "Symbol": "ItalicsOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 667,
+          "Symbol": "ItalicsOff",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 669,
+          "Symbol": "UnderlineOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 672,
+          "Symbol": "ItalicsOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 672,
+          "Symbol": "ItalicsOff",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 675,
+          "Symbol": "BoldOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 675,
+          "Symbol": "UnderlineOn",
+          "Function": "insertDocument",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday.go",
+          "Line": 675,
+          "Symbol": "ItalicsOn",
+          "Function": "insertDocument",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/everyday_correction.go",
+      "sha256": "e4da6132aa5b5e790ecbdbb1508db13792369b873f4b769c1e7aeaf878bc6c16",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 103,
+          "enclosing_declaration": "func (d *Document) DeleteEveryday(c Cursor, direction DeleteDirection, h History) (Deletion, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 108,
+          "enclosing_declaration": "func (d *Document) DeleteEveryday(c Cursor, direction DeleteDirection, h History) (Deletion, error) {",
+          "text": "if token.Kind == UnderlineOn || token.Kind == UnderlineOff {"
+        },
+        {
+          "line": 173,
+          "enclosing_declaration": "func (d *Document) DeleteEverydayBlock(current, anchor, end Cursor, h History) (Deletion, error) {",
+          "text": "case BoldOn:"
+        },
+        {
+          "line": 177,
+          "enclosing_declaration": "func (d *Document) DeleteEverydayBlock(current, anchor, end Cursor, h History) (Deletion, error) {",
+          "text": "case UnderlineOn:"
+        },
+        {
+          "line": 222,
+          "enclosing_declaration": "func (d *Document) DeleteEverydayLine(current, end Cursor, h History) (Deletion, error) {",
+          "text": "case BoldOn:"
+        },
+        {
+          "line": 226,
+          "enclosing_declaration": "func (d *Document) DeleteEverydayLine(current, end Cursor, h History) (Deletion, error) {",
+          "text": "case UnderlineOn:"
+        },
+        {
+          "line": 253,
+          "enclosing_declaration": "func (d *Document) deleteSplitFormattedLine(current, end Cursor, h History, before, after [2]bool) (Deletion, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff, SoftReturn, DeletedSoftReturn:"
+        },
+        {
+          "line": 270,
+          "enclosing_declaration": "func (d *Document) deleteSplitFormattedLine(current, end Cursor, h History, before, after [2]bool) (Deletion, error) {",
+          "text": "on, off := BoldOn, BoldOff"
+        },
+        {
+          "line": 272,
+          "enclosing_declaration": "func (d *Document) deleteSplitFormattedLine(current, end Cursor, h History, before, after [2]bool) (Deletion, error) {",
+          "text": "on, off = UnderlineOn, UnderlineOff"
+        },
+        {
+          "line": 340,
+          "enclosing_declaration": "func (d *Document) deleteEverydayRange(current, start, end Cursor, h History, pageRemainder, keepFormatting bool, direction DeleteDirection) (Deletion, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff, SoftReturn, DeletedSoftReturn:"
+        },
+        {
+          "line": 430,
+          "enclosing_declaration": "func (d *Document) completeTextRangeDeletion(s deletionState, h History) (Deletion, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 462,
+          "enclosing_declaration": "func (d *Document) completeTextRangeDeletion(s deletionState, h History) (Deletion, error) {",
+          "text": "kind = BoldOn"
+        },
+        {
+          "line": 468,
+          "enclosing_declaration": "func (d *Document) completeTextRangeDeletion(s deletionState, h History) (Deletion, error) {",
+          "text": "kind = UnderlineOn"
+        },
+        {
+          "line": 624,
+          "enclosing_declaration": "func (d *Document) ApplyEverydayBlockFormat(anchor, cursor Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "on, off, begin, finish := BoldOn, BoldOff, nativeBoldOn, nativeBoldOff"
+        },
+        {
+          "line": 626,
+          "enclosing_declaration": "func (d *Document) ApplyEverydayBlockFormat(anchor, cursor Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "on, off, begin, finish = UnderlineOn, UnderlineOff, nativeUnderlineOn, nativeUnderlineOff"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 103,
+          "Symbol": "BoldOn",
+          "Function": "DeleteEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 103,
+          "Symbol": "UnderlineOn",
+          "Function": "DeleteEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 108,
+          "Symbol": "UnderlineOn",
+          "Function": "DeleteEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 173,
+          "Symbol": "BoldOn",
+          "Function": "DeleteEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 177,
+          "Symbol": "UnderlineOn",
+          "Function": "DeleteEverydayBlock",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 222,
+          "Symbol": "BoldOn",
+          "Function": "DeleteEverydayLine",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 226,
+          "Symbol": "UnderlineOn",
+          "Function": "DeleteEverydayLine",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 253,
+          "Symbol": "BoldOn",
+          "Function": "deleteSplitFormattedLine",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 253,
+          "Symbol": "UnderlineOn",
+          "Function": "deleteSplitFormattedLine",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 270,
+          "Symbol": "BoldOn",
+          "Function": "deleteSplitFormattedLine",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 272,
+          "Symbol": "UnderlineOn",
+          "Function": "deleteSplitFormattedLine",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 340,
+          "Symbol": "BoldOn",
+          "Function": "deleteEverydayRange",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 340,
+          "Symbol": "UnderlineOn",
+          "Function": "deleteEverydayRange",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 430,
+          "Symbol": "BoldOn",
+          "Function": "completeTextRangeDeletion",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 430,
+          "Symbol": "UnderlineOn",
+          "Function": "completeTextRangeDeletion",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 462,
+          "Symbol": "BoldOn",
+          "Function": "completeTextRangeDeletion",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 468,
+          "Symbol": "UnderlineOn",
+          "Function": "completeTextRangeDeletion",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 624,
+          "Symbol": "BoldOn",
+          "Function": "ApplyEverydayBlockFormat",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/everyday_correction.go",
+          "Line": 626,
+          "Symbol": "UnderlineOn",
+          "Function": "ApplyEverydayBlockFormat",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/history.go",
+      "sha256": "fcb0ba9bf6b0e22047b74b0b8c97fa940f58e2eca52b12f334837ba492c5af18",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 506,
+          "enclosing_declaration": "func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {",
+          "text": "if e.Kind == BoldOn {"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/history.go",
+          "Line": 506,
+          "Symbol": "BoldOn",
+          "Function": "Present",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/history_observation.go",
+      "sha256": "3391dc23674c529796722326d4a1701e93885ca3e8cb0f17a64f5b690f7c8fbf",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 29,
+          "enclosing_declaration": "func wp40Shape(state *revisionState) bool {",
+          "text": "for i, k := range []Kind{ASCII, BoldOn, ASCII, ASCII, BoldOff, ASCII} {"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/history_observation.go",
+          "Line": 29,
+          "Symbol": "BoldOn",
+          "Function": "wp40Shape",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/italics.go",
+      "sha256": "e6addf44ab4a659c971b908d926bbe7cb00d2af5307ee88829c57895aa586836",
+      "disposition": "Existing balanced-pair authoring via ToggleItalics; literal08 source predates WP109. No authoring expansion.",
+      "uses": [
+        {
+          "line": 3,
+          "enclosing_declaration": "package/declarations",
+          "text": "// ToggleItalics inserts a balanced pair with the cursor inside it, or moves"
+        },
+        {
+          "line": 5,
+          "enclosing_declaration": "func (d *Document) ToggleItalics(c Cursor) (EditResult, error) {",
+          "text": "func (d *Document) ToggleItalics(c Cursor) (EditResult, error) {"
+        },
+        {
+          "line": 9,
+          "enclosing_declaration": "func (d *Document) ToggleItalics(c Cursor) (EditResult, error) {",
+          "text": "if t, err := d.Token(c.gap); err == nil && t.Kind == ItalicsOff {"
+        },
+        {
+          "line": 15,
+          "enclosing_declaration": "func (d *Document) ToggleItalics(c Cursor) (EditResult, error) {",
+          "text": "if t.Kind == ItalicsOff {"
+        },
+        {
+          "line": 18,
+          "enclosing_declaration": "func (d *Document) ToggleItalics(c Cursor) (EditResult, error) {",
+          "text": "if t.Kind == ItalicsOn {"
+        },
+        {
+          "line": 25,
+          "enclosing_declaration": "func (d *Document) ToggleItalics(c Cursor) (EditResult, error) {",
+          "text": "body = append(body, attributeOn, 8, attributeOn, attributeOff, 8, attributeOff)"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 5,
+          "Symbol": "ToggleItalics",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 9,
+          "Symbol": "ItalicsOff",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 15,
+          "Symbol": "ItalicsOff",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 18,
+          "Symbol": "ItalicsOn",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 25,
+          "Symbol": "attributeOn",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 25,
+          "Symbol": "attributeOn",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 25,
+          "Symbol": "attributeOff",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/italics.go",
+          "Line": 25,
+          "Symbol": "attributeOff",
+          "Function": "ToggleItalics",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/merge_authoring.go",
+      "sha256": "a78fb64b912e03f97b73810621622519a212fce62291fa2b86c6de5a577fad44",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 70,
+          "enclosing_declaration": "func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 268,
+          "enclosing_declaration": "func (d *Document) deleteMerge(c Cursor, backspace, textAllowed bool) (EditResult, error) {",
+          "text": "case BoldOn, BoldOff:"
+        },
+        {
+          "line": 270,
+          "enclosing_declaration": "func (d *Document) deleteMerge(c Cursor, backspace, textAllowed bool) (EditResult, error) {",
+          "text": "case UnderlineOn, UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/merge_authoring.go",
+          "Line": 70,
+          "Symbol": "BoldOn",
+          "Function": "mergeAuthoring",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_authoring.go",
+          "Line": 70,
+          "Symbol": "UnderlineOn",
+          "Function": "mergeAuthoring",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_authoring.go",
+          "Line": 268,
+          "Symbol": "BoldOn",
+          "Function": "deleteMerge",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_authoring.go",
+          "Line": 270,
+          "Symbol": "UnderlineOn",
+          "Function": "deleteMerge",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/merge_format.go",
+      "sha256": "2129dbfffe672733d7bbdfeb165cf000a45e1230ee79a3059c4e9016e18187c7",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 14,
+          "enclosing_declaration": "func (f *MergeFieldFormatting) Apply(raw []byte) bool {",
+          "text": "case BoldOn, BoldOff:"
+        },
+        {
+          "line": 15,
+          "enclosing_declaration": "func (f *MergeFieldFormatting) Apply(raw []byte) bool {",
+          "text": "case UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 20,
+          "enclosing_declaration": "func (f *MergeFieldFormatting) Apply(raw []byte) bool {",
+          "text": "on := kind == BoldOn || kind == UnderlineOn"
+        },
+        {
+          "line": 42,
+          "enclosing_declaration": "func (d *Document) ToggleMergeFieldAttribute(c Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "return 0, []byte(nativeBoldOn), 1, nil"
+        },
+        {
+          "line": 47,
+          "enclosing_declaration": "func (d *Document) ToggleMergeFieldAttribute(c Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "return 0, []byte(nativeUnderlineOn), 1, nil"
+        },
+        {
+          "line": 68,
+          "enclosing_declaration": "func (d *Document) ApplyMergeFieldAttribute(anchor, end Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "on, off, begin, finish = BoldOn, BoldOff, nativeBoldOn, nativeBoldOff"
+        },
+        {
+          "line": 70,
+          "enclosing_declaration": "func (d *Document) ApplyMergeFieldAttribute(anchor, end Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "on, off, begin, finish = UnderlineOn, UnderlineOff, nativeUnderlineOn, nativeUnderlineOff"
+        },
+        {
+          "line": 98,
+          "enclosing_declaration": "func (d *Document) ApplyMergeFieldAttribute(anchor, end Cursor, attribute Attribute) (EditResult, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff, SoftReturn, DeletedSoftReturn:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 14,
+          "Symbol": "BoldOn",
+          "Function": "Apply",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 15,
+          "Symbol": "UnderlineOn",
+          "Function": "Apply",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 20,
+          "Symbol": "BoldOn",
+          "Function": "Apply",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 20,
+          "Symbol": "UnderlineOn",
+          "Function": "Apply",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 68,
+          "Symbol": "BoldOn",
+          "Function": "ApplyMergeFieldAttribute",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 70,
+          "Symbol": "UnderlineOn",
+          "Function": "ApplyMergeFieldAttribute",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 98,
+          "Symbol": "BoldOn",
+          "Function": "ApplyMergeFieldAttribute",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_format.go",
+          "Line": 98,
+          "Symbol": "UnderlineOn",
+          "Function": "ApplyMergeFieldAttribute",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/merge_wrap.go",
+      "sha256": "415f72640f6ce7489c85e89c245543e11c1ed290dacb3584fb536259a37b53da",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 89,
+          "enclosing_declaration": "func (d *Document) reflowMergeSecondary(caret int) (*Document, int, error) {",
+          "text": "case ASCII, ExtendedCharacter, BoldOn, BoldOff, UnderlineOn, UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/merge_wrap.go",
+          "Line": 89,
+          "Symbol": "BoldOn",
+          "Function": "reflowMergeSecondary",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/merge_wrap.go",
+          "Line": 89,
+          "Symbol": "UnderlineOn",
+          "Function": "reflowMergeSecondary",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/mutation.go",
+      "sha256": "eff9670f16a441378b1ce86ac992ce3965ce1104d6bc6cb4730f607c891fe298",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 246,
+          "enclosing_declaration": "func (d *Document) ReplaceSearchSpan(c Cursor, end int, text []byte) (EditResult, error) {",
+          "text": "case BoldOn, BoldOff:"
+        },
+        {
+          "line": 248,
+          "enclosing_declaration": "func (d *Document) ReplaceSearchSpan(c Cursor, end int, text []byte) (EditResult, error) {",
+          "text": "case UnderlineOn, UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/mutation.go",
+          "Line": 246,
+          "Symbol": "BoldOn",
+          "Function": "ReplaceSearchSpan",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/mutation.go",
+          "Line": 248,
+          "Symbol": "UnderlineOn",
+          "Function": "ReplaceSearchSpan",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/document/proof_correction.go",
+      "sha256": "8ce8168c1e4487dbad7686bb340cf7acb7d7a06c739b970decb20a29527fc79d",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 36,
+          "enclosing_declaration": "func (d *Document) ReplaceProofWord(start, end Cursor, expected, replacement string) (EditResult, error) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff:"
+        },
+        {
+          "line": 141,
+          "enclosing_declaration": "func (d *Document) proofNeighbor(index, step int) (byte, int) {",
+          "text": "case BoldOn, BoldOff, UnderlineOn, UnderlineOff, DeletedSoftReturn, DeletedSoftPage:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/document/proof_correction.go",
+          "Line": 36,
+          "Symbol": "BoldOn",
+          "Function": "ReplaceProofWord",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/proof_correction.go",
+          "Line": 36,
+          "Symbol": "UnderlineOn",
+          "Function": "ReplaceProofWord",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/proof_correction.go",
+          "Line": 141,
+          "Symbol": "BoldOn",
+          "Function": "proofNeighbor",
+          "Call": false
+        },
+        {
+          "Path": "internal/document/proof_correction.go",
+          "Line": 141,
+          "Symbol": "UnderlineOn",
+          "Function": "proofNeighbor",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/editor/block_copy.go",
+      "sha256": "211603fbc157e7fa807f2e60e00a5fd47d6885136f31dbdc2b771d9818cafca1",
+      "disposition": "Live beginBlockCopy calls sole native CopyEverydayBlock; beginBlockAppend shares beginBlockCopy and exports that real detached fragment. Copy target calls InsertBlockCopy; existing append target calls InsertDocument. No alternate writer or API added.",
+      "uses": [
+        {
+          "line": 11,
+          "enclosing_declaration": "func (s Session) beginBlockCopy() (Session, *Intent, error) {",
+          "text": "func (s Session) beginBlockCopy() (Session, *Intent, error) {"
+        },
+        {
+          "line": 12,
+          "enclosing_declaration": "func (s Session) beginBlockCopy() (Session, *Intent, error) {",
+          "text": "copy, err := s.native.CopyEverydayBlock(s.anchor, s.cursor)"
+        },
+        {
+          "line": 22,
+          "enclosing_declaration": "func (s Session) beginBlockAppend() (Session, *Intent, error) {",
+          "text": "func (s Session) beginBlockAppend() (Session, *Intent, error) {"
+        },
+        {
+          "line": 23,
+          "enclosing_declaration": "func (s Session) beginBlockAppend() (Session, *Intent, error) {",
+          "text": "next, intent, err := s.beginBlockCopy()"
+        },
+        {
+          "line": 42,
+          "enclosing_declaration": "func (s Session) blockCopyInput(event Event) (Session, *Intent, error) {",
+          "text": "return s.beginBlockCopy()"
+        },
+        {
+          "line": 45,
+          "enclosing_declaration": "func (s Session) blockCopyInput(event Event) (Session, *Intent, error) {",
+          "text": "return s.beginBlockAppend()"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/editor/block_copy.go",
+          "Line": 11,
+          "Symbol": "beginBlockCopy",
+          "Function": "beginBlockCopy",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/block_copy.go",
+          "Line": 12,
+          "Symbol": "CopyEverydayBlock",
+          "Function": "beginBlockCopy",
+          "Call": true
+        },
+        {
+          "Path": "internal/editor/block_copy.go",
+          "Line": 22,
+          "Symbol": "beginBlockAppend",
+          "Function": "beginBlockAppend",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/block_copy.go",
+          "Line": 23,
+          "Symbol": "beginBlockCopy",
+          "Function": "beginBlockAppend",
+          "Call": true
+        },
+        {
+          "Path": "internal/editor/block_copy.go",
+          "Line": 42,
+          "Symbol": "beginBlockCopy",
+          "Function": "blockCopyInput",
+          "Call": true
+        },
+        {
+          "Path": "internal/editor/block_copy.go",
+          "Line": 45,
+          "Symbol": "beginBlockAppend",
+          "Function": "blockCopyInput",
+          "Call": true
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/editor/everyday.go",
+      "sha256": "0684999c932d7c15d668f82c1948c08425aefd2eafbe0675de2a4278da69e2ec",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 132,
+          "enclosing_declaration": "func (s *physicalState) add(tok document.Token) {",
+          "text": "case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/editor/everyday.go",
+          "Line": 132,
+          "Symbol": "BoldOn",
+          "Function": "add",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/everyday.go",
+          "Line": 132,
+          "Symbol": "UnderlineOn",
+          "Function": "add",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/editor/everyday_live.go",
+      "sha256": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 1095,
+          "enclosing_declaration": "func (s Session) deleteEverydaySpan(command Command) (Session, *Intent, error) {",
+          "text": "case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/editor/everyday_live.go",
+          "Line": 1095,
+          "Symbol": "BoldOn",
+          "Function": "deleteEverydaySpan",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/everyday_live.go",
+          "Line": 1095,
+          "Symbol": "UnderlineOn",
+          "Function": "deleteEverydaySpan",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/editor/italics.go",
+      "sha256": "3b892b138632825110963663adb6c9a94eb69fa15d7b1b1fa593b2af754b1c56",
+      "disposition": "Live Session.ToggleItalics calls native authoring and adopts checked everyday edit; unchanged.",
+      "uses": [
+        {
+          "line": 3,
+          "enclosing_declaration": "func (s Session) ToggleItalics() (Session, error) {",
+          "text": "func (s Session) ToggleItalics() (Session, error) {"
+        },
+        {
+          "line": 7,
+          "enclosing_declaration": "func (s Session) ToggleItalics() (Session, error) {",
+          "text": "edit, err := s.native.ToggleItalics(s.cursor)"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/editor/italics.go",
+          "Line": 3,
+          "Symbol": "ToggleItalics",
+          "Function": "ToggleItalics",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/italics.go",
+          "Line": 7,
+          "Symbol": "ToggleItalics",
+          "Function": "ToggleItalics",
+          "Call": true
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/editor/proofreading.go",
+      "sha256": "3d68b06ed9e2faee5519e9f544f3215a2f51e35e837d33448434a39dc3a0c045",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 105,
+          "enclosing_declaration": "func proofTransparent(kind document.Kind) bool {",
+          "text": "case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff,"
+        },
+        {
+          "line": 259,
+          "enclosing_declaration": "func (s Session) proofWordAt(word proofWord, gap int) bool {",
+          "text": "case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/editor/proofreading.go",
+          "Line": 105,
+          "Symbol": "BoldOn",
+          "Function": "proofTransparent",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/proofreading.go",
+          "Line": 105,
+          "Symbol": "UnderlineOn",
+          "Function": "proofTransparent",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/proofreading.go",
+          "Line": 259,
+          "Symbol": "BoldOn",
+          "Function": "proofWordAt",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/proofreading.go",
+          "Line": 259,
+          "Symbol": "UnderlineOn",
+          "Function": "proofWordAt",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/editor/session.go",
+      "sha256": "a98e0de4bf6540cf5f68da90ae5f7baf3941d6d16ab771e244ad6f8df7918089",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 1085,
+          "enclosing_declaration": "func (s Session) reduce(event Event) (Session, *Intent, error) {",
+          "text": "return s.beginBlockCopy()"
+        },
+        {
+          "line": 1088,
+          "enclosing_declaration": "func (s Session) reduce(event Event) (Session, *Intent, error) {",
+          "text": "return s.beginBlockAppend()"
+        },
+        {
+          "line": 1321,
+          "enclosing_declaration": "func (s Session) reduce(event Event) (Session, *Intent, error) {",
+          "text": "if token.Kind != document.BoldOn && token.Kind != document.BoldOff && token.Kind != document.UnderlineOn && token.Kind != document.UnderlineOff {"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/editor/session.go",
+          "Line": 1085,
+          "Symbol": "beginBlockCopy",
+          "Function": "reduce",
+          "Call": true
+        },
+        {
+          "Path": "internal/editor/session.go",
+          "Line": 1088,
+          "Symbol": "beginBlockAppend",
+          "Function": "reduce",
+          "Call": true
+        },
+        {
+          "Path": "internal/editor/session.go",
+          "Line": 1321,
+          "Symbol": "BoldOn",
+          "Function": "reduce",
+          "Call": false
+        },
+        {
+          "Path": "internal/editor/session.go",
+          "Line": 1321,
+          "Symbol": "UnderlineOn",
+          "Function": "reduce",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/layout/layout.go",
+      "sha256": "0e6791f36376037ab8f7692485e5bc7a1f410c7f45c3049e1a8181908cc2b99f",
+      "disposition": "Existing Italics owners have zero width and native token gap identity in layout; unchanged.",
+      "uses": [
+        {
+          "line": 1181,
+          "enclosing_declaration": "func isAttribute(kind document.Kind) bool {",
+          "text": "case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff,"
+        },
+        {
+          "line": 1182,
+          "enclosing_declaration": "func isAttribute(kind document.Kind) bool {",
+          "text": "document.RedlineOn, document.RedlineOff, document.StrikeoutOn, document.StrikeoutOff, document.ItalicsOn, document.ItalicsOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/layout/layout.go",
+          "Line": 1181,
+          "Symbol": "BoldOn",
+          "Function": "isAttribute",
+          "Call": false
+        },
+        {
+          "Path": "internal/layout/layout.go",
+          "Line": 1181,
+          "Symbol": "UnderlineOn",
+          "Function": "isAttribute",
+          "Call": false
+        },
+        {
+          "Path": "internal/layout/layout.go",
+          "Line": 1182,
+          "Symbol": "ItalicsOn",
+          "Function": "isAttribute",
+          "Call": false
+        },
+        {
+          "Path": "internal/layout/layout.go",
+          "Line": 1182,
+          "Symbol": "ItalicsOff",
+          "Function": "isAttribute",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/layout/standard_print.go",
+      "sha256": "0e3b7482b8b6b00d0b97bea30c2a05ccc820e4e8c436eb68b792c0258a4ce380",
+      "disposition": "Existing Standard Printer projection tracks Italics as declared overstrike/underline presentation, not new original print qualification.",
+      "uses": [
+        {
+          "line": 125,
+          "enclosing_declaration": "func StandardPages(d *document.Document, settings Settings) ([]StandardPage, error) {",
+          "text": "case document.BoldOn:"
+        },
+        {
+          "line": 129,
+          "enclosing_declaration": "func StandardPages(d *document.Document, settings Settings) ([]StandardPage, error) {",
+          "text": "case document.UnderlineOn:"
+        },
+        {
+          "line": 141,
+          "enclosing_declaration": "func StandardPages(d *document.Document, settings Settings) ([]StandardPage, error) {",
+          "text": "case document.ItalicsOn:"
+        },
+        {
+          "line": 143,
+          "enclosing_declaration": "func StandardPages(d *document.Document, settings Settings) ([]StandardPage, error) {",
+          "text": "case document.ItalicsOff:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/layout/standard_print.go",
+          "Line": 125,
+          "Symbol": "BoldOn",
+          "Function": "StandardPages",
+          "Call": false
+        },
+        {
+          "Path": "internal/layout/standard_print.go",
+          "Line": 129,
+          "Symbol": "UnderlineOn",
+          "Function": "StandardPages",
+          "Call": false
+        },
+        {
+          "Path": "internal/layout/standard_print.go",
+          "Line": 141,
+          "Symbol": "ItalicsOn",
+          "Function": "StandardPages",
+          "Call": false
+        },
+        {
+          "Path": "internal/layout/standard_print.go",
+          "Line": 143,
+          "Symbol": "ItalicsOff",
+          "Function": "StandardPages",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/tui/appearance.go",
+      "sha256": "c3451ea85fb1ddcfa77c39d95b98889e7c1d387fc6156263a8ae08875fdc7cf4",
+      "disposition": "Public Font/Appearance applyItalics calls Session.ToggleItalics; unchanged.",
+      "uses": [
+        {
+          "line": 52,
+          "enclosing_declaration": "func (m Model) applyItalics() Model {",
+          "text": "next, err := m.session.ToggleItalics()"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/tui/appearance.go",
+          "Line": 52,
+          "Symbol": "ToggleItalics",
+          "Function": "applyItalics",
+          "Call": true
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/tui/everyday_view.go",
+      "sha256": "da89f5e2ccd8d89442e0e75a25be88c83d0d625806f6f8852e7595fa4c5e0138",
+      "disposition": "Current everyday renderer recognizes Italics flags; other Bold/Underline-only display helpers remain their existing bounded paths. No ANSI output used as native oracle.",
+      "uses": [
+        {
+          "line": 187,
+          "enclosing_declaration": "func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {",
+          "text": "case document.BoldOn:"
+        },
+        {
+          "line": 191,
+          "enclosing_declaration": "func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {",
+          "text": "case document.UnderlineOn:"
+        },
+        {
+          "line": 203,
+          "enclosing_declaration": "func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {",
+          "text": "case document.ItalicsOn:"
+        },
+        {
+          "line": 205,
+          "enclosing_declaration": "func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {",
+          "text": "case document.ItalicsOff:"
+        },
+        {
+          "line": 393,
+          "enclosing_declaration": "func previewCode(entry document.OverlayElement) string {",
+          "text": "case document.BoldOn:"
+        },
+        {
+          "line": 397,
+          "enclosing_declaration": "func previewCode(entry document.OverlayElement) string {",
+          "text": "case document.UnderlineOn:"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/tui/everyday_view.go",
+          "Line": 187,
+          "Symbol": "BoldOn",
+          "Function": "paintEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/tui/everyday_view.go",
+          "Line": 191,
+          "Symbol": "UnderlineOn",
+          "Function": "paintEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/tui/everyday_view.go",
+          "Line": 203,
+          "Symbol": "ItalicsOn",
+          "Function": "paintEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/tui/everyday_view.go",
+          "Line": 205,
+          "Symbol": "ItalicsOff",
+          "Function": "paintEveryday",
+          "Call": false
+        },
+        {
+          "Path": "internal/tui/everyday_view.go",
+          "Line": 393,
+          "Symbol": "BoldOn",
+          "Function": "previewCode",
+          "Call": false
+        },
+        {
+          "Path": "internal/tui/everyday_view.go",
+          "Line": 397,
+          "Symbol": "UnderlineOn",
+          "Function": "previewCode",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    },
+    {
+      "path": "internal/tui/model.go",
+      "sha256": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+      "disposition": "Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.",
+      "uses": [
+        {
+          "line": 776,
+          "enclosing_declaration": "func (m Model) legacyPanes() (normal, reveal string, x, y int, err error) {",
+          "text": "case document.BoldOn:"
+        },
+        {
+          "line": 801,
+          "enclosing_declaration": "func (m Model) legacyPanes() (normal, reveal string, x, y int, err error) {",
+          "text": "if e.Kind == document.BoldOn || e.Kind == document.BoldOff || e.Kind == document.HardReturn {"
+        }
+      ],
+      "ast_identifier_uses": [
+        {
+          "Path": "internal/tui/model.go",
+          "Line": 776,
+          "Symbol": "BoldOn",
+          "Function": "legacyPanes",
+          "Call": false
+        },
+        {
+          "Path": "internal/tui/model.go",
+          "Line": 801,
+          "Symbol": "BoldOn",
+          "Function": "legacyPanes",
+          "Call": false
+        }
+      ],
+      "text_use_locator_note": "Text query includes comments/strings; exact identifier function membership and call sites are independently resolved by Go parser/AST below."
+    }
+  ],
+  "live_copy_chain": [
+    "editor.beginBlockCopy -> Document.CopyEverydayBlock",
+    "editor.beginBlockAppend -> editor.beginBlockCopy -> Document.CopyEverydayBlock",
+    "editor.blockCopyInput CopyTarget -> Document.InsertBlockCopy",
+    "editor.appendWorkspaceBlock existing target -> Document.InsertDocument"
+  ],
+  "scope_note": "Static complete per-query production use inventory, not evidence that all formatting commands are compatible. Shared Copy/Append producer addressed only; other bounded attribute operations remain explicit separate qualification surfaces.",
+  "ast_symbol_query": [
+    "ItalicsOn",
+    "ItalicsOff",
+    "ToggleItalics",
+    "CopyEverydayBlock",
+    "beginBlockCopy",
+    "beginBlockAppend",
+    "BoldOn",
+    "UnderlineOn",
+    "attributeOn",
+    "attributeOff",
+    "boldAttribute",
+    "underlineAttr",
+    "blockCopyItalicsAttribute"
+  ],
+  "ast_note": "Standard-library go/parser and ast; all active production files, both OS variants. No product/build gate or new dependency."
+}

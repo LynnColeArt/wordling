@@ -1,0 +1,471 @@
+{
+  "baseline-native": {
+    "named_including_parents": {
+      "pass": 710
+    },
+    "leaf": {
+      "pass": 672
+    },
+    "skips": []
+  },
+  "red-initial-diagnostic": {
+    "named_including_parents": {
+      "fail": 60,
+      "pass": 22
+    },
+    "leaf": {
+      "fail": 57,
+      "pass": 21
+    },
+    "skips": []
+  },
+  "red-native": {
+    "named_including_parents": {
+      "fail": 60,
+      "pass": 22
+    },
+    "leaf": {
+      "fail": 57,
+      "pass": 21
+    },
+    "skips": []
+  },
+  "green-native": {
+    "named_including_parents": {
+      "pass": 84
+    },
+    "leaf": {
+      "pass": 79
+    },
+    "skips": []
+  },
+  "full-go-test": {
+    "named_including_parents": {
+      "pass": 3347,
+      "skip": 4
+    },
+    "leaf": {
+      "pass": 3127,
+      "skip": 4
+    },
+    "skips": [
+      {
+        "package": "github.com/lynncoleart/wordling/internal/layout",
+        "test": "TestAdvanceCapturedLayout",
+        "output": "=== RUN   TestAdvanceCapturedLayout\n    advance_test.go:20: historical Advance oracle unavailable: set WORDLING_ADVANCE_REFERENCE_DIR explicitly; synthetic tests are not DOS parity\n--- SKIP: TestAdvanceCapturedLayout (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/storage",
+        "test": "TestNativePlatformWindowsPathRefusals",
+        "output": "=== RUN   TestNativePlatformWindowsPathRefusals\n    platform_native_test.go:132: Windows namespace\n--- SKIP: TestNativePlatformWindowsPathRefusals (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestBoldPTYReadback",
+        "output": "=== RUN   TestBoldPTYReadback\n    bold_authoring_test.go:362: requires the two completed frozen PTY roots\n--- SKIP: TestBoldPTYReadback (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestCharacterRepeatCLIReadback",
+        "output": "=== RUN   TestCharacterRepeatCLIReadback\n    character_repeat_test.go:311: separate real CLI artifacts not requested\n--- SKIP: TestCharacterRepeatCLIReadback (0.00s)\n"
+      }
+    ]
+  },
+  "focused-race": {
+    "named_including_parents": {
+      "pass": 246
+    },
+    "leaf": {
+      "pass": 228
+    },
+    "skips": []
+  },
+  "public-original-repro": {
+    "named_including_parents": {
+      "pass": 1
+    },
+    "leaf": {
+      "pass": 1
+    },
+    "skips": []
+  },
+  "public-fixed-editor-draft": {
+    "named_including_parents": {
+      "pass": 49
+    },
+    "leaf": {
+      "pass": 45
+    },
+    "skips": []
+  },
+  "frozen-native-baseline-green": {
+    "named_including_parents": {
+      "pass": 102
+    },
+    "leaf": {
+      "pass": 93
+    },
+    "skips": []
+  },
+  "commands": {
+    "windows-production-closure.run.json": {
+      "argv": [
+        "go",
+        "list",
+        "-deps",
+        "-json",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.42751145362854004
+    },
+    "baseline-native.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document"
+      ],
+      "exit": 0,
+      "seconds": 2.4095818996429443,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "f216d3a62abff8320e6d5d38e36396bb13c81fb2b38d797f3dbb7d382b4bd127"
+      },
+      "git_HEAD": "6e497807d318983356ec85ae0702b9c8cddf920a"
+    },
+    "full-go-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 13.285320043563843,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "49e9914791cc2bee1e54d49ef0163dc3418ac8b6"
+    },
+    "red-native.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestBlockCopyItalics"
+      ],
+      "exit": 1,
+      "seconds": 0.7771539688110352,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "6e497807d318983356ec85ae0702b9c8cddf920a"
+    },
+    "format.run.json": {
+      "argv": [
+        "gofmt",
+        "-l",
+        "internal/document/block_copy.go",
+        "internal/document/block_copy_italics_test.go"
+      ],
+      "exit": 0,
+      "seconds": 0.004052639007568359,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "3a30b011245502bf5a19415512341ebb9ac18e49"
+    },
+    "public-fixed-editor-draft.run.json": {
+      "source_git": "3a30b011245502bf5a19415512341ebb9ac18e49",
+      "source_sha256": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+      "test_sha256_before": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+      "test_sha256_after": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/editor",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 0,
+      "seconds": 0.679314136505127,
+      "named": {
+        "pass": 49
+      },
+      "leaf": {
+        "pass": 45
+      },
+      "boundary": "genuine editor caller only; WP107 full union and WP110 remain pending"
+    },
+    "windows-broad-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 1,
+      "seconds": 5.618042707443237
+    },
+    "windows-broad-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 1,
+      "seconds": 4.42247462272644
+    },
+    "windows-production-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "-o",
+        "/tmp/wp109-wordling.exe",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.7926371097564697
+    },
+    "focused-race.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-race",
+        "-json",
+        "./internal/document",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestBlockCopyItalics|TestRetrieveItalics|TestEveryday.*(Copy|Insert)|Test.*History|TestFontAppearance"
+      ],
+      "exit": 0,
+      "seconds": 13.859648704528809,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "49e9914791cc2bee1e54d49ef0163dc3418ac8b6"
+    },
+    "windows-production-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "github.com/lynncoleart/wordling/internal/wp51",
+        "github.com/lynncoleart/wordling/internal/merge/native",
+        "github.com/lynncoleart/wordling/internal/merge/explicit",
+        "github.com/lynncoleart/wordling/internal/worksheet",
+        "github.com/lynncoleart/wordling/internal/document",
+        "github.com/lynncoleart/wordling/internal/layout",
+        "github.com/lynncoleart/wordling/internal/macro/wpm",
+        "github.com/lynncoleart/wordling/internal/macro/runtime",
+        "github.com/lynncoleart/wordling/internal/merge/body",
+        "github.com/lynncoleart/wordling/internal/merge",
+        "github.com/lynncoleart/wordling/internal/storage",
+        "github.com/lynncoleart/wordling/internal/proofreading",
+        "github.com/lynncoleart/wordling/internal/editor",
+        "github.com/lynncoleart/wordling/internal/input",
+        "github.com/lynncoleart/wordling/internal/tui",
+        "github.com/lynncoleart/wordling/cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 3.3227882385253906
+    },
+    "full-go-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 14.365403652191162,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "49e9914791cc2bee1e54d49ef0163dc3418ac8b6"
+    },
+    "full-go-test.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 21.066363096237183,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "49e9914791cc2bee1e54d49ef0163dc3418ac8b6"
+    },
+    "green-native.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestBlockCopyItalics"
+      ],
+      "exit": 0,
+      "seconds": 1.4308888912200928,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "49e9914791cc2bee1e54d49ef0163dc3418ac8b6"
+    },
+    "diff-scoped-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./internal/document"
+      ],
+      "exit": 0,
+      "seconds": 0.14879703521728516,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "3a30b011245502bf5a19415512341ebb9ac18e49"
+    },
+    "public-original-repro.run.json": {
+      "source_git": "3a30b011245502bf5a19415512341ebb9ac18e49",
+      "source_sha256": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+      "test_sha256_before": "bd67555599a4a7777c0f0dc036cf863b8246fb3325c607a013351c6418c865e2",
+      "test_sha256_after": "bd67555599a4a7777c0f0dc036cf863b8246fb3325c607a013351c6418c865e2",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/editor",
+        "-run",
+        "^TestRetrieveItalicsPublicCopyProducer$"
+      ],
+      "exit": 0,
+      "seconds": 2.105316162109375,
+      "named": {
+        "pass": 1
+      },
+      "leaf": {
+        "pass": 1
+      },
+      "boundary": "genuine editor caller only; WP107 full union and WP110 remain pending"
+    },
+    "red-initial-diagnostic.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestBlockCopyItalics"
+      ],
+      "exit": 1,
+      "seconds": 0.8182971477508545,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "f216d3a62abff8320e6d5d38e36396bb13c81fb2b38d797f3dbb7d382b4bd127"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "f216d3a62abff8320e6d5d38e36396bb13c81fb2b38d797f3dbb7d382b4bd127"
+      },
+      "git_HEAD": "6e497807d318983356ec85ae0702b9c8cddf920a"
+    },
+    "diff-check.run.json": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "6e497807d318983356ec85ae0702b9c8cddf920a",
+        "HEAD"
+      ],
+      "exit": 0,
+      "seconds": 0.7771258354187012,
+      "test_source_pins_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "test_source_pins_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "git_HEAD": "3a30b011245502bf5a19415512341ebb9ac18e49"
+    }
+  },
+  "official_baseline_junit": {
+    "name": "wordling-regression",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  }
+}

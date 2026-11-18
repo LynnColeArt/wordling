@@ -1,0 +1,20 @@
+from pathlib import Path
+import json,collections,xml.etree.ElementTree as ET
+p=Path('/home/lynn/projects/wordling/internal/document/evidence/block-copy-italics');summary={}
+for label in ['baseline-native','red-initial-diagnostic','red-native','green-native','full-go-test','focused-race','public-original-repro','public-fixed-editor-draft','frozen-native-baseline-green']:
+ f=p/(label+'.stdout')
+ if not f.exists():continue
+ events=[]
+ for line in f.read_text().splitlines():
+  try:events.append(json.loads(line))
+  except json.JSONDecodeError:pass
+ term=[x for x in events if x.get('Test')and x.get('Action')in('pass','fail','skip')];names={(x['Package'],x['Test'])for x in term};leaf=[x for x in term if not any(pkg==x['Package']and name.startswith(x['Test']+'/')for pkg,name in names)]
+ skips=[{'package':x['Package'],'test':x['Test'],'output':''.join(y.get('Output','')for y in events if y.get('Test')==x['Test'])}for x in term if x['Action']=='skip'];summary[label]={'named_including_parents':dict(collections.Counter(x['Action']for x in term)),'leaf':dict(collections.Counter(x['Action']for x in leaf)),'skips':skips}
+ suite=ET.Element('testsuite',name=label,tests=str(len(term)),failures=str(sum(x['Action']=='fail'for x in term)),skipped=str(sum(x['Action']=='skip'for x in term)))
+ for x in term:
+  c=ET.SubElement(suite,'testcase',name=x['Test'],classname=x['Package']);output=''.join(y.get('Output','')for y in events if y.get('Test')==x['Test']);ET.SubElement(c,'system-out').text=output
+  if x['Action']=='fail':ET.SubElement(c,'failure').text=output
+  if x['Action']=='skip':ET.SubElement(c,'skipped').text=output
+ target=p/(label+'-junit.xml');ET.ElementTree(suite).write(target,encoding='utf-8',xml_declaration=True);target.write_text('\n'.join(line.rstrip()for line in target.read_text().splitlines())+'\n')
+summary['commands']={f.name:json.loads(f.read_text())for f in p.glob('*.run.json')};summary['official_baseline_junit']=ET.parse(p/'baseline-junit.xml').getroot().attrib
+(p/'verification-summary.json').write_text(json.dumps(summary,indent=2)+'\n')

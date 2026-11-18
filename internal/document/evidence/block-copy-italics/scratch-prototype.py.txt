@@ -1,0 +1,16 @@
+from pathlib import Path
+import subprocess,tempfile,tarfile,os,json,hashlib,collections,time
+r=Path('/home/lynn/projects/wordling');out=Path('/tmp/wp109-prototype');out.mkdir(exist_ok=True);head='95b8e95a45a4c169e74369f43d92dd4add9ea3d4';src=Path('/tmp/wp109-block_copy.go').read_bytes();test=subprocess.check_output(['git','show',head+':internal/document/block_copy_italics_test.go'],cwd=r)
+with tempfile.TemporaryDirectory(prefix='wp109-prototype-',dir='/tmp')as tmp:
+ p=Path(tmp);tree=p/'tree';tree.mkdir()
+ with (p/'source.tar').open('wb')as d:subprocess.run(['git','archive','--format=tar',head,'go.mod','go.sum','internal','docs/research/reference-runs/mission1-appearance','docs/research/reference-runs/2026-10-29-advanced-03/CMD51-203/ORIGIN.WP5'],cwd=r,stdout=d,check=True)
+ with tarfile.open(p/'source.tar')as t:t.extractall(tree,filter='data')
+ (tree/'internal/document/block_copy.go').write_bytes(src)
+ assert (tree/'internal/document/block_copy_italics_test.go').read_bytes()==test
+ cmd=['/usr/local/go/bin/go','test','-mod=readonly','-count=1','-json','./internal/document','-run','TestBlockCopyItalics'];a=subprocess.run(cmd,cwd=tree,env=os.environ|{'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off'},capture_output=True)
+ (out/'green.stdout').write_bytes(a.stdout);(out/'green.stderr').write_bytes(a.stderr)
+ ev=[json.loads(l)for l in a.stdout.decode().splitlines()if l.startswith('{')];term=[x for x in ev if x.get('Test')and x['Action']in('pass','fail','skip')];summary={'label':'scratch prototype after committed RED; primary not edited','source_git':head,'source_sha256':hashlib.sha256(src).hexdigest(),'test_sha256':hashlib.sha256(test).hexdigest(),'argv':cmd,'exit':a.returncode,'named':dict(collections.Counter(x['Action']for x in term))}
+ for x in ev:
+  if x.get('Action')=='output'and'block_copy_italics_test.go:'in x.get('Output',''):print(x['Output'].strip())
+ isolated=str(p)
+assert not Path(isolated).exists();summary['isolation_removed']=True;(out/'green.json').write_text(json.dumps(summary,indent=2));print(summary)

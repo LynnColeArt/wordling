@@ -1,0 +1,45 @@
+from pathlib import Path
+import hashlib,json,re
+r=Path('/home/lynn/projects/wordling');out=Path('/tmp/wp109-inventory');out.mkdir(exist_ok=True)
+roles={
+'internal/document/block_copy.go':'WP109 sole production extension: CopyEverydayBlock independent Italics state, exact selected raw owners and necessary edge wrappers; conservative four-token budget floor retained and six actual synthesized wrappers counted.',
+'internal/document/everyday.go':'Approved WP106 InsertDocument/InsertBlockCopy shared scan admits independently balanced Italics. Existing block-format Bold/Underline-only scope stays unchanged; no generic formatting qualification inferred.',
+'internal/document/document.go':'Existing native08 identification/actual ItalicsOn/Off Kind and label/render identity; no enum/parser/global-constant change. Independent original/raw08 mirrors in WP109 tests.',
+'internal/document/admission.go':'Existing ordinary-body independent attribute balance/duplicate validation; source Copy admission and final native receiver candidate validation remain authorities, unchanged.',
+'internal/document/italics.go':'Existing balanced-pair authoring via ToggleItalics; literal08 source predates WP109. No authoring expansion.',
+'internal/document/dos_text.go':'Existing DOS text export projection explicitly removes formatting owners including Italics; conversion remains a separate declared API, unchanged.',
+'internal/editor/italics.go':'Live Session.ToggleItalics calls native authoring and adopts checked everyday edit; unchanged.',
+'internal/editor/block_copy.go':'Live beginBlockCopy calls sole native CopyEverydayBlock; beginBlockAppend shares beginBlockCopy and exports that real detached fragment. Copy target calls InsertBlockCopy; existing append target calls InsertDocument. No alternate writer or API added.',
+'internal/tui/appearance.go':'Public Font/Appearance applyItalics calls Session.ToggleItalics; unchanged.',
+'internal/tui/everyday_menus.go':'Public menu Italics selects the same applyItalics route, unchanged.',
+'internal/tui/everyday_view.go':'Current everyday renderer recognizes Italics flags; other Bold/Underline-only display helpers remain their existing bounded paths. No ANSI output used as native oracle.',
+'internal/layout/layout.go':'Existing Italics owners have zero width and native token gap identity in layout; unchanged.',
+'internal/layout/standard_print.go':'Existing Standard Printer projection tracks Italics as declared overstrike/underline presentation, not new original print qualification.',
+}
+pattern=re.compile(r'ItalicsOn|ItalicsOff|ToggleItalics|CopyEverydayBlock|beginBlockCopy|beginBlockAppend|BoldOn|UnderlineOn|attributeOn|attributeOff|boldAttribute|underlineAttr')
+rows=[]
+for directory in ['internal','cmd']:
+ for p in sorted((r/directory).rglob('*.go')):
+  if p.name.endswith('_test.go')or'evidence'in p.relative_to(r).parts:continue
+  text=p.read_text();matches=[];function='package/declarations'
+  for n,line in enumerate(text.splitlines(),1):
+   if line.startswith('func '):function=line.strip()
+   if pattern.search(line):matches.append({'line':n,'enclosing_declaration':function,'text':line.strip()})
+  if matches:
+   name=str(p.relative_to(r));reason=roles.get(name,'Existing specialized Bold/Underline/raw-attribute path: no new Italics permission or behavior verified here. These deletion/typeover/history/merge/proofreading/navigation/legacy-render restrictions remain explicit full-M1 follow-up surfaces; no source-owner expansion, compatibility claim or evidence substitution from Copy success.')
+   rows.append({'path':name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'disposition':reason,'uses':matches})
+(out/'attribute-consumer-census.json').write_text(json.dumps({'roots':['internal','cmd'],'excludes':['*_test.go','historical evidence snapshots','external third_party'],'query':pattern.pattern,'files':rows,'live_copy_chain':['editor.beginBlockCopy -> Document.CopyEverydayBlock','editor.beginBlockAppend -> editor.beginBlockCopy -> Document.CopyEverydayBlock','editor.blockCopyInput CopyTarget -> Document.InsertBlockCopy','editor.appendWorkspaceBlock existing target -> Document.InsertDocument'],'scope_note':'Static complete per-query production use inventory, not evidence that all formatting commands are compatible. Shared Copy/Append producer addressed only; other bounded attribute operations remain explicit separate qualification surfaces.'},indent=2))
+contracts=[];direct={'editing.md','files-platform.md','layout-resources.md','native-fixtures.json','native-framing.md','session.md'}
+for p in sorted((r/'kitty-specs/wp51-parity-01M64CVY/contracts').iterdir()):
+ if not p.is_file():continue
+ name=p.name;reason='Orthogonal: no macro/resource/language/structured/coverage/source API or original qualification change.'
+ if name=='editing.md':reason='D/P/R/H token-gap example A[BOLD]BC[bold]D; producer tests enumerate all analogous L[ITALC]AB[italc]R gaps/reverse, literal full owners, source cursors and self-contained native fragments. Existing deletion/history examples remain separate.'
+ if name=='files-platform.md':reason='FP01 receiver initial settings versus incoming body: detached historical prefix is independent from source prefix/metadata; downstream checked insertion authority retained. Public Retrieve/Save/overwrite original workflow examples are WP107/later gates.'
+ if name=='layout-resources.md':reason='Native candidate has exact source owners, existing layout/native/print regressions run with explicit resources. No new printer/geometry/original result is claimed.'
+ if name=='native-fixtures.json':reason='Historical six-file registry unchanged; cached ITALICS.WP independently pinned and public parsed. New substituted cases labeled synthetic disposable inputs, not original observed outputs.'
+ if name=='native-framing.md':reason='C3/C4 fixed width3, raw08 identifies Italics; owner boundaries never split. Exact no-edit/source images, opaque refusals, limits retained. No grammar/parser/API/budget expansion.'
+ if name=='session.md':reason='Shared token-gap/Reveal cursor and semantic revision/birth preserved; fragment is detached and checked insertion receives actual owners. Original G1/G10/SESSION1 and public IO/save/caret/history tasks not discharged by native producer tests.'
+ if name.startswith('mission1-closeout-coverage'):reason='WP103 provisional coverage/index artifact; status is independently reviewed by ROOT. Orthogonal to native source correctness, never used as product/original acceptance evidence.'
+ contracts.append({'path':str(p.relative_to(r)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'disposition':'direct overlap'if name in direct else'orthogonal','concrete_example_mapping':reason})
+(out/'contract-inventory.json').write_text(json.dumps({'file_count':len(contracts),'historical106review_count':15,'implementation_time_extra103_coverage_files':2,'files':contracts,'source_contract_edits':False},indent=2))
+print('attribute files',len(rows),'contracts',len(contracts))

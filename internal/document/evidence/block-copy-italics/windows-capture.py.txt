@@ -1,0 +1,16 @@
+from pathlib import Path
+import subprocess,json,os,time
+root=Path('/home/lynn/projects/wordling');p=root/'internal/document/evidence/block-copy-italics'; env=os.environ|{'GOOS':'windows','GOARCH':'amd64','CGO_ENABLED':'0'}
+def run(label,args):
+ start=time.time();r=subprocess.run(args,cwd=root,env=env,capture_output=True,text=True)
+ (p/(label+'.stdout')).write_text(r.stdout);(p/(label+'.stderr')).write_text(r.stderr);(p/(label+'.run.json')).write_text(json.dumps({'argv':args,'GOOS':'windows','GOARCH':'amd64','CGO_ENABLED':'0','exit':r.returncode,'seconds':time.time()-start},indent=2));print(label,r.returncode,r.stderr[:1000],flush=True);return r
+r=run('windows-production-closure',['go','list','-deps','-json','./cmd/wordling']);assert r.returncode==0
+raw=r.stdout;dec=json.JSONDecoder();packages=[]
+while raw.strip():
+ obj,end=dec.raw_decode(raw.lstrip());raw=raw.lstrip()[end:]
+ if obj.get('Module',{}).get('Main'):packages.append({'ImportPath':obj['ImportPath'],'GoFiles':obj.get('GoFiles',[]),'Dir':obj['Dir']})
+(p/'windows-production-targets.json').write_text(json.dumps(packages,indent=2));targets=[x['ImportPath'] for x in packages]
+run('windows-production-vet',['go','vet']+targets)
+run('windows-production-build',['go','build','-o','/tmp/wp109-wordling.exe','./cmd/wordling'])
+run('windows-broad-vet',['go','vet','./...'])
+run('windows-broad-build',['go','build','./...'])
