@@ -225,7 +225,7 @@ func TestNewNestedOriginalPrograms(t *testing.T) {
 						want = "LEFT" + want + "RIGHT"
 					}
 					state, p := s.Snapshot(), run.Snapshot()
-					if asciiText(t, s) != want || state.Gap != before.Gap+len(sample.output) || !state.Dirty || state.Name != "" || s.Source() != nil || state.NewPhase != editor.NewUnpublished || state.GenesisRevision != before.GenesisRevision || s.Document().Birth() != birth || p.Repeat != 1 || p.Completed != 1 || p.Pending != nil || p.DisplaySuppressed {
+					if asciiText(t, s) != want || state.Gap != before.Gap+len(sample.output) || state.Revision != before.Revision+uint64(len(sample.output)) || !state.HistoryQualified || !state.HistoryCountKnown || state.HistoryCount != before.HistoryCount || !state.Dirty || state.Name != "" || s.Source() != nil || state.NewPhase != editor.NewUnpublished || state.GenesisRevision != before.GenesisRevision || s.Document().Birth() != birth || p.Repeat != 1 || p.Completed != 1 || p.Pending != nil || p.DisplaySuppressed {
 						t.Fatalf("New receiver/result %+v %+v body%q", state, p, asciiText(t, s))
 					}
 					checkNewNestedReceipts(t, run, sample, before.Gap)
@@ -240,7 +240,7 @@ func TestNewNestedOriginalPrograms(t *testing.T) {
 						s, publish := firstRequest(t, s, dir, "RESULT.WP")
 						s = finishFirst(t, s, publish)
 						actual, err := os.ReadFile(filepath.Join(root, "RESULT.WP"))
-						if err != nil || !bytes.Equal(actual, raw) || s.Document().Birth() != birth || s.Snapshot().NativeRevision != state.NativeRevision || s.Snapshot().Gap != state.Gap {
+						if err != nil || !bytes.Equal(actual, raw) || s.Document().Birth() != birth || s.Snapshot().NativeRevision != state.NativeRevision || s.Snapshot().Gap != state.Gap || s.Source().Identity() != s.Snapshot().FirstPublication.Result.Outcome.Identity || s.Snapshot().SavedRevision != state.NativeRevision {
 							t.Fatal("first publication provenance", err, s.Snapshot())
 						}
 					}
@@ -253,5 +253,62 @@ func TestNewNestedOriginalPrograms(t *testing.T) {
 				})
 			}
 		}
+	}
+}
+
+func TestNewNestedKeepsOtherWorkspaceScreen(t *testing.T) {
+	s, _, root := newNestedReceiver(t, true)
+	s = liveKeys(t, s, editor.SwitchDocument)
+	s = liveText(t, s, "OTHER SCREEN")
+	s = liveKeys(t, s, editor.SwitchDocument)
+	other, err := s.NativeOnScreen(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	before, _ := other.Export()
+	sample := newNestedSamples(t)[2]
+	stageNewNested(t, root, sample)
+	s, run := startNewNested(t, s, sample.root)
+	s = runNewNested(t, s, run, 1)
+	other, err = s.NativeOnScreen(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	after, _ := other.Export()
+	if !bytes.Equal(before, after) || asciiText(t, s) != "LEFT"+sample.output+"RIGHT" || s.Snapshot().Screen != 1 {
+		t.Fatal("child escaped active workspace receiver", s.Snapshot())
+	}
+}
+
+func TestNewNestedUnsupportedNamesKeepActualPartialEffects(t *testing.T) {
+	for _, name := range []string{"../CHILD", "C:\\ELSE\\CHILD", "CHILD.TXT", "C:\\OUT\\..\\CHILD"} {
+		t.Run(name, func(t *testing.T) {
+			s, root := newHostMacro(t, uint16(0xfc0c), "BEFORE", uint16(0xfc18), name+"~AFTER")
+			child, err := os.ReadFile(newThirdMacro)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = os.WriteFile(filepath.Join(root, "CHILD.WPM"), child, 0600); err != nil {
+				t.Fatal(err)
+			}
+			s = newMacroReady(t, s)
+			s, run, err := s.StartMacro(vm.DefaultLimits())
+			if err != nil {
+				t.Fatal(err)
+			}
+			for n := 0; !run.Snapshot().Terminal; n++ {
+				if n >= 4096 {
+					t.Fatal("bounded refusal")
+				}
+				var intent *editor.Intent
+				s, intent, _, err = run.Step(context.Background(), s, 1)
+				if err != nil || intent != nil {
+					t.Fatal("unsupported name issued child IO", err, intent)
+				}
+			}
+			if asciiText(t, s) != "BEFORE" || !s.Snapshot().Dirty || s.Source() != nil || run.Snapshot().State != "failed" {
+				t.Fatal("unsupported name lost real partial state", run.Snapshot())
+			}
+		})
 	}
 }

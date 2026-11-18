@@ -246,9 +246,6 @@ func (r *macroExecutionState) Resolve(ctx context.Context, request vm.ProgramReq
 	if r.current.searchPending {
 		return vm.Resolution{State: "host-error", Err: refuse("complete the macro search before a nested call")}
 	}
-	if r.target != nil {
-		return vm.Resolution{State: "host-error", Err: refuse("New macro target admits root source only")}
-	}
 	name := make([]byte, len(request.Name))
 	for i, w := range request.Name {
 		if w.Kind != wpm.Literal || w.Value < 0x20 || w.Value > 0x7e {
