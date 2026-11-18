@@ -1,7 +1,6 @@
 """Finite offline ordinary-wheel preparation; never issues a ROOT decision."""
 import hashlib
 import json
-import os
 from pathlib import Path
 import shutil
 import stat

@@ -13,7 +13,7 @@ import stat
 import time
 from .errors import Opaque, Refusal
 from .bootstrap import OriginalSourcePolicy, validate_policy, validate_provider
-from .account import (OperationLimits, DIMENSIONS, _reserve_cleanup_hold,
+from .account import (OperationLimits, _reserve_cleanup_hold,
                       _take_cleanup_hold, _source_live_observation)
 from .ownership import ParentLease, OwnedLedger, _call, _identity, _components, _DIR, _FILE, _emergency_close
 
