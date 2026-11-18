@@ -13,8 +13,8 @@ import (
 
 var replaceFile = windows.NewLazySystemDLL("kernel32.dll").NewProc("ReplaceFileW")
 
-// ReplaceFile captures the actual displaced file in a private escrow. A single
-// namespace replacement is atomic; the document and .BK! are separate steps.
+// ReplaceFile captures the actual displaced file in a private escrow. The
+// document and .BK! are separate namespace publication steps.
 // Unlike an exchange, ReplaceFile may partially move names on failure. Classify
 // every error using both identities and contents before attempting restoration.
 func platformReplaceStep(s *saveStep, undo bool) error {
@@ -121,12 +121,14 @@ func replacementDirectory(dir *os.File) (path string, release func(), err error)
 		parts = append(parts, current)
 	}
 	var final windows.ByHandleFileInformation
+	// Metadata-only opens do not enforce share-access restrictions. Request
+	// directory read access so omitting FILE_SHARE_DELETE really holds names.
 	for _, part := range parts {
 		name, e := windows.UTF16PtrFromString(part)
 		if e != nil {
 			return "", release, e
 		}
-		h, e := windows.CreateFile(name, windows.FILE_READ_ATTRIBUTES|windows.SYNCHRONIZE,
+		h, e := windows.CreateFile(name, windows.FILE_LIST_DIRECTORY|windows.FILE_READ_ATTRIBUTES|windows.SYNCHRONIZE,
 			windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE, nil, windows.OPEN_EXISTING,
 			windows.FILE_FLAG_BACKUP_SEMANTICS|windows.FILE_FLAG_OPEN_REPARSE_POINT, 0)
 		if e != nil {
