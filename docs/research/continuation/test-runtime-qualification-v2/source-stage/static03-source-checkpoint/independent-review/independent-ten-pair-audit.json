@@ -1,0 +1,226 @@
+[
+  {
+    "family": "VA-GAP",
+    "postimage_sha256": "2732f277f291fd16b51dbb67e22975c686a1e3413f199930538abd9694535d35",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "elif row['VA_start'] != VA_cursor:\n            state = 'VA_GAP'",
+        "elif row['VA_start'] != VA_cursor:\n            file_cursor += row['VA_start'] - VA_cursor\n            VA_cursor = row['VA_start']"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "a98e2ac837d5c9fc439751e27f830e1f38b13f10ddfbf80d74648679d732228a",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "952128584ebbf317b4053ca18ca96b1e8eef69f2c761076760eebbde65738365",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "OVERLAP",
+    "postimage_sha256": "b20c1d7fed6268825b963c6a35ffbfb667802acb5f3e039dee3ff8af113413e4",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "if row['VA_start'] < VA_cursor:\n            state = 'MULTIPLE'",
+        "if row['VA_start'] < VA_cursor:\n            continue"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "a98e2ac837d5c9fc439751e27f830e1f38b13f10ddfbf80d74648679d732228a",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "07aee34f3b11008e26769cccca8cc57d196d2929315a3114b7c42d05eefb2b39",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "BIAS-FILE",
+    "postimage_sha256": "7ec75134b0c22c1dab2fbf8c9fb017b8d895c7ef60c2c7db39156a607febd0fd",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "elif row['file_offset'] != file_cursor or row['bias'] != bias:",
+        "elif False:"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "a7842ed59d20f4929ea5f1a697121d264332bb73d21107f3d4f342335cbcf5cc",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "f9c2533024dc6f097819e6b598d7c8aac90363bf13bc90a756b62b254becc90c",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "MEMSZ",
+    "postimage_sha256": "4e8cf42b6637c52e591d24199b1214fc9d214480094869af70ed6693016bfaf8",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "stop = min(end, row['address'] + row['size'])",
+        "stop = min(end, row['address'] + row.get('memory', row['size']))"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "a98e2ac837d5c9fc439751e27f830e1f38b13f10ddfbf80d74648679d732228a",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "1af63c4b85c19156d9a7d1f3824214bc099b916d4786549139211357cee578aa",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "EARLY-FIRST-MATCH",
+    "postimage_sha256": "0abc4d1f82c4a17710c1877495de0857d14f744df26de8c7795d22ee3da61439",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "VA_cursor = row['VA_end']\n    if VA_cursor",
+        "VA_cursor = row['VA_end']\n        if VA_cursor == end:\n            break\n    if VA_cursor"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "a7842ed59d20f4929ea5f1a697121d264332bb73d21107f3d4f342335cbcf5cc",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "0728dd409cc120e53655cf5e42e17f221e74f7f1cef0b60d67fc36e5f6f006ad",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "WINDOW",
+    "postimage_sha256": "eaf3337927a287471ed53f8b605838eba91199a01beeea2d167e9880343e3e6d",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "window_size = min(4096, singles[10] - value)",
+        "window_size = min(8192, singles[10] - value)"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "d31cfbb0bc9712dd332b8a3e144c16df40182a0cf63af23f916c68bd7045ddc7",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "517010b345739c05b3b9772fa3452c3a08e96c488b635ab4ee291644b7ec769d",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "SUFFIX",
+    "postimage_sha256": "d11237a341e6fd4ee6eb747f83bb4cecaf624ca6d0f4f59e8343ecdddfb4ea30",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "window_size = min(4096, singles[10] - value)",
+        "window_size = 4096"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "0b60956061b885cf8e0c9f4d3940b8311ba2f2235a0b0a5522758dc6dee0376c",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "76c8a3a5402fa485c3727c0b2fb63c7a7b340f088fc6174c7b147c3752356cfe",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "WHOLE-TABLE",
+    "postimage_sha256": "3481aa889f6a4c00d07d7cfd750bc01690f176ddd4d12b1ed7293ba118590b6a",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "window_size = min(4096, singles[10] - value)",
+        "window_size = singles[10]"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "b294b2d8e706fb23d4307e951c7bfed86c438a74b876253d7a52a36054ca5f30",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "a8887ae6cd99a758dd3fab92edd5da807348cb566ac4d9b646cf41d5e0acc28e",
+      "classification": "CANONICAL_SOURCE_GUARD_REFUSAL"
+    }
+  },
+  {
+    "family": "READ-BEFORE-MAPPING",
+    "postimage_sha256": "d253146c5b718706fb689c639845f8f25d700ae2e414abccfbd7f8343d7c3c6d",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        "position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)",
+        "self.pread(fd, name, 1, 0, diagnostic)\n                    position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "c86f1de9b86b9345a291d9fdd7824fa7cc47105314a8a0cb2972fdb704cd5ee8",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "e338385debc5d22fb34a45af48cc7a9b886b974638b98df2374ae62e47ba6bfd",
+      "classification": "ASSERTION_KILL"
+    }
+  },
+  {
+    "family": "UINT64",
+    "postimage_sha256": "e108ccc47b8c6eb8c220bd5f057f4478aa9b29df6f7ade78fc9e826615f5ee2b",
+    "source_valid": true,
+    "same_argv": true,
+    "edits": [
+      [
+        " or size > 2**64 - address",
+        ""
+      ],
+      [
+        "or row['size'] > 2**64 - row['address'] or row['size'] > 2**64 - row['offset']",
+        "or False"
+      ]
+    ],
+    "CONTROL": {
+      "exit": 0,
+      "stderr_sha256": "a98e2ac837d5c9fc439751e27f830e1f38b13f10ddfbf80d74648679d732228a",
+      "classification": "PASS"
+    },
+    "MUTANT": {
+      "exit": 1,
+      "stderr_sha256": "0ab3825ff6cfb8731d6f62629393d1ae03ebbd2e27a0efdeca09bc5e620467db",
+      "classification": "ASSERTION_KILL"
+    }
+  }
+]

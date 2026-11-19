@@ -1,0 +1,113 @@
+"""FD-backed mapper/window DATA control; never STATIC03 or a production plan.
+
+Three sparse inert ELF fixtures, 211296 apparent file bytes, four entries.
+Only this script opens its owned files; reviewed elf() receives their held FDs.
+"""
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import struct
+import sys
+import tempfile
+
+source, expected_sha = Path(sys.argv[1]), sys.argv[2]
+raw = source.read_bytes()
+assert hashlib.sha256(raw).hexdigest() == expected_sha
+spec = importlib.util.spec_from_file_location('review_static03_only', source)
+c = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(c)
+assert c.current_status()['live_contexts'] == 0
+original = {n: getattr(os, n) for n in ('open', 'close', 'pread', 'read', 'readlink', 'stat', 'fstat')}
+events, results = [], {}
+size, table_offset, table_size, relative = 70432, 400, 70000, 69996
+header = struct.pack('<16sHHIQQQIHHHHHH', b'\x7fELF\x02\x01\x01'+b'\0'*9,
+                     3, 62, 1, 0, 64, 0, 0, 64, 56, 3, 0, 0, 0)
+dynamic = struct.pack('<qQqQqQqQ', 5, 4096+table_offset, 10, table_size, 1, relative, 0, 0)
+
+with tempfile.TemporaryDirectory(prefix='wordling-static03-window-review-', dir='/tmp') as tmp:
+    root = Path(tmp)
+    for case in ('ADJACENT', 'VA_GAP_MEMORY_TAIL', 'IDENTICAL_BIAS_OVERLAP'):
+        path = root / (case+'.elf-data')
+        first_size = 4095 if case == 'VA_GAP_MEMORY_TAIL' else 4096
+        second_position = 4095 if case == 'IDENTICAL_BIAS_OVERLAP' else 4096
+        first = struct.pack('<IIQQQQQQ', 1, 4, 0, 4096, 0, first_size, 4096, 1)
+        second = struct.pack('<IIQQQQQQ', 1, 4, second_position, 4096+second_position,
+                             0, size-second_position, size-second_position, 1)
+        programs = first+second+struct.pack('<IIQQQQQQ', 2, 4, 256, 0, 0, 64, 64, 1)
+        with path.open('xb') as writer:
+            writer.truncate(size)
+            for offset, value in ((0,header),(64,programs),(256,dynamic),(table_offset+relative,b'z\0xx')):
+                writer.seek(offset)
+                assert writer.write(value) == len(value)
+            writer.flush()
+            os.fsync(writer.fileno())
+        fd = original['open'](path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        before = original['fstat'](fd)
+        assert before.st_size == size
+        closed = False
+        start = len(events)
+
+        def denied(*args, **kwargs):
+            raise AssertionError('UNBOUND_INPUT_OR_DISCOVERY_IO')
+
+        def pread(given, count, offset):
+            assert given == fd and 0 <= count <= 65536 and 0 <= offset <= size
+            data = original['pread'](given, count, offset)
+            events.append(dict(case=case,call='pread',offset=offset,requested=count,
+                               actual=len(data),sha256=hashlib.sha256(data).hexdigest()))
+            return data
+
+        plan = dict(declared_logical_aliases=[],declared_exact_ancestor_metadata=[],
+                    declared_metadata_only_directories=[],declared_ELF_seed_files=[],
+                    declared_nonexecuted_loader_data_files=[],fixed_item_order=[])
+        inv = c._StaticInventory(plan, 0)
+        diagnostic = {}
+        try:
+            for n in ('open','read','readlink','stat','fstat','close'):
+                setattr(os,n,denied)
+            os.pread = pread
+            result, refusal = None, None
+            try:
+                result = inv.elf(fd, '/SYNTHETIC/STATIC03/owned-fixture', size, diagnostic)
+            except c.Incomplete as error:
+                refusal = str(error)
+            reads = [(e['offset'],e['requested']) for e in events[start:]]
+            base_reads = [(0,64),(64,168),(256,64)]
+            if case == 'ADJACENT':
+                assert refusal is None, ('POSITIVE_REFUSAL',refusal)
+                assert result['needed'] == ['z']
+                assert reads == base_reads+[(70396,4)], reads
+                assert inv.actual == inv.requested == 300
+                assert diagnostic['mapping']['whole_range_proved'] is True
+                assert diagnostic['mapping']['file_offset'] == table_offset
+                assert diagnostic['mapping']['logical_size'] == table_size
+                assert diagnostic['strtab_read_performed'] is True
+            else:
+                assert refusal == 'ELFStringTableMappingAmbiguous', ('WRONG_CAUSE',refusal)
+                assert result is None and reads == base_reads, reads
+                assert inv.actual == inv.requested == 296
+                wanted = 'VA_GAP' if case == 'VA_GAP_MEMORY_TAIL' else 'MULTIPLE'
+                assert diagnostic['mapping']['state'] == wanted
+                assert diagnostic['strtab_read_performed'] is False
+            results[case] = dict(status='PASS',refusal=refusal,reader_requests=inv.requested,
+                                actual_reader_bytes=inv.actual,diagnostic=diagnostic)
+        finally:
+            for n, value in original.items():
+                setattr(os,n,value)
+            after = original['fstat'](fd)
+            original['close'](fd)
+            closed = True
+            assert c._stamp(before) == c._stamp(after), 'FIXTURE_CHANGED'
+        assert closed
+    assert len(events) == 10
+    output = dict(schema='wordling.STATIC03-independent-FD-window-fixture/v1',
+        source_sha256=expected_sha,test_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        scope='LOWER_CLASS_SYNTHETIC_OWNED_FD_FIXTURE_NOT_117_PRODUCTION_PLAN',
+        temporary_root=str(root),fixture_entries=4,apparent_file_bytes=3*size,
+        fixture_max_entries=16,fixture_max_total_bytes=1048576,
+        actual_BASE_or_public_asset_lookups=0,static_main_calls=0,context_or_operational_actions=0,
+        source_or_production_guard_changed=False,leaked_fixture_fds=0,
+        results=results,actual_reader_syscalls=events)
+print(json.dumps(output,sort_keys=True))

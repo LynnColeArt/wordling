@@ -1,0 +1,7 @@
+# ROOT deliberate STATIC03 read-only action
+
+ROOT verified independent SOURCE_FOR_STATIC03_ONLY approval of6a37bca7 (report SHA8a192f668e97b1c3eadd81f665d3a9a9eb819907de5c89d3791b8dde578803ba), independent60checks/three actualFDcontrols and bounded mutant proof. Final reader346a7597, tests2ad7f50a/53f12d42, active117plan95ffd107 and custody wrapperd1137225 match the reviewed bytes. Custody bounds/cleanup/literal child command remain as the already executedSTATIC02 wrapper with only fixed identity/namespace changes.
+
+After committing this decision ROOT will invoke the one fixed root_invocation in static03-source-checkpoint/custody-packet/packet.json, once, in a new write-onceSTATIC03 namespace. Exact source/plan/R4/launcher bytes/rights/symlink preflight applies. The run adds only seven files/409600bytes maximum under retained-evidence1024files/512MiB and the explicit source/review allocations.
+
+The reader supports only the reviewed checked whole file-backed contiguous translation and bounded referenced-string windows. Gaps, all overlaps, changed bias, memsz-only bytes, uint64/file overflow and premature reads refuse. No inspected input is executed; outputs remain INCOMPLETE or UNACCEPTED_STATIC_DATA. No actual role/current context/reference acceptance/preparation/P/TEST/CONTROL/original/Mac or qualification/ROOTCONTROL clock starts. No discovered path is followed automatically and no retry/next action is implied. WholeWP108 and complete five-role/coordinator/writer/memory/time closure remain pending.
