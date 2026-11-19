@@ -1,0 +1,1202 @@
+{
+  "schema": "wordling.wp108-independent-final-source-review/v1",
+  "status": "DORMANT_SOURCE_APPROVED_ACTUAL_ADMISSION_PENDING",
+  "reviewer_profile": "reviewer-renata",
+  "audit_Op": "01M7SCFZZ4G101HGSWTA95483H",
+  "governance_hash": "9cc878b18c35b303",
+  "subject_source_commit": "56262b3d83d381aa9a6793450a1e55e94f54e1c1",
+  "subject_source_and_test_pins": {
+    "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+      "size": 400414,
+      "sha256": "6eaa619f33ba25ef24d5e52df2cdb5498f78ea85e8d91e003e03e96bd4af47bc"
+    },
+    "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+      "size": 26648,
+      "sha256": "c50a129acbb0faf2ab3f14e8dc6d3b0332252c82eefa317f89140eb39db19647"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+      "size": 63004,
+      "sha256": "d62633b2d2693ad94e38105ba14ca13e2b4dbad941549f09e30037dd1e9fcebf"
+    },
+    "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+      "size": 98594,
+      "sha256": "e40f46b648621a5ebf307a86c1d1774d3fb788069513a1cdb9db92ac3cf0d58a"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 85203,
+      "sha256": "83091cb96e581a54f7018de526d3411663d365c2909b5855f8760bf1f0741aea"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 22714,
+      "sha256": "59888e9a1e5d334d099bef8d61aa43835457e466cd49b456c56fb644c59ad94b"
+    }
+  },
+  "independent_groups": {
+    "INDEPENDENT-FULL-DATA": {
+      "process": {
+        "size": 19803,
+        "sha256": "8ef24ecf377cc25751dc2fb67865b2bfb243db8deeedeba0cf17fa9e2f738355"
+      },
+      "exit": 0,
+      "count": 84,
+      "elapsed_seconds": 1.5671844329917803,
+      "wait4": {
+        "user_seconds": 1.507962,
+        "system_seconds": 0.045996999999999996,
+        "maxrss_kib": 63316,
+        "minor_faults": 16148,
+        "major_faults": 0,
+        "inblock": 0,
+        "oublock": 48,
+        "voluntary_context_switches": 3,
+        "involuntary_context_switches": 28
+      },
+      "streams": {
+        "stdout": {
+          "raw_size": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_pin": {
+            "size": 20,
+            "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+          },
+          "exact_roundtrip": true
+        },
+        "stderr": {
+          "raw_size": 183,
+          "raw_sha256": "6f8059006f8b9d47dc2d41c5cb282514d17e7b682b6395be4c3538f4e0ca6de6",
+          "gzip_pin": {
+            "size": 56,
+            "sha256": "d9f82b4db9bdad66fadf957982e81204142fac99ec8dbf1e71832611a5028ef6"
+          },
+          "exact_roundtrip": true
+        }
+      }
+    },
+    "INDEPENDENT-FULL-AST": {
+      "process": {
+        "size": 19798,
+        "sha256": "417761ec277bd8ce131b9138c6b4d1b2e7837e69c3565db2331614050e66252a"
+      },
+      "exit": 0,
+      "count": 24,
+      "elapsed_seconds": 1.5677758189849555,
+      "wait4": {
+        "user_seconds": 1.348517,
+        "system_seconds": 0.206169,
+        "maxrss_kib": 69352,
+        "minor_faults": 94183,
+        "major_faults": 0,
+        "inblock": 0,
+        "oublock": 0,
+        "voluntary_context_switches": 3,
+        "involuntary_context_switches": 11
+      },
+      "streams": {
+        "stdout": {
+          "raw_size": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_pin": {
+            "size": 20,
+            "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+          },
+          "exact_roundtrip": true
+        },
+        "stderr": {
+          "raw_size": 123,
+          "raw_sha256": "233860bbd4507c7f73bea4e053cbbc5447cc6a4d7b6e2a3d730b523dd588fb38",
+          "gzip_pin": {
+            "size": 55,
+            "sha256": "75b315a5d15513938024d359010a2a8498f96587807badbb9cba65798bf56f17"
+          },
+          "exact_roundtrip": true
+        }
+      }
+    }
+  },
+  "independent_launches": 2,
+  "automatic_retries": 0,
+  "unique_methods": 108,
+  "DATA": 84,
+  "AST": 24,
+  "independent_runner": {
+    "pin": {
+      "size": 20445,
+      "sha256": "e752a01e81904d7b0144934442890582a235ab0e394e30b5a4780a4d6b07adcc"
+    },
+    "source_text": "\"\"\"Finite WP108 local DATA/AST custody only. No qualification entry is called.\"\"\"\nfrom pathlib import Path\nimport gzip\nimport hashlib\nimport json\nimport os\nimport selectors\nimport shutil\nimport signal\nimport subprocess\nimport sys\nimport time\nimport traceback\n\nROOT = Path('/home/lynn/projects/wordling')\nOUT = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/source-review'\nCOMMAND_SHA = 'a2996891d734219cbb2ccdbebde397acfaa164a4a9843be2214eacbbd2b6ba92'\nHANDOFF_HEAD = '56262b3d83d381aa9a6793450a1e55e94f54e1c1'\nINDEPENDENT_MANIFEST = {'schema': 'wordling.wp108-current-context-revision1-DATA-commands/v1', 'source_checkpoint': '56262b3d83d381aa9a6793450a1e55e94f54e1c1', 'status': 'FROZEN_INDEPENDENT_SOURCE_ONLY_PLAN_NO_OPERATIONAL_AUTHORITY', 'inputs': {'internal/document/evidence/reference_controller/tests/runtime_qualification.py': {'size': 400414, 'sha256': '6eaa619f33ba25ef24d5e52df2cdb5498f78ea85e8d91e003e03e96bd4af47bc'}, 'internal/document/evidence/reference_controller/tests/controller_deployment.py': {'size': 26648, 'sha256': 'c50a129acbb0faf2ab3f14e8dc6d3b0332252c82eefa317f89140eb39db19647'}, 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py': {'size': 63004, 'sha256': 'd62633b2d2693ad94e38105ba14ca13e2b4dbad941549f09e30037dd1e9fcebf'}, 'internal/document/evidence/reference_controller/tests/current_test_qualification.py': {'size': 98594, 'sha256': 'e40f46b648621a5ebf307a86c1d1774d3fb788069513a1cdb9db92ac3cf0d58a'}, 'internal/document/evidence/reference_controller/tests/test_current_test_qualification.py': {'size': 85203, 'sha256': '83091cb96e581a54f7018de526d3411663d365c2909b5855f8760bf1f0741aea'}, 'internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py': {'size': 22714, 'sha256': '59888e9a1e5d334d099bef8d61aa43835457e466cd49b456c56fb644c59ad94b'}, 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md': {'size': 28590, 'sha256': '6abc43db4f0404afe5a4f8eee8a2c359ee86f724f99d3609b94622e86fc616aa'}, 'docs/reviews/current-test-qualification-design-2026-11-18/r2/stage-manifest-static-r2.json': {'size': 114056, 'sha256': 'dbbd48aba955e09493c7a50fd699ef2feeb0a8dd5063b3995b86fcaca415ba56'}, 'docs/reviews/current-test-qualification-design-2026-11-18/r2/stage-manifest-static-r2.md': {'size': 12299, 'sha256': '0aa3405e62af7da6575d26cbe192ef087d0aa4b5ecf8a4bebf4f7179957e58d7'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/SOURCE_CENSUS01-analysis.json': {'size': 18546, 'sha256': '5a6f0920e55316e3628124f6bccb4aff211edee01bafd2665de9fb31faff073b'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/SOURCE_CENSUS01/process.json': {'size': 11517, 'sha256': 'bcc1021b414922c4e5281125c0c2a96ebcab7a310765f4d5167cdba06dd667fe'}, 'internal/document/evidence/reference_controller/__init__.py': {'size': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'internal/document/evidence/reference_controller/__main__.py': {'size': 53, 'sha256': '6af9591eeca0682fbbc17fc76990ba473c7b51ab571000fa03ac8ff389bbe909'}, 'internal/document/evidence/reference_controller/bootstrap.py': {'size': 20254, 'sha256': '0b6807bbfdbdd210f5f5cd4be98f6c77aeaa4bec8c9531721e356d60005ed91c'}, 'internal/document/evidence/reference_controller/errors.py': {'size': 586, 'sha256': '4938c671c4fdc8c903ae21785da925b19980a1af6686dd83e9f1f9892f2e8a35'}, 'internal/document/evidence/reference_controller/account.py': {'size': 17664, 'sha256': '371fb252ffeb29b387e5b0692a4659f7fa89861c558a6829167eaadeda7ee330'}, 'internal/document/evidence/reference_controller/ownership.py': {'size': 13950, 'sha256': '0bf9b97ae2a572a84c25cc9ae2117ad8afd77c7d405c0f43f7fe660f492308df'}, 'internal/document/evidence/reference_controller/records.py': {'size': 6724, 'sha256': '95be75afce1c45a8b9a230675113e02c97a3ddc20be5b90bf5e4001ce5b74e99'}, 'internal/document/evidence/reference_controller/issuance.py': {'size': 28688, 'sha256': 'e804f433668edab5129ab455e2c903392a4d064f5acbbd035a4dd9a561f41528'}, 'internal/document/evidence/reference_controller/cli.py': {'size': 6349, 'sha256': '20620e410fcab75e120231e5563048db0a9e3d225ac1cab5348d49093f3e0b53'}, 'internal/document/evidence/reference_controller/controller.py': {'size': 26867, 'sha256': '8c4f7de700ff3c236f1db93fdbcb4ffe02b298646286f0659bfbf6f6a68c142c'}, 'internal/document/evidence/reference_controller/protocol.py': {'size': 8458, 'sha256': 'c252502c4ffd249d0b01a5cd94282f795d0628ee2f7cb3946cc1ede77b74bf33'}, 'internal/document/evidence/reference_controller/publisher.py': {'size': 7669, 'sha256': '2d34b9018392551d6575f1e52ade6b3d1fdc9c7edf721cc61d1bc8bbda6d4f7d'}, 'scripts/reference/startup_transport.py': {'size': 35479, 'sha256': '299dd2e68bd90c08803ac8155d9593e30f5a607a093c1a95075abaefaf475d77'}, 'scripts/reference/startup_family/__init__.py': {'size': 2445, 'sha256': 'bed41656c52eebee508e553b37675506fb857bb927a59cfdb6ba31a3a6f5d07a'}, 'scripts/reference/startup_family/artifacts.py': {'size': 19841, 'sha256': 'b65f468e67728894089dd94a20db712602e7c27edbb6b119a695ef292ae55c2d'}, 'scripts/reference/startup_family/engine.py': {'size': 37641, 'sha256': '287951bdeedf2e61195e2098054817ada76ba65b5bba1db8be44b65dd436bd74'}, 'scripts/reference/startup_family/lifetime.py': {'size': 114202, 'sha256': '3a6130bef6516648189f61ba4dd2dbc8cdf3360249307b71d062ef4c5ce98050'}, 'internal/document/evidence/retrieve-field-observations/peer.py': {'size': 3124, 'sha256': '52beeb081e919fe1fed0d3f861b9f317a6ca8ff75f02a2b03c12ebc0f24d323e'}, 'internal/document/evidence/retrieve-field-observations/boundaries.py': {'size': 5604, 'sha256': '2ece63c6be1b0f0ef108289eb02dc4b8961d8cf7dda37163f92d2217a7e8844a'}, 'scripts/reference/qmp.py': {'size': 5196, 'sha256': 'dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304'}, 'internal/document/evidence/reference_controller/pyproject.toml': {'size': 840, 'sha256': 'c49deef4fb645870466c68da509e84b78ba51ae0f4ee27715f76935401422c58'}, 'internal/document/evidence/reference_controller/tests/harmless_fixture.c': {'size': 5798, 'sha256': 'f37add43898cb78f913e7a9ab0b43c732fed2eda4af6eb6bcb181c52eb5c88d7'}, 'internal/document/evidence/reference_controller/tests/controller_roster.json': {'size': 2286, 'sha256': 'f4184623a3334cde4e981ae6998b9c6e578c2201660e6e57f8b17e8a50c445cb'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/source-writers-TDD-design.json': {'size': 141931, 'sha256': '1b12326a44a32334e403690d19b2c65c087f258189b9cdefae17213d7aea9293'}, 'internal/document/evidence/reference_controller/tests/runtime_tool_selection.json': {'size': 86493, 'sha256': '635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json': {'size': 18094, 'sha256': '58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json': {'size': 24976, 'sha256': '95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json': {'size': 28339, 'sha256': 'c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f'}, 'docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/reader-plan.json': {'size': 25585, 'sha256': '36c8a705b53e6f08bc2fa52f47dea9bed731de1b7f34400ec0f079c7d24cf4c0'}, 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json': {'size': 2001, 'sha256': '028a8ae6ee750dbe914cb2974991d9b27b3acab6cb4df76d6ef437afc890d90c'}}, 'launcher_artifact': 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json', 'env': {'PATH': '/usr/bin:/bin', 'HOME': '/home/lynn', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8'}, 'commands': [{'id': 'FULL-DATA', 'argv': ['/usr/bin/timeout', '--signal=TERM', '--kill-after=2s', '30s', '/usr/bin/prlimit', '--as=167772160', '--nofile=32', '--nproc=0', '--fsize=65536', '--', '/usr/bin/python3', '-I', '-B', '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py'], 'phase': 'POST_SOURCE', 'expected_exit': 0, 'stdout': 262144, 'stderr': 16384, 'seconds': 30, 'cleanup': 2}, {'id': 'FULL-AST', 'argv': ['/usr/bin/timeout', '--signal=TERM', '--kill-after=2s', '30s', '/usr/bin/prlimit', '--as=167772160', '--nofile=32', '--nproc=0', '--fsize=65536', '--', '/usr/bin/python3', '-I', '-B', '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py'], 'phase': 'POST_SOURCE', 'expected_exit': 0, 'stdout': 262144, 'stderr': 16384, 'seconds': 30, 'cleanup': 2}], 'expected_counts': {'FULL-DATA': 84, 'FULL-AST': 24}, 'unique_methods': 108, 'chronology': {'initial_reviewed': 94, 'post_RED_added_wheel_method': 1, 'post_RED_container_variants': 8, 'post_RED_owner_budget_variant': 1, 'genuine_RED_commit': '93e97cf8ce9bef29ae990b4f9ae7a42f1935d303', 'original_test_sha256': 'a0f63c3bc175818379f4c42b690d2bd9e1f8e68dd089022d9f61738d7ed444cc', 'actual_metadata_execution_blob': 'e2fff2334fc4489f6b650676b994462118c46573', 'baseline': 'a404/e6be official baseline preserved; no repeated Go/build'}, 'temporary_fixture': {'inert_wheel_files': 2, 'inert_wheel_total_bytes_less_than': 4096, 'unaccepted': True, 'cleanup_required': True}, 'operational_actions': 0, 'qualification_clock': False, 'no_positive_genuine_context_simulated': True, 'task_metadata_execution_pin': {'commit': '11287eab82e7fb7addf97bcbdfa75abe6032affc', 'size': 28590, 'sha256': '6abc43db4f0404afe5a4f8eee8a2c359ee86f724f99d3609b94622e86fc616aa'}, 'actual_launches_authorized': 2, 'scoped_old_pairs': {'source': '76951755be8a658ab55ea9c9ddd947a0928955ee', 'manifest_sha256': 'cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702', 'guards_tests_and_affected_paths_conserved': True, 'whole_role_helper_AST_conserved': False, 'changed_role_branch': 'new TOOL-only chain grammar; both original RUNTIME/TOOL branches unchanged; old selected fixtures have empty links/directories/hooks/shell_aliases; new coverage is empty==empty', 'meaning': 'Old4causal pairs are scoped citations only, never new fullpostimage kills; independent final verdict still required'}, 'not_operational': 'No source seed publication, normal holdings scan, reference, tool-under-test, context, Preparation, TEST/P or qualification clock.'}\nMUTANT_SHA = 'cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702'\nFREEZE = '56262b3d83d381aa9a6793450a1e55e94f54e1c1'\n\n\ndef pin(path):\n    h = hashlib.sha256()\n    total = 0\n    with Path(path).open('rb') as stream:\n        while True:\n            raw = stream.read(65536)\n            if not raw:\n                break\n            total += len(raw)\n            h.update(raw)\n    return dict(size=total, sha256=h.hexdigest())\n\n\ndef load(name, wanted):\n    assert name == 'command-manifest.json' and wanted == COMMAND_SHA\n    encoded = (json.dumps(INDEPENDENT_MANIFEST, sort_keys=True, separators=(',', ':')) + '\\n').encode('ascii')\n    assert hashlib.sha256(encoded).hexdigest() == wanted, 'EMBEDDED_INDEPENDENT_PLAN_CHANGED'\n    return INDEPENDENT_MANIFEST\n\n\ndef main():\n    assert len(sys.argv) == 2\n    case = sys.argv[1]\n    capture_before = pin(__file__)\n    manifest = load('command-manifest.json', COMMAND_SHA)\n    assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() == HANDOFF_HEAD\n    assert manifest['source_checkpoint'] == FREEZE\n    command = next((r for r in manifest['commands'] if r['id'] == case), None)\n    member = None\n    assert command is not None and case in ('FULL-DATA', 'FULL-AST'), 'UNLISTED_DATA_CASE'\n    before = {p: pin(ROOT / p) for p in manifest['inputs']}\n    assert before == manifest['inputs'], 'SOURCE_BEFORE_CHANGED'\n    launchers = json.loads((ROOT / manifest['launcher_artifact']).read_bytes())\n    tools = []\n    for row in launchers['rows']:\n        observed = pin(row['resolved'])\n        assert observed == {k: row[k] for k in ('size', 'sha256')}\n        logical = Path(row['logical'])\n        assert logical.is_symlink() == row['logical_is_symlink']\n        assert (os.readlink(logical) if logical.is_symlink() else None) == row['link_text']\n        rights = Path(row['resolved']).stat()\n        assert dict(mode=rights.st_mode & 0o7777, uid=rights.st_uid, gid=rights.st_gid) == {k: row[k] for k in ('mode', 'uid', 'gid')}\n        tools.append(dict(logical=str(logical), resolved=row['resolved'], **observed))\n    directory = OUT / ('INDEPENDENT-' + case)\n    assert not directory.exists()\n    clone = None\n    clone_before = clone_after = None\n    cleanup = None\n    argv = list(command['argv'])\n    directory.mkdir(mode=0o700)\n    files = {name: (directory / (name + '.raw.gz')).open('xb') for name in ('stdout', 'stderr')}\n    streams = {name: gzip.GzipFile(filename='', mode='wb', fileobj=f, mtime=0) for name, f in files.items()}\n    hashes = {name: hashlib.sha256() for name in streams}\n    sizes = {name: 0 for name in streams}\n    caps = dict(stdout=262144, stderr=16384)\n    selector = selectors.DefaultSelector()\n    process = None\n    status = usage = None\n    error = None\n    partial = False\n    reaped = False\n    start = time.monotonic()\n    deadline = start + 32\n    cleanup_end = start + 34\n    try:\n        process = subprocess.Popen(argv, cwd=clone or ROOT, env=manifest['env'], stdin=subprocess.DEVNULL,\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)\n        selector.register(process.stdout, selectors.EVENT_READ, 'stdout')\n        selector.register(process.stderr, selectors.EVENT_READ, 'stderr')\n        while selector.get_map() or status is None:\n            if time.monotonic() >= deadline:\n                raise RuntimeError('DATA_OUTER_WATCHDOG')\n            for key, _ in selector.select(0.01):\n                name = key.data\n                raw = os.read(key.fileobj.fileno(), min(4096, caps[name] - sizes[name] + 1))\n                if not raw:\n                    selector.unregister(key.fileobj)\n                    key.fileobj.close()\n                    continue\n                kept = raw[:caps[name] - sizes[name]]\n                streams[name].write(kept)\n                hashes[name].update(kept)\n                sizes[name] += len(kept)\n                if len(kept) != len(raw):\n                    partial = True\n                    raise RuntimeError('DATA_RAW_STREAM_CAP:' + name)\n            # Retain the real direct leader until all streams have settled and\n            # no future group signal can be required. Never signal after reap.\n            observed = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)\n            if observed is not None and not selector.get_map():\n                got, value, facts = os.wait4(process.pid, os.WNOHANG)\n                if got:\n                    status, usage = value, facts\n                    process.returncode = os.waitstatus_to_exitcode(status)\n                    reaped = True\n    except BaseException as failure:\n        error = ''.join(traceback.format_exception(failure))[:8192]\n        partial = True\n        if process is not None and not reaped:\n            try:\n                os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)\n                os.killpg(process.pid, signal.SIGKILL)\n            except ProcessLookupError:\n                pass\n            while time.monotonic() < cleanup_end:\n                got, value, facts = os.wait4(process.pid, os.WNOHANG)\n                if got:\n                    status, usage = value, facts\n                    process.returncode = os.waitstatus_to_exitcode(status)\n                    reaped = True\n                    break\n                time.sleep(0.005)\n    finally:\n        selector.close()\n        for stream in streams.values():\n            stream.close()\n        for f in files.values():\n            f.close()\n        if process is not None:\n            for stream in (process.stdout, process.stderr):\n                if stream is not None and not stream.closed:\n                    stream.close()\n    after = {p: pin(ROOT / p) for p in manifest['inputs']}\n    raw_streams = {name: gzip.decompress((directory / (name + '.raw.gz')).read_bytes()) for name in streams}\n    for name, raw in raw_streams.items():\n        assert len(raw) == sizes[name] and hashlib.sha256(raw).hexdigest() == hashes[name].hexdigest(), 'GZIP_CUSTODY_IDENTITY'\n    stderr = raw_streams['stderr']\n    code = None if not reaped else process.returncode\n    count = 1 if member is not None else manifest['expected_counts'][case]\n    count_line = ('Ran ' + str(count) + (' test ' if count == 1 else ' tests ')).encode('ascii')\n    common = error is None and not partial and reaped and before == after and clone_before == clone_after and count_line in stderr and capture_before == pin(__file__)\n    expected = 1 if member is not None and case.endswith('-MUTANT') else 0\n    classification = 'UNEXPECTED_FAILURE_PRESERVED'\n    if common and code == 0 and expected == 0 and b'\\nOK\\n' in stderr and b'ERROR:' not in stderr:\n        classification = 'PASS_ACTUAL_CANONICAL_DATA' if member is not None else 'PASS_ACTUAL_FULL_OR_NEW_DATA_AST'\n    elif common and code == 1 and expected == 1 and b'FAIL:' in stderr and b'ERROR:' not in stderr and member['causal_failure_contains'].encode() in stderr:\n        classification = 'KILLED_ACTUAL_SOURCE_MUTANT_BY_CAUSAL_ASSERTION_OR_EFFECT_FENCE'\n    value = dict(schema='wordling.wp108-current-context-revision1-DATA-receipt/v1', case_id='INDEPENDENT-' + case,\n        argv=argv, cwd=str(clone or ROOT), env=manifest['env'], source_checkpoint=FREEZE,\n        command_manifest=dict(path='EMBEDDED:independent-source-review.json:independent_plan', sha256=COMMAND_SHA), scoped_prior_mutant_manifest=dict(path='../mutant-command-manifest.json', sha256=MUTANT_SHA),\n        capture_source=dict(path=str(Path(__file__).absolute()), before=capture_before, after=pin(__file__)),\n        input_before=before, input_after=after, primary_inputs_equal=before == after,\n        isolated_input_before=clone_before, isolated_input_after=clone_after, isolated_inputs_equal=clone_before == clone_after,\n        isolation_cleanup=cleanup, launcher_pins=tools,\n        actual_exit=code, reaped_actual_direct_child=reaped, error=error, partial_prefix=partial,\n        unretained_suffix='UNKNOWN' if partial else None, elapsed_seconds=time.monotonic() - start,\n        streams={name: dict(raw_size=sizes[name], raw_sha256=hashes[name].hexdigest(), gzip_pin=pin(directory / (name + '.raw.gz')), exact_roundtrip=True) for name in streams},\n        separate_stream_caps=caps, wait4=None if usage is None else dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,\n            maxrss_kib=usage.ru_maxrss, minor_faults=usage.ru_minflt, major_faults=usage.ru_majflt,\n            inblock=usage.ru_inblock, oublock=usage.ru_oublock, voluntary_context_switches=usage.ru_nvcsw, involuntary_context_switches=usage.ru_nivcsw),\n        classification=classification, expected_exit=expected, actual_expected_method_count=count, operational_actions=0,\n        qualified_reference_or_context=False, qualification_clock_started=False, public_runtime_lookup=False)\n    encoded = (json.dumps(value, indent=2) + '\\n').encode('ascii')\n    assert len(encoded) <= 65536\n    with (directory / 'process.json').open('xb') as f:\n        f.write(encoded)\n    assert (directory / 'stdout.raw.gz').stat().st_size <= 262400\n    assert (directory / 'stderr.raw.gz').stat().st_size <= 16640\n    print(json.dumps(dict(case_id='INDEPENDENT-' + case, actual_exit=code, classification=classification,\n        stderr_size=sizes['stderr'], stderr_sha256=hashes['stderr'].hexdigest(), elapsed_seconds=value['elapsed_seconds'])), flush=True)\n    if classification == 'UNEXPECTED_FAILURE_PRESERVED':\n        raise SystemExit(2)\n\n\nif __name__ == '__main__':\n    main()\n"
+  },
+  "independent_plan_pin": {
+    "size": 9960,
+    "sha256": "a2996891d734219cbb2ccdbebde397acfaa164a4a9843be2214eacbbd2b6ba92"
+  },
+  "independent_plan": {
+    "actual_launches_authorized": 2,
+    "chronology": {
+      "actual_metadata_execution_blob": "e2fff2334fc4489f6b650676b994462118c46573",
+      "baseline": "a404/e6be official baseline preserved; no repeated Go/build",
+      "genuine_RED_commit": "93e97cf8ce9bef29ae990b4f9ae7a42f1935d303",
+      "initial_reviewed": 94,
+      "original_test_sha256": "a0f63c3bc175818379f4c42b690d2bd9e1f8e68dd089022d9f61738d7ed444cc",
+      "post_RED_added_wheel_method": 1,
+      "post_RED_container_variants": 8,
+      "post_RED_owner_budget_variant": 1
+    },
+    "commands": [
+      {
+        "argv": [
+          "/usr/bin/timeout",
+          "--signal=TERM",
+          "--kill-after=2s",
+          "30s",
+          "/usr/bin/prlimit",
+          "--as=167772160",
+          "--nofile=32",
+          "--nproc=0",
+          "--fsize=65536",
+          "--",
+          "/usr/bin/python3",
+          "-I",
+          "-B",
+          "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py"
+        ],
+        "cleanup": 2,
+        "expected_exit": 0,
+        "id": "FULL-DATA",
+        "phase": "POST_SOURCE",
+        "seconds": 30,
+        "stderr": 16384,
+        "stdout": 262144
+      },
+      {
+        "argv": [
+          "/usr/bin/timeout",
+          "--signal=TERM",
+          "--kill-after=2s",
+          "30s",
+          "/usr/bin/prlimit",
+          "--as=167772160",
+          "--nofile=32",
+          "--nproc=0",
+          "--fsize=65536",
+          "--",
+          "/usr/bin/python3",
+          "-I",
+          "-B",
+          "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+        ],
+        "cleanup": 2,
+        "expected_exit": 0,
+        "id": "FULL-AST",
+        "phase": "POST_SOURCE",
+        "seconds": 30,
+        "stderr": 16384,
+        "stdout": 262144
+      }
+    ],
+    "env": {
+      "HOME": "/home/lynn",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin"
+    },
+    "expected_counts": {
+      "FULL-AST": 24,
+      "FULL-DATA": 84
+    },
+    "inputs": {
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/SOURCE_CENSUS01-analysis.json": {
+        "sha256": "5a6f0920e55316e3628124f6bccb4aff211edee01bafd2665de9fb31faff073b",
+        "size": 18546
+      },
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/SOURCE_CENSUS01/process.json": {
+        "sha256": "bcc1021b414922c4e5281125c0c2a96ebcab7a310765f4d5167cdba06dd667fe",
+        "size": 11517
+      },
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/reader-plan.json": {
+        "sha256": "36c8a705b53e6f08bc2fa52f47dea9bed731de1b7f34400ec0f079c7d24cf4c0",
+        "size": 25585
+      },
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/source-writers-TDD-design.json": {
+        "sha256": "1b12326a44a32334e403690d19b2c65c087f258189b9cdefae17213d7aea9293",
+        "size": 141931
+      },
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json": {
+        "sha256": "58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd",
+        "size": 18094
+      },
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+        "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3",
+        "size": 24976
+      },
+      "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+        "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f",
+        "size": 28339
+      },
+      "docs/reviews/current-test-qualification-design-2026-11-18/r2/stage-manifest-static-r2.json": {
+        "sha256": "dbbd48aba955e09493c7a50fd699ef2feeb0a8dd5063b3995b86fcaca415ba56",
+        "size": 114056
+      },
+      "docs/reviews/current-test-qualification-design-2026-11-18/r2/stage-manifest-static-r2.md": {
+        "sha256": "0aa3405e62af7da6575d26cbe192ef087d0aa4b5ecf8a4bebf4f7179957e58d7",
+        "size": 12299
+      },
+      "internal/document/evidence/reference_controller/__init__.py": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      },
+      "internal/document/evidence/reference_controller/__main__.py": {
+        "sha256": "6af9591eeca0682fbbc17fc76990ba473c7b51ab571000fa03ac8ff389bbe909",
+        "size": 53
+      },
+      "internal/document/evidence/reference_controller/account.py": {
+        "sha256": "371fb252ffeb29b387e5b0692a4659f7fa89861c558a6829167eaadeda7ee330",
+        "size": 17664
+      },
+      "internal/document/evidence/reference_controller/bootstrap.py": {
+        "sha256": "0b6807bbfdbdd210f5f5cd4be98f6c77aeaa4bec8c9531721e356d60005ed91c",
+        "size": 20254
+      },
+      "internal/document/evidence/reference_controller/cli.py": {
+        "sha256": "20620e410fcab75e120231e5563048db0a9e3d225ac1cab5348d49093f3e0b53",
+        "size": 6349
+      },
+      "internal/document/evidence/reference_controller/controller.py": {
+        "sha256": "8c4f7de700ff3c236f1db93fdbcb4ffe02b298646286f0659bfbf6f6a68c142c",
+        "size": 26867
+      },
+      "internal/document/evidence/reference_controller/errors.py": {
+        "sha256": "4938c671c4fdc8c903ae21785da925b19980a1af6686dd83e9f1f9892f2e8a35",
+        "size": 586
+      },
+      "internal/document/evidence/reference_controller/issuance.py": {
+        "sha256": "e804f433668edab5129ab455e2c903392a4d064f5acbbd035a4dd9a561f41528",
+        "size": 28688
+      },
+      "internal/document/evidence/reference_controller/ownership.py": {
+        "sha256": "0bf9b97ae2a572a84c25cc9ae2117ad8afd77c7d405c0f43f7fe660f492308df",
+        "size": 13950
+      },
+      "internal/document/evidence/reference_controller/protocol.py": {
+        "sha256": "c252502c4ffd249d0b01a5cd94282f795d0628ee2f7cb3946cc1ede77b74bf33",
+        "size": 8458
+      },
+      "internal/document/evidence/reference_controller/publisher.py": {
+        "sha256": "2d34b9018392551d6575f1e52ade6b3d1fdc9c7edf721cc61d1bc8bbda6d4f7d",
+        "size": 7669
+      },
+      "internal/document/evidence/reference_controller/pyproject.toml": {
+        "sha256": "c49deef4fb645870466c68da509e84b78ba51ae0f4ee27715f76935401422c58",
+        "size": 840
+      },
+      "internal/document/evidence/reference_controller/records.py": {
+        "sha256": "95be75afce1c45a8b9a230675113e02c97a3ddc20be5b90bf5e4001ce5b74e99",
+        "size": 6724
+      },
+      "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+        "sha256": "c50a129acbb0faf2ab3f14e8dc6d3b0332252c82eefa317f89140eb39db19647",
+        "size": 26648
+      },
+      "internal/document/evidence/reference_controller/tests/controller_roster.json": {
+        "sha256": "f4184623a3334cde4e981ae6998b9c6e578c2201660e6e57f8b17e8a50c445cb",
+        "size": 2286
+      },
+      "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+        "sha256": "e40f46b648621a5ebf307a86c1d1774d3fb788069513a1cdb9db92ac3cf0d58a",
+        "size": 98594
+      },
+      "internal/document/evidence/reference_controller/tests/harmless_fixture.c": {
+        "sha256": "f37add43898cb78f913e7a9ab0b43c732fed2eda4af6eb6bcb181c52eb5c88d7",
+        "size": 5798
+      },
+      "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+        "sha256": "6eaa619f33ba25ef24d5e52df2cdb5498f78ea85e8d91e003e03e96bd4af47bc",
+        "size": 400414
+      },
+      "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+        "sha256": "d62633b2d2693ad94e38105ba14ca13e2b4dbad941549f09e30037dd1e9fcebf",
+        "size": 63004
+      },
+      "internal/document/evidence/reference_controller/tests/runtime_tool_selection.json": {
+        "sha256": "635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe",
+        "size": 86493
+      },
+      "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+        "sha256": "83091cb96e581a54f7018de526d3411663d365c2909b5855f8760bf1f0741aea",
+        "size": 85203
+      },
+      "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+        "sha256": "59888e9a1e5d334d099bef8d61aa43835457e466cd49b456c56fb644c59ad94b",
+        "size": 22714
+      },
+      "internal/document/evidence/retrieve-field-observations/boundaries.py": {
+        "sha256": "2ece63c6be1b0f0ef108289eb02dc4b8961d8cf7dda37163f92d2217a7e8844a",
+        "size": 5604
+      },
+      "internal/document/evidence/retrieve-field-observations/peer.py": {
+        "sha256": "52beeb081e919fe1fed0d3f861b9f317a6ca8ff75f02a2b03c12ebc0f24d323e",
+        "size": 3124
+      },
+      "kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md": {
+        "sha256": "6abc43db4f0404afe5a4f8eee8a2c359ee86f724f99d3609b94622e86fc616aa",
+        "size": 28590
+      },
+      "kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json": {
+        "sha256": "028a8ae6ee750dbe914cb2974991d9b27b3acab6cb4df76d6ef437afc890d90c",
+        "size": 2001
+      },
+      "scripts/reference/qmp.py": {
+        "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304",
+        "size": 5196
+      },
+      "scripts/reference/startup_family/__init__.py": {
+        "sha256": "bed41656c52eebee508e553b37675506fb857bb927a59cfdb6ba31a3a6f5d07a",
+        "size": 2445
+      },
+      "scripts/reference/startup_family/artifacts.py": {
+        "sha256": "b65f468e67728894089dd94a20db712602e7c27edbb6b119a695ef292ae55c2d",
+        "size": 19841
+      },
+      "scripts/reference/startup_family/engine.py": {
+        "sha256": "287951bdeedf2e61195e2098054817ada76ba65b5bba1db8be44b65dd436bd74",
+        "size": 37641
+      },
+      "scripts/reference/startup_family/lifetime.py": {
+        "sha256": "3a6130bef6516648189f61ba4dd2dbc8cdf3360249307b71d062ef4c5ce98050",
+        "size": 114202
+      },
+      "scripts/reference/startup_transport.py": {
+        "sha256": "299dd2e68bd90c08803ac8155d9593e30f5a607a093c1a95075abaefaf475d77",
+        "size": 35479
+      }
+    },
+    "launcher_artifact": "kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json",
+    "no_positive_genuine_context_simulated": true,
+    "not_operational": "No source seed publication, normal holdings scan, reference, tool-under-test, context, Preparation, TEST/P or qualification clock.",
+    "operational_actions": 0,
+    "qualification_clock": false,
+    "schema": "wordling.wp108-current-context-revision1-DATA-commands/v1",
+    "scoped_old_pairs": {
+      "changed_role_branch": "new TOOL-only chain grammar; both original RUNTIME/TOOL branches unchanged; old selected fixtures have empty links/directories/hooks/shell_aliases; new coverage is empty==empty",
+      "guards_tests_and_affected_paths_conserved": true,
+      "manifest_sha256": "cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702",
+      "meaning": "Old4causal pairs are scoped citations only, never new fullpostimage kills; independent final verdict still required",
+      "source": "76951755be8a658ab55ea9c9ddd947a0928955ee",
+      "whole_role_helper_AST_conserved": false
+    },
+    "source_checkpoint": "56262b3d83d381aa9a6793450a1e55e94f54e1c1",
+    "status": "FROZEN_INDEPENDENT_SOURCE_ONLY_PLAN_NO_OPERATIONAL_AUTHORITY",
+    "task_metadata_execution_pin": {
+      "commit": "11287eab82e7fb7addf97bcbdfa75abe6032affc",
+      "sha256": "6abc43db4f0404afe5a4f8eee8a2c359ee86f724f99d3609b94622e86fc616aa",
+      "size": 28590
+    },
+    "temporary_fixture": {
+      "cleanup_required": true,
+      "inert_wheel_files": 2,
+      "inert_wheel_total_bytes_less_than": 4096,
+      "unaccepted": true
+    },
+    "unique_methods": 108
+  },
+  "literal_outer_commands": [
+    [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "-B",
+      "/tmp/wordling-wp108-final-independent-capture.py.txt",
+      "FULL-DATA"
+    ],
+    [
+      "/usr/bin/python3",
+      "-I",
+      "-S",
+      "-B",
+      "/tmp/wordling-wp108-final-independent-capture.py.txt",
+      "FULL-AST"
+    ]
+  ],
+  "old95_AST_conservation": {
+    "test_current_test_qualification.py": {
+      "old_count": 77,
+      "current_count": 84,
+      "old_method_AST_pins": {
+        "CurrentToolSelectionDataTests.test_v2_record_validation_avoids_historical_cardinality": "1a3cc141013724c2c40dffbd29dd5e6f02aee48c8c19ff8d8212652178db7d40",
+        "CurrentToolSelectionDataTests.test_tool_only_record_cannot_grow_runtime_roles": "a7d4b8a920b3cbd8d9b46ff41389f9b8da4844a91858758d9783c1230b016d97",
+        "CurrentToolSelectionDataTests.test_current_lifetime_bytes_cannot_carry_old_provider_label": "0e61f774d2080eb2e1df6439c90f29bb2115110a6b10f1357415ea80ddf72d6e",
+        "CurrentToolSelectionDataTests.test_observed_expected_postimage_does_not_replace_preaccepted_digest": "13d3224540c16e6d1d54271b91859a6239174c2d896aa1ad27133a2be7b86aab",
+        "CurrentToolSelectionDataTests.test_changed_selected_tool_bytes_are_not_adopted": "cd74c75b6c371a3ed76db8c565b12b1f54cc6da750c9ad57b3317ce666d3f46d",
+        "CurrentToolSelectionDataTests.test_cache_header_or_label_cannot_claim_body_source_equivalence": "2b2c48551cab0612f64b78c9b188fe49c37d7b13765d64f24d62a398de2c3f10",
+        "CurrentToolSelectionDataTests.test_role_postimage_must_match_separately_bound_projection": "4ba1c8e0f9e512b7dac489a542c295ff33b9a2daa362aaeb02ff23e40b0f32cd",
+        "CurrentToolSelectionDataTests.test_mixed_v1_expected_and_v2_selection_is_not_reinterpreted": "83b6bfac9de5dadcd5037538f0d2a44686bbafd80e4cbf2d9b3b351e5f87179c",
+        "ExistingPureControlTests.test_existing_v1_cardinality_projection_remains_supported_as_data": "f63722a14e19af71da5b694c032f49deb492b07c636f242632a16bc347fc33e0",
+        "ExistingPureControlTests.test_existing_v1_extra_record_remains_refused": "bb3e6346eba4e78f2258c6e66f4dfdaa27f9b5a3b4843ceaf9ef30fa77a92817",
+        "ExistingPureControlTests.test_existing_relative_exec_framing_guard_is_a_real_data_control": "11f966121f459743c465132d3ec14a6b6c913a81679d3b4434d208f9d5ab0d57",
+        "ExistingPureControlTests.test_existing_cache_metadata_control_never_authenticates_body": "20d23dcf446464a81d53070f633b1d37eba418a2ff57b1c779c396e96d50b50a",
+        "CurrentAdmissionNegativeTests.test_v2_data_cannot_enter_tool_consumer_without_live_context": "d83b46af5211f64f3e0e9f45180385b23c3586eae9f877d11d65f45b75b224a7",
+        "CurrentAdmissionNegativeTests.test_raw_data_receipt_cannot_select_preparation_role": "f38ccbcdb56d7a51ae5ac699b0ca09aa12a9faa28d2dcfb938df4eaf22d7323d",
+        "CurrentAdmissionNegativeTests.test_copied_data_receipt_stays_data_not_a_restored_context": "a9352130f3babd81112a9a920cda0f5de00811bb523bce3306227d11dd828ab7",
+        "CurrentAdmissionNegativeTests.test_raw_data_receipt_cannot_select_budget_context": "4c1542cc2e53f2754908c8452bf05b1b46ad9c1ecec1e522fe3bce5b8799adac",
+        "CurrentAdmissionNegativeTests.test_v2_data_cannot_enter_preparation_without_live_context": "829ab50800feb8e06c4f9beddb0943e6a6efead7bf398323e0a2274edfb704f9",
+        "CurrentAdmissionNegativeTests.test_v2_data_cannot_enter_capacity_without_live_context": "e6aacb8758149a273cb10bcb28204a4d137413793709f3510d038bf38dfdcf6d",
+        "CurrentAdmissionNegativeTests.test_lower_data_receipt_is_not_a_live_tool_consumer_context": "80dc6d9a5a76ee6a24d8d32a84abad25ba202fc4b3f3892d78aa95c80f59d4ef",
+        "CurrentAdmissionNegativeTests.test_mixed_purposes_are_refused_before_context_or_process_effect": "19d38174d6db3faf8da1f0b1cf8cbd507246c6c6fa721670078b6f50ddbea8c3",
+        "StaticReaderDataTests.test_header_positive_and_native_format_refusals": "043aa519d072d3f5ea79f7d711516199220ce02c05c80dbc77a35f84aeb821b1",
+        "StaticReaderDataTests.test_program_positive_interval_alignment_and_duplicates": "bcd33bae6ea84df20feb7e678ff7bb04ed13c011555ca6ac7b95066d65a35747",
+        "StaticReaderDataTests.test_dynamic_requires_real_terminator": "14a9d675c721ae5aa9a950a5fdee3f11a6c0261d1a22125674d2665aca15273f",
+        "StaticReaderDataTests.test_string_positive_and_exact_terminator_guard": "f25b3b01c0c2c01cdd33de975aec28279f17e3894112230a57b655e772558f9b",
+        "StaticReaderDataTests.test_mapping_positive_and_ambiguity_guard": "351d08e1699aa1af7836568ab2ea60428d80583affb860b70281f6a18ef0c801",
+        "StaticReaderDataTests.test_exact_76_typed_roster_and_changed_plan_rejected": "4f13cd58d1bce7a3ec3ea788ff3a262e7514bceb9c279b31576a84332f9c9500",
+        "StaticReaderDataTests.test_listed_alias_chain_is_lexical_and_unlisted_is_refused": "bea22d4dc8cbc64b1975d4fc9f9ea49aaea0300c003d616ad37ac911db83a7be",
+        "StaticReaderDataTests.test_unlisted_path_refused_before_any_open": "1f25288556f578ce84214877df6f655f83f36e5bd73afc09704a294b4a4b3fdc",
+        "StaticReaderDataTests.test_parent_swap_at_open_is_not_hidden_by_final_nofollow": "9851cced0e3aa5ad23ffca7f029a93893ca26eaa923cd1eeacbb2f542a5a73bd",
+        "StaticReaderDataTests.test_short_metadata_read_charged_and_refused": "f61435782967a0cc817d1e6d3c518897b343564274fe7f5dcac58c9f8987a6a8",
+        "StaticReaderDataTests.test_read_bound_is_checked_before_io": "d415675d573ae510c5d7a014fbe9220fc4c3ebcd8fc5c75f33e5de1ed4ba0da4",
+        "StaticReaderDataTests.test_file_stability_refusal_closes_descriptor": "4f1544e07add0c0b5174f59d01f4a753a46b51eb609892e386ae97b9b84e95ee",
+        "StaticReaderDataTests.test_item_failure_continues_only_fixed_independent_roster": "43970639fd709ea735cec61b9e554c98b1bf6c7922d2a09846f70b25697b2ce6",
+        "StaticReaderDataTests.test_global_failure_preserves_partial_and_stops_all_branches": "e95d7050a2ccbe256bd5b01f9b2cfebc8fca648528cf60b29ceec63a4e11da30",
+        "StaticReaderDataTests.test_data_cannot_construct_context_or_start_finite_actions": "db02756337cd4b5b75c6dbcf97b77504e237f2503b087b6642ab12a13405dc6a",
+        "Static02PartialFactsDataTests.test_positive_existing_stable_parser_control": "b1a44b76646f3f14cea6aa11ed8933f681672268e9a18e61f3014ca4fae53a6a",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic": "43b580c764b490ea50b4692383e7d295ffc4ee461a3e7369ba934b6b2765e4a1",
+        "Static02PartialFactsDataTests.test_multiple_mapping_is_distinct_and_never_selects_first": "49561e4cbe4eecf9aec06e72f9ca8771ea9946db307d50b5d0b5697a059c6450",
+        "Static02PartialFactsDataTests.test_strsz_refusal_preserves_value_without_larger_read": "ccb5ee275bac71aa17122a338cd6323864e37676407b38a27d58bb501a7020c3",
+        "Static02PartialFactsDataTests.test_parse_refusal_hash_does_not_become_stable_identity_after_change": "85b5454002ede7d45cf159cc39c8bc6b6b678a7c754e4c60c69214fe47b36e85",
+        "Static02PartialFactsDataTests.test_nonselected_seed_preserves_original_bare_refusal": "e2452539ea23894ec9e31faf37e5ed22b9087efdaefd1b3fa02ea69eb8ab307a",
+        "Static03StringTableDataTests.test_recorded_adjacent_filebacked_union_reaches_canonical_mapping": "81ceca0eb14b77c792446d8a8339aeaf0da514e85372f08dad613f3ba14bd1b0",
+        "Static03StringTableDataTests.test_recorded_large_cc1_logical_table_is_not_a_whole_copy_request": "4f6cfd544a228c45cb54ba51a5d35b7bfe8dd0228b552e3632cef92d16c97c66",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant": "1c64d15e7c3977a978861a63f68544acc7a6c66e2824d8124611e34b55794e37",
+        "Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window": "8db1b101af65272aa293fab6534faa42b0c24fa4a07dca980edc791646a22e22",
+        "Static03StringTableDataTests.test_suffix_window_stops_at_logical_table_end": "64889b48058d6c304ed38c2e211b8f460b4e34ea79bc8c46cde8134ed678cc22",
+        "Static03StringTableDataTests.test_missing_nul_is_refused_inside_canonical_4096_window": "6912d227660df3dd6cadd3d9cec688d4e2d7c33caefd8707cb8391541798a174",
+        "Static03StringTableDataTests.test_string_offset_at_table_end_refused_before_window_read": "237a31c5949eb74b86ab9c92fae3e0a1862dc307264bde072b90419b6830684f",
+        "Static04InterpreterGraphDataTests.test_existing_direct_safe_seed_control": "e1a2a0f2e777b74bf10e327a66272cdd89d2bae79be95bba23203489f834632f",
+        "Static04InterpreterGraphDataTests.test_existing_run_graph_resolves_only_completed_declared_alias_metadata": "07ebaf3965bdb70002cc87e8c8a0bcff3bc8f9f34b9d3d0858f1fa703afe07c4",
+        "Static04InterpreterGraphDataTests.test_alias_zero_partial_foreign_receipt_and_malformed_refuse": "2792f464c2e856e09458b419526c96db09628b232d9432d06692804114d81d80",
+        "Static04InterpreterGraphDataTests.test_target_zero_partial_foreign_receipt_and_malformed_refuse": "d9644f0d060c635be18846a27cb1097b9399f541d479a248d1b5b61b155875a6",
+        "Static04InterpreterGraphDataTests.test_alias_ambiguity_refuses_partial_duplicate_in_both_orders": "b9b6b54d7498b24b7b53ef1aeb10f4c973160bf7639d064583d77bd496b45dcb",
+        "Static04InterpreterGraphDataTests.test_target_ambiguity_refuses_complete_and_partial_duplicates": "ff3e0267bab23db390f05ad42f0bd1c94894e02a0731530f095695babdb2e12d",
+        "Static04InterpreterGraphDataTests.test_unlisted_alias_and_malformed_source_refuse_without_lookup": "9a9eb6a6b8561ac2f777a5d3bb221e4bbe9f92c71c0bc327fd687b370fd11ccc",
+        "SourceCensusDataTests.test_existing_directory_metadata_positive_control": "e96bf9d335ff5c608e5c2d27c534ead42526c133a08a1bcdc89498cfb555a89c",
+        "SourceCensusDataTests.test_existing_item_boundary_requires_census_membership_not_bare_metadata": "686d3e24cdaf0bed728a4d96ebcd004e3e6ba66912e1e5624ed48196a3240688",
+        "SourceCensusDataTests.test_postcode_regular_hash_read_charge_precedes_actual_io": "93ff17ac04c7acbc544211de735a71872cb6dc71d82b7705d97ff74e1ca92942",
+        "SourceCensusDataTests.test_postcode_no_ambient_alias_or_parent_search": "b87d4340ce5376b7bccd392a8b539d844d9044bc191bd04c00cf09b7865a6294",
+        "SourceCensusDataTests.test_postcode_parent_and_membership_snapshots_are_both_required": "057e30fbd1ba34485766c3a28fd925c92de18ebb9c4fde8b587570e1405a032a",
+        "SourceCensusDataTests.test_postcode_package_zero_multiple_and_foreign_names_never_select_first": "afe6c03452b9df1aff32f2c0ca7c43cf3733b307f9c3ae3efafde7002f24a42b",
+        "SourceCensusDataTests.test_postcode_literal_header_and_unknown_macro_are_distinct": "0f51ce5e5d91fe6b51f1b5fb4be81ce4e86cf9caa82c532e383a8d9b199a9691",
+        "SourceCensusDataTests.test_postcode_record_work_and_memory_bounds_are_independent": "9afc4df92326ab38f19cd04994a52f0d539e1a1e8870e3271b86502716e18ef4",
+        "SourceCensusDataTests.test_postcode_output_bound_and_failed_sink_preserve_no_false_success": "2fafd405b14d12cba8333198030b2f11644d1b1322a861808c78063e54d9c5fe",
+        "SourceCensusDataTests.test_postcode_owned_real_FD_hash_membership_and_cleanup": "b8926c8453828071084e408c2ea3127c61502b7e82f740b5d82ea47855f29008",
+        "SourceCensusDataTests.test_postcode_owned_real_FD_symlink_never_follows_external_target": "e6e0f3d171afba0a6606e7e5e97d06cf87db2c34c589a8da154f50e81c6bec23",
+        "SourceCensusDataTests.test_postcode_owned_real_FD_parent_swap_is_refused": "c2afa8de4dda7cc008a0111fd27a974852695fd02409310bda3ef75f500db47d",
+        "SourceCensusDataTests.test_postcode_census_receipt_remains_unaccepted_and_ops_blocked": "444c9e5d6f7e97bf3d2dd31c97629a3e27e5e8506fd7b472c7601b3113b74af3",
+        "CurrentReferenceRoleDataTests.test_existing_record_consumer_positive_control": "b350756bd77c02e057b695a03b1a543533a49a6b28ae2d9000bb99ab7bc4b8af",
+        "CurrentReferenceRoleDataTests.test_existing_record_consumer_rejects_runtime_alias_without_captured_target": "4d839e2a9c8967df99687322e433927940de9159f1da009ea3f3fdf269843f0c",
+        "CurrentReferenceRoleDataTests.test_captured_runtime_alias_is_still_only_unaccepted_DATA": "95cb7dd6efb35e37c2777db6c2f46c9bf60e220b67a7c6bfb3e8584b5a36f07d",
+        "CurrentReferenceRoleDataTests.test_external_metadata_alias_never_grows_runtime": "5ec7ee1e860f4d433269f83ea8946189da2abc14540e402092a6ce5820ea5cae",
+        "CurrentReferenceRoleDataTests.test_malformed_alias_rights_refused_by_existing_consumer": "deb446fc27bc39de05a79b66f7bbb5902cc5f3d8557e9ad2d09c95833a74bce1",
+        "CurrentReferenceRoleDataTests.test_TOOL_endpoint_cannot_be_relabelled_runtime_alias": "cf3dd68e7ba563f55050c670c81684ff338e214499062df7d42b4e9576972a17",
+        "CurrentReferenceRoleDataTests.test_runtime_alias_requires_captured_not_lexical_resolution": "54456106318e991c4059cfc96d7b67ce4e705956f80d21ed8aecf616969bfd28",
+        "CurrentReferenceRoleDataTests.test_raw_role_receipt_cannot_allocate_preparation": "afbdedf523e1f37a6478b6c1e1069159012bd9013f952360d5b4c8ac46c4f6df",
+        "CurrentWheelSourceDataTests.test_source_pin_is_checked_before_payload_read_on_both_wheel_routes": "3319053ad4e920c3adfca9830d1d3ab90895e0c07af34ee7a602c23df985adf4"
+      },
+      "added": {
+        "CurrentFiniteCaseSourceDataTests.test_shared_preflight_comparisons_have_independent_data_controls": "eb2ff99fc33c3d465ff2407a3e0db1b0c62841ed9867474a7b57ca173cc64abd",
+        "CurrentFiniteCaseSourceDataTests.test_pure_seed_constructor_keeps_all_selected_pins_and_unaccepted_roles": "d771dd3e7938dd3fc7e4451d20edaabe12eb920d3e6b6cfb44c7e303c41a94e1",
+        "CurrentFiniteCaseSourceDataTests.test_seed_constructor_refuses_overflow_without_dropping_tool_pins": "56f1e086b5c0a7a0b371c2ab905811ae1bc7f76d8609a3230ad3a1e405601085",
+        "CurrentFiniteCaseSourceDataTests.test_tool_chains_are_lexical_bounded_and_cannot_skip_a_parent": "2e6e9dfa07411dea8a8c438dcb2412f6784274a022ec9ccae658e97ac291d5f9",
+        "CurrentFiniteCaseSourceDataTests.test_reference_layout_has_exact_independent_raw_caps_and_no_second_origin": "c123ac1390a396e460e881dca5023049fa92c6a6e9a141f89a51009e318f3d75",
+        "CurrentCaptureCorrectionDataTests.test_actual_capture_popen_failure_projection_keeps_historical_results": "f301fc55b393ec4b7fe2a493476dcb1bcc23e555f6af605998b8b2ae47fd8bce",
+        "CurrentCaptureCorrectionDataTests.test_imported_module_cannot_masquerade_as_current_executable_entry": "9251d4492d25da260e5b044643e998fe05039f1e494df29391b913bc6e9f1d33"
+      },
+      "changed_or_missing": []
+    },
+    "test_current_test_qualification_contract.py": {
+      "old_count": 18,
+      "current_count": 24,
+      "old_method_AST_pins": {
+        "CurrentPurposeStructuralTests.test_current_purpose_keyword_admission_has_concrete_source_floor": "027ecb7f828f4e2b9fb0759d01c3b54476da7159da11b3fe0173953ae89eccd1",
+        "CurrentPurposeStructuralTests.test_keyword_gate_rejects_a_synthetic_ast_removal": "9eb3783e06a3f3381ebdaa5d65caaf1831a0a45f7cd8499bdce7df3df1758791",
+        "CurrentPurposeStructuralTests.test_direct_owner_retains_pidfd_floor_and_has_no_group_signal": "074c903855d1f0a4af3f140da9e3dfdbdca6644f66948c03e3b337efd292d1b0",
+        "CurrentPurposeStructuralTests.test_direct_owner_ast_gate_detects_group_signal_mutant": "9da56a7ed008cfe221fe36b2108df71723b5d29c70381232f231e758be42bb0d",
+        "CurrentPurposeStructuralTests.test_tool_consumer_keeps_one_canonical_record_validator_call_floor": "24a92173483b83f91a102ba895fb60b59e26643a6d20b24815f0bd15acebcd11",
+        "ProtectedInputDataTests.test_all23_operational_inputs_stay_at_frozen_target_bytes": "71cc5eae99ca23444cf9c78290054e00c0a76da41b46288b08bfac24cdb30cc3",
+        "StaticReaderStructuralTests.test_reader_has_no_execution_or_unbounded_discovery_api": "51a5c3e2f1cc2045c7c10e1ab763ec0bf29f0cd1d603b376ce3e72813ee3d791",
+        "StaticReaderStructuralTests.test_both_inspected_and_repository_plan_parents_have_anchored_floor": "4bbc125ea5a51dda47773d966777f39d25ffd1f7a4d5c693c28437d0b84fa4e5",
+        "StaticReaderStructuralTests.test_parent_floor_detects_actual_source_ast_nofollow_removal": "716bcef520b312a180b98931a3c4ad05cbc8ac39d0eed04fd1281656697fb347",
+        "Static02PlanStructuralTests.test_all_old_117_typed_items_retained_in_relative_order": "5b5213d86b95747671b00330e329f07ad9508bbbe636d762b78b71aa987da0b3",
+        "Static02PlanStructuralTests.test_exact_typed_roster_mirror_and_original_resource_caps": "31b74e7b84b2b1179ca7dc37b1aa3a8e791f9608935359aaecf36cd5476438ed",
+        "Static02PlanStructuralTests.test_window_string_decoder_and_operation_ceiling_source_bodies_conserved": "7754c1aa53fe4e1faae6bdd0c5ccff236b74cdf3b093bf47e109e212f1b2f880",
+        "SourceCensusStructuralTests.test_old_item_body_tail_and_all_STATIC_caps_are_preserved": "92d60ac5211f1727f46428af677897e6fccb9951714292a4d77712ebe4ad13ac",
+        "SourceCensusStructuralTests.test_only_one_bounded_directory_scanner_is_present": "2c1238a19cce4689ca6ddb23513315d7fc545abfd5c68ab14c1697655fb3a9fa",
+        "SourceCensusStructuralTests.test_fixed_census_entrypoint_cannot_accept_arbitrary_paths_or_spawn": "c27ccecbad991dfb8bfd80fa5df7ec5f21c1a02a90fc3f169d6e04199542c741",
+        "CurrentGenuineContextStructuralTests.test_role_frame_check_is_part_of_one_canonical_consumer": "0dfcb8f2fec25545148d81bb9cd427c13921b6e141495e8ede860981fcce24f1",
+        "CurrentGenuineContextStructuralTests.test_current_preflight_keeps_v1_default_body": "2bd787759ec719deadf07dbf50f50453bad3975d3e22196b0b9fe9191a24b31c",
+        "CurrentGenuineContextStructuralTests.test_public_constructor_stays_blocked_and_prep_clock_is_separate": "07d7db76755dab7436267e8fe7d29101b80986b9acd062fb75f3cd1cdab31dcc"
+      },
+      "added": {
+        "CurrentFiniteRuntimeWiringStructuralTests.test_selection_release_precedes_real_captures_and_preserves_role_index": "6a122bc3474896e71487b4316fcbed869169b6f2dfdf1b3e17717fc7885e9294",
+        "CurrentFiniteRuntimeWiringStructuralTests.test_phase_telemetry_and_owner_negative_are_integrated_canonical_calls": "d6553790e47917fab48806a835afa32eae9e3e2530e883a975b061b14bb844c2",
+        "CurrentFiniteRuntimeWiringStructuralTests.test_reference_transport_has_single_raw_origin_and_four_helper_cache_guard": "4dc180af7444ff8eed36057ac433f0241c299a6c1bf4616f44018aae59643c1e",
+        "CurrentCorrectionStructuralTests.test_direct_owner_actual_purpose_flag_is_never_reassigned": "39e97311463731f5b5316ac267ae30cf1b2d104b4ed6f1a2372f3a5a7913a7e2",
+        "CurrentCorrectionStructuralTests.test_current_entry_has_one_q_identity_and_pinned_siblings_before_bootstrap": "bfdcabe5ac685112d39515ffa8e8836cdc5e145a78619a3b5ecea361f6ad05f1",
+        "CurrentCorrectionStructuralTests.test_actual_capture_routes_legacy_failures_to_abort_and_distinct_popen_reason": "10d3c73416bba49ab4d072dfc21350475aa7d80763244c4c8be5399fc257cf0a"
+      },
+      "changed_or_missing": []
+    }
+  },
+  "old_four_scoped_mutant_verdicts": {
+    "EXPECTED-ADOPTION": {
+      "verdict": "ACCEPT_SCOPED_OLD769_CAUSAL_REUSE",
+      "units": [
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_selection_data",
+          "ast_sha256": "8256a4c66f0d5068f121c9ded9bee0a2dc681ea555c558ae715e5d4b954e6e11",
+          "old769_ast_sha256": "8256a4c66f0d5068f121c9ded9bee0a2dc681ea555c558ae715e5d4b954e6e11",
+          "final_ast_sha256": "8256a4c66f0d5068f121c9ded9bee0a2dc681ea555c558ae715e5d4b954e6e11",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentToolSelectionDataTests",
+          "name": "test_observed_expected_postimage_does_not_replace_preaccepted_digest",
+          "ast_sha256": "13d3224540c16e6d1d54271b91859a6239174c2d896aa1ad27133a2be7b86aab",
+          "old769_ast_sha256": "13d3224540c16e6d1d54271b91859a6239174c2d896aa1ad27133a2be7b86aab",
+          "final_ast_sha256": "13d3224540c16e6d1d54271b91859a6239174c2d896aa1ad27133a2be7b86aab",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_data_digest",
+          "ast_sha256": "9d2aced2e427ab86871a995f3a05af5dbdd66729a441fee33c2af1ae352264d5",
+          "old769_ast_sha256": "9d2aced2e427ab86871a995f3a05af5dbdd66729a441fee33c2af1ae352264d5",
+          "final_ast_sha256": "9d2aced2e427ab86871a995f3a05af5dbdd66729a441fee33c2af1ae352264d5",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_data_path",
+          "ast_sha256": "0b1d000fa7ff5a438ae9c6d42af455eee2f62b7c26a2a59f1e668f41a1237081",
+          "old769_ast_sha256": "0b1d000fa7ff5a438ae9c6d42af455eee2f62b7c26a2a59f1e668f41a1237081",
+          "final_ast_sha256": "0b1d000fa7ff5a438ae9c6d42af455eee2f62b7c26a2a59f1e668f41a1237081",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_expected_data",
+          "ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "old769_ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "final_ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "check_selection_records",
+          "ast_sha256": "5f1f64e9ebfe4d455d926c95a02e23d07ef3f459d23f1cabc481cc5c21351aca",
+          "old769_ast_sha256": "5f1f64e9ebfe4d455d926c95a02e23d07ef3f459d23f1cabc481cc5c21351aca",
+          "final_ast_sha256": "5f1f64e9ebfe4d455d926c95a02e23d07ef3f459d23f1cabc481cc5c21351aca",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "measure_json",
+          "ast_sha256": "9e26facff282ad35a6f326826b3b425e1952732f65829b3c588160731bad7675",
+          "old769_ast_sha256": "9e26facff282ad35a6f326826b3b425e1952732f65829b3c588160731bad7675",
+          "final_ast_sha256": "9e26facff282ad35a6f326826b3b425e1952732f65829b3c588160731bad7675",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_json_parts",
+          "ast_sha256": "c9a8087cb6fb17821249f55f1676bbe557d5f56ccce03bbe98c7c2a087482925",
+          "old769_ast_sha256": "c9a8087cb6fb17821249f55f1676bbe557d5f56ccce03bbe98c7c2a087482925",
+          "final_ast_sha256": "c9a8087cb6fb17821249f55f1676bbe557d5f56ccce03bbe98c7c2a087482925",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_text_bound",
+          "ast_sha256": "0ef2a95ebf3e875d4f0efc3f26980f3da75039a45717101480d00f8c3a17c150",
+          "old769_ast_sha256": "0ef2a95ebf3e875d4f0efc3f26980f3da75039a45717101480d00f8c3a17c150",
+          "final_ast_sha256": "0ef2a95ebf3e875d4f0efc3f26980f3da75039a45717101480d00f8c3a17c150",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "v2_unaccepted_data",
+          "ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "old769_ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "final_ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "digest",
+          "ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "old769_ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "final_ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "data_pin",
+          "ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "old769_ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "final_ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "canonical_helper",
+          "ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "old769_ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "final_ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentToolSelectionDataTests",
+          "name": "refused",
+          "ast_sha256": "9124bac491bc3b3ffcc0c4a2108402bdfe9ca87d425eb465bbeffe05c1849cc8",
+          "old769_ast_sha256": "9124bac491bc3b3ffcc0c4a2108402bdfe9ca87d425eb465bbeffe05c1849cc8",
+          "final_ast_sha256": "9124bac491bc3b3ffcc0c4a2108402bdfe9ca87d425eb465bbeffe05c1849cc8",
+          "matched": true
+        }
+      ],
+      "control": {
+        "size": 22663,
+        "sha256": "17626c728b46504cada850f0516b50d4b0755cd8cd214abc72619d1dca91abd4",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "mutant": {
+        "size": 22713,
+        "sha256": "523234c1146ee85f81bcbe49da2bdf6b3e87684cfa1e6fa820691fc0aec30742",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "postimage": {
+        "size": 335381,
+        "sha256": "10452f125810b722612f54c66a33fd7abde2f2c0c3480d566ca170e6df117ac7",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "new_full_postimage_kill": false
+    },
+    "WHEEL-DATA": {
+      "verdict": "ACCEPT_SCOPED_OLD769_CAUSAL_REUSE",
+      "units": [
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/controller_deployment.py",
+          "owner": null,
+          "name": "_review_payload_pin",
+          "ast_sha256": "6e78733bc4f2748bb964155076ce0b47348014adb197526f80d52e2ca8c88d86",
+          "old769_ast_sha256": "6e78733bc4f2748bb964155076ce0b47348014adb197526f80d52e2ca8c88d86",
+          "final_ast_sha256": "6e78733bc4f2748bb964155076ce0b47348014adb197526f80d52e2ca8c88d86",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentWheelSourceDataTests",
+          "name": "test_source_pin_is_checked_before_payload_read_on_both_wheel_routes",
+          "ast_sha256": "3319053ad4e920c3adfca9830d1d3ab90895e0c07af34ee7a602c23df985adf4",
+          "old769_ast_sha256": "3319053ad4e920c3adfca9830d1d3ab90895e0c07af34ee7a602c23df985adf4",
+          "final_ast_sha256": "3319053ad4e920c3adfca9830d1d3ab90895e0c07af34ee7a602c23df985adf4",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/controller_deployment.py",
+          "owner": null,
+          "name": "review_wheel",
+          "ast_sha256": "42701fb97d4aad2eaf8993f29362b8671a68318471868c58413256e8caf09259",
+          "old769_ast_sha256": "42701fb97d4aad2eaf8993f29362b8671a68318471868c58413256e8caf09259",
+          "final_ast_sha256": "42701fb97d4aad2eaf8993f29362b8671a68318471868c58413256e8caf09259",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/controller_deployment.py",
+          "owner": null,
+          "name": "_campaign_review_wheel",
+          "ast_sha256": "8889be2f4cc463742b9bdc23c9296cec075bb58c4e71ff6fe7149a8d90749fbc",
+          "old769_ast_sha256": "8889be2f4cc463742b9bdc23c9296cec075bb58c4e71ff6fe7149a8d90749fbc",
+          "final_ast_sha256": "8889be2f4cc463742b9bdc23c9296cec075bb58c4e71ff6fe7149a8d90749fbc",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "pin",
+          "ast_sha256": "c8741d5920ee827d187955c1169176d477f8346ae202841fa42ed88ed8eec39f",
+          "old769_ast_sha256": "c8741d5920ee827d187955c1169176d477f8346ae202841fa42ed88ed8eec39f",
+          "final_ast_sha256": "c8741d5920ee827d187955c1169176d477f8346ae202841fa42ed88ed8eec39f",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "rights",
+          "ast_sha256": "3bffd99a75a3466eb9b91a97ac452c9c338b67c9ce0e0e13bd8b43adc5dc1cb5",
+          "old769_ast_sha256": "3bffd99a75a3466eb9b91a97ac452c9c338b67c9ce0e0e13bd8b43adc5dc1cb5",
+          "final_ast_sha256": "3bffd99a75a3466eb9b91a97ac452c9c338b67c9ce0e0e13bd8b43adc5dc1cb5",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "same",
+          "ast_sha256": "5985c7d98443417077abcb6e94fd81266d35e296923ce38ad1576029b84a1126",
+          "old769_ast_sha256": "5985c7d98443417077abcb6e94fd81266d35e296923ce38ad1576029b84a1126",
+          "final_ast_sha256": "5985c7d98443417077abcb6e94fd81266d35e296923ce38ad1576029b84a1126",
+          "matched": true
+        }
+      ],
+      "control": {
+        "size": 22633,
+        "sha256": "9a0ce5ae4e0590a217d3af8a5a4c68465fff7f39140297e60823dba72d7922e5",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "mutant": {
+        "size": 22684,
+        "sha256": "bb3301a6465fd06a53785729c51e700ed6e016157619e4a925e4f3c9231f175e",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "postimage": {
+        "size": 26601,
+        "sha256": "20372d6c8e4f0bc9654017146cbe46b098a901776e867ced2b9926de35cc5641",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "new_full_postimage_kill": false
+    },
+    "PROVIDER-LABEL": {
+      "verdict": "ACCEPT_SCOPED_OLD769_CAUSAL_REUSE",
+      "units": [
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_selection_data",
+          "ast_sha256": "8256a4c66f0d5068f121c9ded9bee0a2dc681ea555c558ae715e5d4b954e6e11",
+          "old769_ast_sha256": "8256a4c66f0d5068f121c9ded9bee0a2dc681ea555c558ae715e5d4b954e6e11",
+          "final_ast_sha256": "8256a4c66f0d5068f121c9ded9bee0a2dc681ea555c558ae715e5d4b954e6e11",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentToolSelectionDataTests",
+          "name": "test_current_lifetime_bytes_cannot_carry_old_provider_label",
+          "ast_sha256": "0e61f774d2080eb2e1df6439c90f29bb2115110a6b10f1357415ea80ddf72d6e",
+          "old769_ast_sha256": "0e61f774d2080eb2e1df6439c90f29bb2115110a6b10f1357415ea80ddf72d6e",
+          "final_ast_sha256": "0e61f774d2080eb2e1df6439c90f29bb2115110a6b10f1357415ea80ddf72d6e",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_data_digest",
+          "ast_sha256": "9d2aced2e427ab86871a995f3a05af5dbdd66729a441fee33c2af1ae352264d5",
+          "old769_ast_sha256": "9d2aced2e427ab86871a995f3a05af5dbdd66729a441fee33c2af1ae352264d5",
+          "final_ast_sha256": "9d2aced2e427ab86871a995f3a05af5dbdd66729a441fee33c2af1ae352264d5",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_data_path",
+          "ast_sha256": "0b1d000fa7ff5a438ae9c6d42af455eee2f62b7c26a2a59f1e668f41a1237081",
+          "old769_ast_sha256": "0b1d000fa7ff5a438ae9c6d42af455eee2f62b7c26a2a59f1e668f41a1237081",
+          "final_ast_sha256": "0b1d000fa7ff5a438ae9c6d42af455eee2f62b7c26a2a59f1e668f41a1237081",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_expected_data",
+          "ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "old769_ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "final_ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "check_selection_records",
+          "ast_sha256": "5f1f64e9ebfe4d455d926c95a02e23d07ef3f459d23f1cabc481cc5c21351aca",
+          "old769_ast_sha256": "5f1f64e9ebfe4d455d926c95a02e23d07ef3f459d23f1cabc481cc5c21351aca",
+          "final_ast_sha256": "5f1f64e9ebfe4d455d926c95a02e23d07ef3f459d23f1cabc481cc5c21351aca",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "measure_json",
+          "ast_sha256": "9e26facff282ad35a6f326826b3b425e1952732f65829b3c588160731bad7675",
+          "old769_ast_sha256": "9e26facff282ad35a6f326826b3b425e1952732f65829b3c588160731bad7675",
+          "final_ast_sha256": "9e26facff282ad35a6f326826b3b425e1952732f65829b3c588160731bad7675",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_json_parts",
+          "ast_sha256": "c9a8087cb6fb17821249f55f1676bbe557d5f56ccce03bbe98c7c2a087482925",
+          "old769_ast_sha256": "c9a8087cb6fb17821249f55f1676bbe557d5f56ccce03bbe98c7c2a087482925",
+          "final_ast_sha256": "c9a8087cb6fb17821249f55f1676bbe557d5f56ccce03bbe98c7c2a087482925",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_text_bound",
+          "ast_sha256": "0ef2a95ebf3e875d4f0efc3f26980f3da75039a45717101480d00f8c3a17c150",
+          "old769_ast_sha256": "0ef2a95ebf3e875d4f0efc3f26980f3da75039a45717101480d00f8c3a17c150",
+          "final_ast_sha256": "0ef2a95ebf3e875d4f0efc3f26980f3da75039a45717101480d00f8c3a17c150",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "v2_unaccepted_data",
+          "ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "old769_ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "final_ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "digest",
+          "ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "old769_ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "final_ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "data_pin",
+          "ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "old769_ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "final_ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "canonical_helper",
+          "ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "old769_ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "final_ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentToolSelectionDataTests",
+          "name": "refused",
+          "ast_sha256": "9124bac491bc3b3ffcc0c4a2108402bdfe9ca87d425eb465bbeffe05c1849cc8",
+          "old769_ast_sha256": "9124bac491bc3b3ffcc0c4a2108402bdfe9ca87d425eb465bbeffe05c1849cc8",
+          "final_ast_sha256": "9124bac491bc3b3ffcc0c4a2108402bdfe9ca87d425eb465bbeffe05c1849cc8",
+          "matched": true
+        }
+      ],
+      "control": {
+        "size": 22642,
+        "sha256": "942547ceed8092a1720899fdf5196b3783f5ef3bfa9a0a847989f3577e066a10",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "mutant": {
+        "size": 22693,
+        "sha256": "234d5bf0ad942e5d41785d7c94f08fcf29748596ebaeda9928e78ef374e46ef2",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "postimage": {
+        "size": 335352,
+        "sha256": "608577d7af42067dec42eec06f5c238f50eee159e4dd3b221a1a2be937e09500",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "new_full_postimage_kill": false
+    },
+    "OWNER-ADMISSION": {
+      "verdict": "ACCEPT_SCOPED_OLD769_CAUSAL_REUSE",
+      "units": [
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": "Preparation",
+          "name": "__init__",
+          "ast_sha256": "0ac7a98e834b4e67f1e7b938d15da5fd03cc827646e8a691393fdefc62b2b5cf",
+          "old769_ast_sha256": "0ac7a98e834b4e67f1e7b938d15da5fd03cc827646e8a691393fdefc62b2b5cf",
+          "final_ast_sha256": "0ac7a98e834b4e67f1e7b938d15da5fd03cc827646e8a691393fdefc62b2b5cf",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentAdmissionNegativeTests",
+          "name": "test_v2_data_cannot_enter_preparation_without_live_context",
+          "ast_sha256": "829ab50800feb8e06c4f9beddb0943e6a6efead7bf398323e0a2274edfb704f9",
+          "old769_ast_sha256": "829ab50800feb8e06c4f9beddb0943e6a6efead7bf398323e0a2274edfb704f9",
+          "final_ast_sha256": "829ab50800feb8e06c4f9beddb0943e6a6efead7bf398323e0a2274edfb704f9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "v2_unaccepted_data",
+          "ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "old769_ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "final_ast_sha256": "f217836dec5a1b7965936d49d5ebec8090263519770e03f4ac91a5f14ed005e9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "digest",
+          "ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "old769_ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "final_ast_sha256": "e78445794de3b784d9e07114d3bfc1702e72d03af53da65757f2ba1944e27bb4",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "data_pin",
+          "ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "old769_ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "final_ast_sha256": "49c51b1ac75ceb16daec142e4740792c87f0f9d5ccd950f257aa8ca599339015",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": null,
+          "name": "canonical_helper",
+          "ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "old769_ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "final_ast_sha256": "69d6c57069115eeaebb97ac2e5f9d7d721d8223c80f361c4931309296596b4f9",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_current_expected_data",
+          "ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "old769_ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "final_ast_sha256": "aaa9cbc85b8cf27580f832ee460f96b493e658c4c69abc5bbc76be8eb00b6a1e",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_actual_current_test",
+          "ast_sha256": "4122ebcb0508daca211d06e2e8bdc4e7d96f25a1022ba3b7bef184a96556cce1",
+          "old769_ast_sha256": "4122ebcb0508daca211d06e2e8bdc4e7d96f25a1022ba3b7bef184a96556cce1",
+          "final_ast_sha256": "4122ebcb0508daca211d06e2e8bdc4e7d96f25a1022ba3b7bef184a96556cce1",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+          "owner": null,
+          "name": "_require_current_test",
+          "ast_sha256": "00888b63a1865c94c725fb02460984cdc3e746107f907029f0440c64a2267e45",
+          "old769_ast_sha256": "00888b63a1865c94c725fb02460984cdc3e746107f907029f0440c64a2267e45",
+          "final_ast_sha256": "00888b63a1865c94c725fb02460984cdc3e746107f907029f0440c64a2267e45",
+          "matched": true
+        },
+        {
+          "path": "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+          "owner": "CurrentAdmissionNegativeTests",
+          "name": "require_current_keyword",
+          "ast_sha256": "fc9080dabc31a17644c9c3fde0929ec00336a0478e8459009a4de31442b7f701",
+          "old769_ast_sha256": "fc9080dabc31a17644c9c3fde0929ec00336a0478e8459009a4de31442b7f701",
+          "final_ast_sha256": "fc9080dabc31a17644c9c3fde0929ec00336a0478e8459009a4de31442b7f701",
+          "matched": true
+        }
+      ],
+      "control": {
+        "size": 22657,
+        "sha256": "325cff5b628795770293eca60ecf98cd3185b76094c0ac2e47ec4d8e0837d566",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "mutant": {
+        "size": 22697,
+        "sha256": "a36c750f81da6adc2509c2bc379da2166a8eff3d2124113a54ef906146dc512f",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "postimage": {
+        "size": 335405,
+        "sha256": "58a21204f4795c6ba186964780a6cc92040fdc5e4098e391272aa4d6e3fff1b0",
+        "mode": 436,
+        "uid": 1000,
+        "gid": 1000
+      },
+      "new_full_postimage_kill": false
+    }
+  },
+  "role_helper_scope": {
+    "whole_helper_conserved": false,
+    "runtime_and_legacy_tool_branches_conserved": true,
+    "old_fixture_empty_fields": [
+      "links",
+      "directories",
+      "tool_startup_hook_sets",
+      "shell_aliases"
+    ],
+    "reason": "New chain loops skipped, new coverage empty==empty; selected guards/tests/fixtures/dependency units conserved; no new full-postimage kill claim."
+  },
+  "unchanged_constants": {
+    "E_FILES": true,
+    "PROVIDERS": true,
+    "SOURCE_NAMES": true,
+    "TRACE_SURFACE": true,
+    "CONSTRUCTION_RAW_LIMIT": true,
+    "EVIDENCE_LIMIT": true,
+    "EVIDENCE_FILES": true,
+    "JSON_ESCAPE_PEAK": true,
+    "OWNED_MEMORY_LIMIT": true,
+    "CLASS_LIMITS": true,
+    "R4_CLASS_LIMITS": true,
+    "R5_CLASS_LIMITS": true,
+    "R5_HELD": true,
+    "R11_CLASS_LIMITS": true,
+    "R11_HELD": true,
+    "R14_CLASS_LIMITS": true,
+    "R14_HELD": true,
+    "R16_CLASS_LIMITS": true,
+    "R16_HELD": true,
+    "R17_CLASS_LIMITS": true,
+    "R17_HELD": true,
+    "R18_CLASS_LIMITS": true,
+    "R18_HELD": true,
+    "R19_CLASS_LIMITS": true,
+    "R19_HELD": true
+  },
+  "corrected_static_findings": [
+    {
+      "subject": "1fe1",
+      "finding": "current phase __main__ missing canonical q/sibling identity",
+      "corrected_commit": "d07841e6ed062ab134589c35a88f67145e14faf9"
+    },
+    {
+      "subject": "1fe1",
+      "finding": "historical non-current abort/PopenFailure regression",
+      "corrected_commit": "d07841e6ed062ab134589c35a88f67145e14faf9"
+    },
+    {
+      "subject": "1fe1/d078",
+      "finding": "direct-owner purpose boolean overwritten by timing current=now",
+      "corrected_commit": "56262b3d83d381aa9a6793450a1e55e94f54e1c1",
+      "assignment_stores": {
+        "current": [
+          385
+        ],
+        "tick": [
+          703
+        ]
+      }
+    }
+  ],
+  "history": {
+    "source769": "76951755be8a658ab55ea9c9ddd947a0928955ee",
+    "source1fe1": "1fe1ebad8413856ed57f84771b9c0ca1e991f2f0",
+    "author_103_proof": "IMMUTABLE_HISTORICAL_82_DATA_21_AST_NOT_FINAL108",
+    "author_audit": {
+      "size": 25753,
+      "sha256": "ec70bac5ccb62513c6047622a3c6190896f5eae3370a562139b5ab94f9cfff2a"
+    },
+    "author_custody": {
+      "size": 4185,
+      "sha256": "da2c68cf6b404efe71dec08238d6ce1abb0990af116567bed178d889e40419dd"
+    },
+    "spent_prelaunch_manifest": {
+      "size": 11709,
+      "sha256": "3e73291fce1546b8256d68ccb0011a5ee2ccd73bf6445e3e24cbaeaba51bf49c"
+    },
+    "label_correction": {
+      "manifest_sha256": "3e73291fce1546b8256d68ccb0011a5ee2ccd73bf6445e3e24cbaeaba51bf49c",
+      "stale_unique_methods_label": 95,
+      "actual_unique_methods": 103,
+      "executed_expected_counts": {
+        "FULL-DATA": 82,
+        "FULL-AST": 21
+      },
+      "spent_prelaunch_manifest_preserved_unchanged": true,
+      "source_selectors_receipts_unchanged": true,
+      "extra_launches": 0
+    },
+    "d078_authored107_no_author_replay": true,
+    "final108_proof": "THE_TWO_INDEPENDENT_GROUPS_RECORDED_HERE"
+  },
+  "corrected_unexecuted_ROOT_adapter": {
+    "derived_from_historical_revision1_adapter": {
+      "size": 4345,
+      "sha256": "a0f4bc6a065632a0d52f7cb046193f354f41fa204168d4cab2ef5aaac31c2c82"
+    },
+    "only_change": "PINS literal updated to exact final four helper bytes; original file not edited",
+    "source_text": "\"\"\"UNEXECUTED fixed retained ROOT application adapter. No JSON actor or resume.\"\"\"\nfrom pathlib import Path\nimport hashlib\nimport importlib.util\nimport json\nimport os\nimport selectors\nimport sys\nimport time\nROOT=Path('/home/lynn/projects/wordling')\nPINS={'internal/document/evidence/reference_controller/tests/runtime_qualification.py': {'size': 400414, 'sha256': '6eaa619f33ba25ef24d5e52df2cdb5498f78ea85e8d91e003e03e96bd4af47bc'}, 'internal/document/evidence/reference_controller/tests/controller_deployment.py': {'size': 26648, 'sha256': 'c50a129acbb0faf2ab3f14e8dc6d3b0332252c82eefa317f89140eb39db19647'}, 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py': {'size': 63004, 'sha256': 'd62633b2d2693ad94e38105ba14ca13e2b4dbad941549f09e30037dd1e9fcebf'}, 'internal/document/evidence/reference_controller/tests/current_test_qualification.py': {'size': 98594, 'sha256': 'e40f46b648621a5ebf307a86c1d1774d3fb788069513a1cdb9db92ac3cf0d58a'}}\ndef load_source():\n for relative,wanted in PINS.items():\n  path=ROOT/relative;raw=path.read_bytes()\n  if len(raw)!=wanted['size'] or hashlib.sha256(raw).hexdigest()!=wanted['sha256']:raise RuntimeError('FixedCurrentSourceChanged')\n for name in ('runtime_qualification','controller_deployment','runtime_qualification_supervisor','current_test_qualification'):\n  directory=ROOT/'internal/document/evidence/reference_controller/tests'\n  if sys.pycache_prefix is not None or (directory/(name+'.pyc')).exists() or any((directory/'__pycache__').glob(name+'.*.pyc')):raise RuntimeError('FixedCachedHelperExcluded')\n  path=ROOT/'internal/document/evidence/reference_controller/tests'/(name+'.py')\n  spec=importlib.util.spec_from_file_location(name,path)\n  if spec is None or type(spec.loader).__name__!='SourceFileLoader':raise RuntimeError('FixedSourceLoader')\n  module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)\n q=sys.modules['runtime_qualification']\n # Mandatory original R2 cases, not extra gates or a metadata verdict. This\n # fixed dormant source still cannot start qualification without\n # independently accepted complete SOURCE seeds and their reviewed closure.\n required=('_current_qualification_data16','_current_qualification_mutants4','_current_owner_negative')\n missing=[name for name in required if not callable(getattr(q,name,None))]\n if missing:raise RuntimeError('MandatoryRuntimeCaseSourceIncomplete:'+','.join(missing))\n return sys.modules['current_test_qualification']\ndef main():\n if sys.argv[1:]:raise RuntimeError('NoGenericSourceArguments')\n current=load_source();session=current.begin_current_test_session()\n actions={'ACCEPT_SOURCE':session.accept_source,'REFERENCE':current.capture_reference,\n  'ACCEPT_REFERENCE':session.accept_reference,'OWNER_NEGATIVE':lambda:session.phase('owner-negative'),'DISPOSABLE':current.prepare_disposable,\n  'ACCEPT_DISPOSABLE':session.accept_disposable,'COLD':session.cold_artifacts,\n  'FINAL':current.prepare_final,'ACCEPT_CANDIDATE':session.accept_candidate,\n  'ADMIN':current.test_admin,'HEALTHY':current.test_healthy}\n pending=bytearray();commands=0;source_wait_end=time.monotonic()+90\n os.set_blocking(sys.stdin.fileno(),False)\n try:\n  with selectors.DefaultSelector() as selector:\n   selector.register(sys.stdin,selectors.EVENT_READ)\n   while not session.finished and not session.failed:\n    end=session.whole_end if session.whole_end is not None else source_wait_end\n    if time.monotonic()>=end:raise RuntimeError('SameWholeDeadlineIncludesROOTWait')\n    if not selector.select(min(.1,end-time.monotonic())):continue\n    raw=os.read(sys.stdin.fileno(),66-len(pending))\n    if not raw:break\n    pending.extend(raw)\n    if len(pending)>64:raise RuntimeError('FixedROOTCommandBound')\n    if b'\\n' not in pending:continue\n    if pending.count(b'\\n')!=1 or not pending.endswith(b'\\n'):raise RuntimeError('OneDeliberateROOTActionPerLine')\n    command=bytes(pending[:-1]).decode('ascii');pending.clear();commands+=1\n    if commands>11 or command not in actions:raise RuntimeError('FixedROOTActionRoster')\n    actions[command]()\n    print(json.dumps(dict(action=command,stage=session.stage,release_approval=False)),flush=True)\n  return 0 if session.finished and not session.failed else 2\n finally:session.close()\nif __name__=='__main__':raise SystemExit(main())\n",
+    "pin": {
+      "size": 4345,
+      "sha256": "a43136a356e0572f2fc013b0d70fa67179a1339ba1dca36d3a9fb4a6448f867d"
+    },
+    "executed": false,
+    "operational_authority": false
+  },
+  "capacity": {
+    "retained_files": 1245,
+    "retained_bytes_cap": 536870912,
+    "conservative_retained_and_future_bytes": 338116612,
+    "runtime_literal_writers": 205,
+    "class_count": 17,
+    "intrinsic_files": 10240,
+    "intrinsic_bytes": 4294967296,
+    "OTHER_files_max_before_six_seed_count": 2489,
+    "OTHER_bytes_max": 1928265728,
+    "actual_baseline": "UNKNOWN_PRECLOCK_SOURCE_ADMISSION"
+  },
+  "seed_custody_proposal": {
+    "size": 3710,
+    "sha256": "2c0c9493640d33ca7ceebdb085060c7ee4a0cee4a80e60078f34c9f5933409be",
+    "verdict": "ACCEPT_TWO_EXACT131072_PATHS_RETENTION_ONLY_NOT_ACTION_OR_FACT_ACCEPTANCE"
+  },
+  "manifest_fixed_length_rule": "Parser-compatible ASCII-space padding to predeclared<=65536 size only after independent actual acceptance; refuse overflow; actual final padded bytes hashed/sealed/ACK-bound; publish only five unaccepted seed outputs first; no true closure from SOURCE action.",
+  "source_verdict": "APPROVE_DORMANT_CANONICAL_SOURCE_AND_FOUR_SCOPED_SOURCE769_CAUSAL_CITATIONS",
+  "pending_before_first_genuine_capture_or_clock": [
+    "Exact trusted administrative SOURCE action source/roster/limits/process/read/write/custody review and deliberate ROOT decision",
+    "Actual namespace/loader/startup and required compiler/header/native/input/role/cache closure without automatic unknown-path adoption",
+    "Exact actual five seed payloads and final independently accepted source manifest; SOURCE-only values or closure booleans do not authenticate actors",
+    "Actual normal/external/six-seed holdings, complete process/AS/FD/IO/joint-owned decode-trace fit and final serialization projection",
+    "Independent acceptance and separate deliberate ROOT operational reference/candidate/CLI decisions"
+  ],
+  "memory_contract": "Joint owned decode/trace<=160MiB(parent1+child159); separately complete finite native process/resource envelope, not an invented same160MiB aggregate-native cap.",
+  "qualified_reference_context_Preparation_TEST_P_compiler_probes": 0,
+  "qualification_clock_started": false,
+  "original_qualification": false,
+  "WP_verdict": null,
+  "audit_Op_stays_open": true
+}
