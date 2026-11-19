@@ -1,0 +1,253 @@
+import base64,gzip,hashlib,json,os,resource,selectors,signal,stat,subprocess,sys,time,traceback
+from pathlib import Path
+PLAN={'schema': 'wordling.wp108-BOOTSTRAP_SOURCE01-plan/v1', 'status': 'SOURCE_ONLY_NO_QUALIFIED_TOOL_OR_ROLE', 'source_freeze': '6e0faee1c1401c87b89d1caf361af21bcd8cf0a0', 'source_census_raw_sha256': '0fcaedacb3d61589867bf475e2dc45949f548f90c2472d6f1dcb7451e76be35b', 'namespace': 'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/bootstrap-source02', 'files': [{'path': '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site.py', 'kind': 'source', 'required': True}, {'path': '/usr/lib/python3.12/site.py', 'kind': 'source', 'required': True}, {'path': '/etc/python3.12/sitecustomize.py', 'kind': 'source', 'required': True}, {'path': '/usr/lib/python3.12/__pycache__/sitecustomize.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/etc/python3.12/__pycache__/sitecustomize.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/lib/python3/dist-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/usr/lib/python3/dist-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/usr/lib/python3/dist-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/local/lib/python3.12/dist-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/usr/local/lib/python3.12/dist-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/usr/local/lib/python3.12/dist-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/lib/python3.12/site-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/usr/lib/python3.12/site-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/usr/lib/python3.12/site-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/local/lib/python3.12/site-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/usr/local/lib/python3.12/site-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/usr/local/lib/python3.12/site-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/lib/python3.12/dist-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/usr/lib/python3.12/dist-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/usr/lib/python3.12/dist-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/local/lib/python3/dist-packages/distutils-precedence.pth', 'kind': 'pth_source', 'required': False}, {'path': '/usr/local/lib/python3/dist-packages/_distutils_hack/__init__.py', 'kind': 'source', 'required': False}, {'path': '/usr/local/lib/python3/dist-packages/_distutils_hack/__pycache__/__init__.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}, {'path': '/usr/lib/python3/dist-packages/apport_python_hook.py', 'kind': 'source', 'required': False}, {'path': '/usr/lib/python3/dist-packages/__pycache__/apport_python_hook.cpython-312.pyc', 'kind': 'opaque_cache', 'required': False}], 'hook_membership_roots': ['/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages', '/usr/lib/python3/dist-packages', '/usr/local/lib/python3.12/dist-packages', '/usr/lib/python3.12/site-packages', '/usr/local/lib/python3.12/site-packages', '/usr/lib/python3.12/dist-packages', '/usr/local/lib/python3/dist-packages'], 'hook_read_allowed_basename': 'distutils-precedence.pth', 'aliases': [{'logical': '/usr/lib/python3.12/sitecustomize.py', 'target': '/etc/python3.12/sitecustomize.py', 'kind': 'startup_alias'}, {'logical': '/usr/lib/x86_64-linux-gnu/libgmp.so.10', 'target': '/usr/lib/x86_64-linux-gnu/libgmp.so.10.5.0', 'kind': 'native_alias', 'physical_pin': {'size': 534896, 'sha256': '0ccdfb6d6f5c039465f6d002cf7e4c072d48ac6a2cffc8dd6c748dec31592804', 'mode': 420, 'uid': 0, 'gid': 0}, 'physical_pin_status': 'OBSERVED_UNACCEPTED_METADATA_FROM_SOURCE_CENSUS01_NOT_RE_READ'}, {'logical': '/usr/lib/x86_64-linux-gnu/libisl.so.23', 'target': '/usr/lib/x86_64-linux-gnu/libisl.so.23.3.0', 'kind': 'native_alias', 'physical_pin': {'size': 1863352, 'sha256': 'db4f717fd1678b48e5dddea1cbdd2d239594a70b57e96d0923bfd9533351efa8', 'mode': 420, 'uid': 0, 'gid': 0}, 'physical_pin_status': 'OBSERVED_UNACCEPTED_METADATA_FROM_SOURCE_CENSUS01_NOT_RE_READ'}, {'logical': '/usr/lib/x86_64-linux-gnu/libmpc.so.3', 'target': '/usr/lib/x86_64-linux-gnu/libmpc.so.3.3.1', 'kind': 'native_alias', 'physical_pin': {'size': 134440, 'sha256': '91d2b2b0b794028c733431e01acc227ff39ee289384fdf22869c8b42ad3aaa3b', 'mode': 420, 'uid': 0, 'gid': 0}, 'physical_pin_status': 'OBSERVED_UNACCEPTED_METADATA_FROM_SOURCE_CENSUS01_NOT_RE_READ'}, {'logical': '/usr/lib/x86_64-linux-gnu/libmpfr.so.6', 'target': '/usr/lib/x86_64-linux-gnu/libmpfr.so.6.2.1', 'kind': 'native_alias', 'physical_pin': {'size': 760464, 'sha256': '2156351fa3dedd04a7381c6ac7a8a26efa2d6fb08b80f8a2d644ccdd653710ae', 'mode': 420, 'uid': 0, 'gid': 0}, 'physical_pin_status': 'OBSERVED_UNACCEPTED_METADATA_FROM_SOURCE_CENSUS01_NOT_RE_READ'}, {'logical': '/usr/lib/x86_64-linux-gnu/libunwind.so.8', 'target': '/usr/lib/x86_64-linux-gnu/libunwind.so.8.0.1', 'kind': 'native_alias', 'physical_pin': {'size': 63776, 'sha256': '28e77a498f2f17f8cb883c91303f9901343ea0d8e34959d138dd462fcc9b201f', 'mode': 420, 'uid': 0, 'gid': 0}, 'physical_pin_status': 'OBSERVED_UNACCEPTED_METADATA_FROM_SOURCE_CENSUS01_NOT_RE_READ'}], 'unknown_rule': 'Allroots/files beyondalreadycaptured facts are explicitUNVERIFIEDHYPOTHESES. Enumerateonlyexactrootsfor*.pthmembership; readonlyexplicitfixedfileslist. Unknownpthbasename/newsite.py-derivedroot/import/sourceobligation blocksnormalqualifiedstartup; neverfollow/import/eval/repair. Administrative sys.path diagnostic ONLY, notnormalprefixproof.', 'external_BASE_aliases': '1042targetsexternal/tmpdownload remainUNKNOWNNONEXECUTED_METADATA, no targetread; anyfuturequalifiedunknownaccessrefuses.', 'bounds': {'seconds': 30, 'cleanup': 2, 'read_bytes': 2097152, 'source_bytes': 131072, 'per_file': 65536, 'records': 256, 'metadata_working': 4194304, 'FD': 32, 'AS': 167772160, 'raw_JSON': 262144, 'compressed': 131072, 'stderr': 16384, 'directory_entries_per_root': 4096, 'pth_names_per_root': 32, 'children_after_launcher': 0, 'reader_asset_read_bytes': 1966080, 'preflight_source_packet_read_bytes': 131072}, 'writer_caps': {'ROOT-action-decision.json': 65536, 'capture.py.txt': 32768, 'packet.json': 32768, 'command.json': 16384, 'preflight.json': 32768, 'process.json': 65536, 'stdout.raw.gz': 131072, 'stderr.raw': 16384, 'analysis.json': 131072}, 'admin_substrate': 'TrustedadministrativePython/OSreader solelyobtainsSOURCE_DATA. Notclaimedqualifiedsystemtool, no recursivequalification or currentcontext. No compiler/BASE/systemnormal-tool invocation, no runtimecase/clock.', 'qualified_subsequent_operations': 'Blockeduntilindependentsource/bootstrapreviewandexactcanonicalCURRENTsource/case/writer/earlierclock closure; thispacketgrantnone.', 'fixed_env': {'PATH': '/usr/bin:/bin', 'HOME': '/home/lynn', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1'}, 'fixed_admin_capture_argv': ['/usr/bin/python3', '-I', '-B', '/tmp/wordling-wp108-bootstrap-capture2/capture.py.txt'], 'fixed_reader_argv': ['/usr/bin/timeout', '--signal=TERM', '--kill-after=2s', '30s', '/usr/bin/prlimit', '--as=167772160', '--nofile=32', '--nproc=0', '--fsize=0', '--', '/usr/bin/python3', '-I', '-B', '/tmp/wordling-wp108-bootstrap-capture2/capture.py.txt', '--read-bootstrap-source-v1'], 'admin_executable_known_observation': {'logical': '/usr/bin/python3', 'target': 'python3.12', 'resolved': '/usr/bin/python3.12', 'size': 8020928, 'sha256': 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f', 'mode': 493, 'uid': 0, 'gid': 0, 'provenance': 'RecordedR4/SOURCEobservation, notcurrentbyte-rehashorqualifiedstartup'}}
+LOCATION=Path('/tmp/wordling-wp108-bootstrap-capture2/capture.py.txt')
+ROOT=Path('/home/lynn/projects/wordling')
+OUT=ROOT/PLAN['namespace']
+def stamp(s):
+    return (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+
+
+def rights(s):
+    return dict(mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+
+
+def directory(path):
+    fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    try:
+        for part in path.parts[1:]:
+            old=os.stat(part,dir_fd=fd,follow_symlinks=False)
+            if not stat.S_ISDIR(old.st_mode):raise RuntimeError('UnlistedParentAliasOrType')
+            child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+            if stamp(old)!=stamp(os.fstat(child)):
+                os.close(child);raise RuntimeError('ParentChanged')
+            os.close(fd);fd=child
+        return fd
+    except BaseException:
+        os.close(fd);raise
+
+
+
+def named_directory(path,held):
+    current=directory(path)
+    try:
+        a,b=os.fstat(held),os.fstat(current)
+        return (a.st_dev,a.st_ino)==(b.st_dev,b.st_ino)and rights(a)==rights(b)
+    finally:os.close(current)
+
+def reader_main():
+    start=time.monotonic();end=start+30
+    rows=[];read_bytes=source_bytes=0;reserved=8192;global_stop=None
+    def check():
+        if time.monotonic()>=end:raise RuntimeError('BootstrapSOURCEDeadline')
+    def append(row):
+        nonlocal reserved
+        check()
+        raw=json.dumps(row,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('ascii')
+        if len(rows)>=256 or reserved+len(raw)+1>262144:raise RuntimeError('BootstrapSOURCEOutputBound')
+        reserved+=len(raw)+1;rows.append(row)
+    def observe_file(spec):
+        nonlocal read_bytes,source_bytes
+        path=Path(spec['path']);parent=directory(path.parent);fd=None
+        try:
+            check();before=os.stat(path.name,dir_fd=parent,follow_symlinks=False)
+            if not stat.S_ISREG(before.st_mode) or not 0<=before.st_size<=65536:raise RuntimeError('FixedRegularFileBoundOrAlias')
+            is_source=spec['kind']!='opaque_cache'
+            if is_source and source_bytes+before.st_size>131072:raise RuntimeError('BootstrapSourceByteBound')
+            if is_source and reserved+((before.st_size+2)//3)*4+4096>262144:raise RuntimeError('BootstrapSOURCEOutputBound')
+            fd=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent)
+            if stamp(before)!=stamp(os.fstat(fd)):raise RuntimeError('FileChangedAtOpen')
+            digest=hashlib.sha256();chunks=[];remaining=before.st_size
+            while remaining:
+                check();count=min(65536,remaining)
+                if read_bytes+count>1966080:raise RuntimeError('BootstrapReadBound')
+                read_bytes+=count;raw=os.read(fd,count)
+                if not raw:raise RuntimeError('SourceShortRead')
+                digest.update(raw);remaining-=len(raw)
+                if is_source:chunks.append(raw)
+            if stamp(before)!=stamp(os.fstat(fd)) or stamp(before)!=stamp(os.stat(path.name,dir_fd=parent,follow_symlinks=False))or not named_directory(path.parent,parent):raise RuntimeError('SourceSnapshotChanged')
+            row=dict(path=str(path),kind=spec['kind'],required=spec['required'],size=before.st_size,sha256=digest.hexdigest(),status='OBSERVED_UNACCEPTED_SOURCE_DATA',**rights(before))
+            if is_source:
+                source_bytes+=before.st_size
+                row['source_bytes_base64']=base64.b64encode(b''.join(chunks)).decode('ascii')
+            else:
+                row.update(classification='OPAQUE_TOOL_BYTES',body_source_equivalence=False)
+            append(row)
+        finally:
+            if fd is not None:os.close(fd)
+            os.close(parent)
+    # Trusted SOURCE substrate diagnostics only. Startup is NOT qualified by this.
+    append(dict(kind='administrative_substrate',classification='TRUSTED_ADMIN_SOURCE_READER_NOT_TOOL_UNDER_TEST',qualified=False))
+    try:
+        for spec in PLAN['aliases']:
+            check();path=Path(spec['logical']);parent=None
+            try:
+                parent=directory(path.parent);before=os.stat(path.name,dir_fd=parent,follow_symlinks=False)
+                if not stat.S_ISLNK(before.st_mode):raise RuntimeError('ExpectedLogicalAlias')
+                text=os.readlink(path.name,dir_fd=parent)
+                if not text.isascii() or len(text)>4096 or '\0' in text:raise RuntimeError('AliasTextBound')
+                target=os.path.normpath(text if text.startswith('/')else str(path.parent/ text))
+                if stamp(before)!=stamp(os.stat(path.name,dir_fd=parent,follow_symlinks=False))or not named_directory(path.parent,parent):raise RuntimeError('AliasChanged')
+                append(dict(kind=spec['kind'],path=str(path),text=text,lexical_target=target,target_matches_declared=target==spec['target'],follow=False,physical_pin=spec.get('physical_pin'),physical_pin_status=spec.get('physical_pin_status'),status='OBSERVED_UNACCEPTED_SOURCE_DATA'if target==spec['target']else'INCOMPLETE_ALIAS_TARGET',**rights(before)))
+            except OSError as error:append(dict(kind=spec['kind'],path=str(path),status='INCOMPLETE',reason=str(error)[:512]))
+            except RuntimeError as error:append(dict(kind=spec['kind'],path=str(path),status='INCOMPLETE',reason=str(error)[:512]))
+            finally:
+                if parent is not None:os.close(parent)
+        for root in PLAN['hook_membership_roots']:
+            check();fd=None
+            try:
+                fd=directory(Path(root));before=os.fstat(fd);names=[];count=0
+                with os.scandir(fd)as entries:
+                    for entry in entries:
+                        check();count+=1
+                        if count>4096:raise RuntimeError('HookDirectoryEntryBound')
+                        name=entry.name
+                        if not name.isascii()or len(name)>255:raise RuntimeError('HookNameBound')
+                        if name.endswith('.pth'):
+                            if len(names)>=32:raise RuntimeError('HookMembershipBound')
+                            names.append(name)
+                names.sort()
+                if stamp(before)!=stamp(os.fstat(fd))or not named_directory(Path(root),fd):raise RuntimeError('HookDirectoryChanged')
+                append(dict(kind='hook_membership',path=root,names=names,unknown_basenames=[n for n in names if n!=PLAN['hook_read_allowed_basename']],status='OBSERVED_UNACCEPTED_SOURCE_DATA'if all(n==PLAN['hook_read_allowed_basename']for n in names)else'INCOMPLETE_UNKNOWN_PTH_BASENAME',**rights(before)))
+            except (OSError,RuntimeError)as error:append(dict(kind='hook_membership',path=root,status='INCOMPLETE',reason=str(error)[:512],hypothesis=True))
+            finally:
+                if fd is not None:os.close(fd)
+        for spec in PLAN['files']:
+            try:observe_file(spec)
+            except OSError as error:append(dict(path=spec['path'],kind=spec['kind'],required=spec['required'],status='ABSENCE_OR_UNREADABLE_UNACCEPTED',reason=str(error)[:512],target_existence_before_this_action='UNKNOWN'))
+            except RuntimeError as error:
+                if str(error)in('BootstrapSourceByteBound','BootstrapReadBound','BootstrapSOURCEOutputBound','BootstrapSOURCEDeadline'):raise
+                append(dict(path=spec['path'],kind=spec['kind'],required=spec['required'],status='INCOMPLETE',reason=str(error)[:512]))
+    except BaseException as error:global_stop=dict(type=type(error).__name__,reason=str(error)[:512])
+    report=dict(schema='wordling.BOOTSTRAP_SOURCE01-unaccepted/v1',status='UNACCEPTED_SOURCE_FACTS_ONLY',rows=rows,global_stop=global_stop,read_bytes=read_bytes,source_bytes=source_bytes,elapsed_seconds=time.monotonic()-start,qualified_tool=False,accepted_reference=False,current_context_created=False,qualification_clock_started=False,automatic_follow=False)
+    raw=(json.dumps(report,sort_keys=True,separators=(',',':'),ensure_ascii=True)+'\n').encode('ascii')
+    if len(raw)>262144:raise RuntimeError('FinalSOURCEOutputInvariant')
+    sys.stdout.buffer.write(raw)
+    sys.stdout.buffer.flush()
+    raise SystemExit(0 if global_stop is None else 2)
+
+def main():
+    if sys.argv[1:]or Path(__file__).absolute()!=LOCATION:raise RuntimeError('FixedAdministrativeInvocation')
+    resource.setrlimit(resource.RLIMIT_AS,(167772160,167772160))
+    resource.setrlimit(resource.RLIMIT_NOFILE,(32,32))
+    begin=time.monotonic();deadline=begin+30;dfd=None;child=None;status=usage=None;error=None
+    partial={'stdout':False,'stderr':False};buf={'stdout':bytearray(),'stderr':bytearray()};caps={'stdout':262144,'stderr':16384}
+    selector=selectors.DefaultSelector();inputs=[];metadata_reads=0;existing=set();namespace_identity=None
+    encode=lambda v:(json.dumps(v,indent=2,ensure_ascii=True)+chr(10)).encode('ascii')
+    def fixed(path,cap):
+        nonlocal metadata_reads
+        parent=directory(path.parent);fd=None
+        try:
+            a=os.stat(path.name,dir_fd=parent,follow_symlinks=False)
+            if not stat.S_ISREG(a.st_mode)or a.st_size>cap or metadata_reads+a.st_size>131072:raise RuntimeError('AdminSourceBound')
+            fd=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent)
+            if stamp(a)!=stamp(os.fstat(fd)):raise RuntimeError('AdminSourceChangedAtOpen')
+            raw=os.read(fd,a.st_size+1);metadata_reads+=len(raw)
+            if len(raw)!=a.st_size or stamp(a)!=stamp(os.fstat(fd))or stamp(a)!=stamp(os.stat(path.name,dir_fd=parent,follow_symlinks=False))or not named_directory(path.parent,parent):raise RuntimeError('AdminSourceNamedBindingChanged')
+            inputs.append(dict(path=str(path),size=len(raw),sha256=hashlib.sha256(raw).hexdigest(),**rights(a)));return raw
+        finally:
+            if fd is not None:os.close(fd)
+            os.close(parent)
+    def write(name,raw,same=False):
+        if name not in PLAN['writer_caps']or len(raw)>PLAN['writer_caps'][name]:raise RuntimeError('WriterBound')
+        if same and name in existing:return
+        fd=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=dfd)
+        try:
+            offset=0
+            while offset<len(raw):
+                n=os.write(fd,raw[offset:])
+                if n<=0:raise RuntimeError('WriterShortWrite')
+                offset+=n
+            os.fsync(fd)
+        finally:os.close(fd)
+    try:
+        own=fixed(LOCATION,32768);packet=fixed(LOCATION.with_name('packet.json'),32768);parsed=json.loads(packet)
+        if parsed['plan']!=PLAN or parsed['capture_source_sha256']!=hashlib.sha256(own).hexdigest():raise RuntimeError('SourcePacketPinMismatch')
+        exe=PLAN['admin_executable_known_observation'];a=os.stat(exe['resolved'],follow_symlinks=False)
+        if not stat.S_ISREG(a.st_mode)or a.st_size!=exe['size']or rights(a)!={k:exe[k]for k in('mode','uid','gid')}:raise RuntimeError('AdminExecutableStatChanged')
+        parent=directory(Path('/usr/bin'))
+        try:
+            a=os.stat('python3',dir_fd=parent,follow_symlinks=False)
+            if not stat.S_ISLNK(a.st_mode)or os.readlink('python3',dir_fd=parent)!=exe['target']or stamp(a)!=stamp(os.stat('python3',dir_fd=parent,follow_symlinks=False))or not named_directory(Path('/usr/bin'),parent):raise RuntimeError('AdminExecutableAliasChanged')
+        finally:os.close(parent)
+        parent=directory(OUT.parent)
+        try:
+            try:os.mkdir(OUT.name,0o700,dir_fd=parent)
+            except FileExistsError:pass
+            dfd=os.open(OUT.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent)
+        finally:os.close(parent)
+        owner=os.fstat(dfd)
+        namespace_identity=dict(uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),namespace_owner=rights(owner))
+        if owner.st_uid!=os.geteuid()or stat.S_IMODE(owner.st_mode)&0o022:raise RuntimeError('WriterOwnerOrWritable')
+        expected={'capture.py.txt':own,'packet.json':packet}
+        for name in('capture.py.txt','packet.json','command.json','preflight.json','process.json','stdout.raw.gz','stderr.raw'):
+            try:a=os.stat(name,dir_fd=dfd,follow_symlinks=False)
+            except FileNotFoundError:continue
+            if name not in expected or not stat.S_ISREG(a.st_mode)or a.st_size!=len(expected[name]):raise RuntimeError('WriteOnceAlreadySpent:'+name)
+            if metadata_reads+a.st_size>131072:raise RuntimeError('AdminPreflightReadBound')
+            fd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=dfd)
+            try:
+                metadata_reads+=a.st_size
+                if os.read(fd,len(expected[name])+1)!=expected[name]or stamp(a)!=stamp(os.fstat(fd)):raise RuntimeError('PreAdoptedSourceChanged')
+            finally:os.close(fd)
+            existing.add(name)
+        if not named_directory(OUT,dfd):raise RuntimeError('WriterNamedBindingChanged')
+        write('capture.py.txt',own,True);write('packet.json',packet,True)
+        write('command.json',encode(dict(argv=PLAN['fixed_reader_argv'],env=PLAN['fixed_env'],cwd=str(ROOT),trusted_admin_only=True)))
+        write('preflight.json',encode(dict(status='SOURCE_PACKET_WRITER_PREFLIGHT_BEFORE_INSPECTED_READS',source_inputs=inputs,known_admin_executable=exe,executable_bytes_rehashed=False,namespace_rights=rights(owner),preexisting_identical=sorted(existing),qualification=False)))
+        child=subprocess.Popen(PLAN['fixed_reader_argv'],cwd=ROOT,env=PLAN['fixed_env'],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
+        selector.register(child.stdout,selectors.EVENT_READ,'stdout');selector.register(child.stderr,selectors.EVENT_READ,'stderr')
+        while selector.get_map()or status is None:
+            if time.monotonic()>=deadline:raise RuntimeError('SOURCEOuterDeadline')
+            for key,_ in selector.select(0.02):
+                name=key.data;left=caps[name]-len(buf[name]);raw=os.read(key.fileobj.fileno(),min(65536,left+1))
+                if not raw:selector.unregister(key.fileobj);key.fileobj.close();continue
+                buf[name].extend(raw[:left])
+                if len(raw)>left:partial[name]=True;raise RuntimeError('SOURCEStreamBound:'+name)
+            if status is None:
+                observed=os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+                if observed is not None and not selector.get_map():
+                    pid,wait,ru=os.wait4(child.pid,os.WNOHANG)
+                    if pid:status,usage=wait,ru;child.returncode=os.waitstatus_to_exitcode(status)
+    except BaseException as fault:
+        error=''.join(traceback.format_exception(fault))[:8192]
+        if child is not None and status is None:
+            try:os.killpg(child.pid,signal.SIGTERM)
+            except ProcessLookupError:pass
+            end=min(deadline+2,time.monotonic()+2)
+            term_end=min(end,time.monotonic()+0.25)
+            while time.monotonic()<term_end:
+                if os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)is not None:break
+                time.sleep(0.01)
+            if time.monotonic()<end:
+                try:os.killpg(child.pid,signal.SIGKILL)
+                except ProcessLookupError:pass
+            # Identity is still occupied by the unreaped leader for the final
+            # group signal. Never block past this original cleanup endpoint.
+            while time.monotonic()<end:
+                pid,wait,ru=os.wait4(child.pid,os.WNOHANG)
+                if pid:
+                    status,usage=wait,ru;child.returncode=os.waitstatus_to_exitcode(status)
+                    break
+                time.sleep(0.01)
+            if status is None:error += '|UNREAPED_UNKNOWN_AFTER_BOUNDED_CLEANUP'
+        if child is not None:partial={k:True for k in partial}
+    finally:
+        selector.close()
+        if child is not None:
+            for stream in(child.stdout,child.stderr):
+                if stream is not None and not stream.closed:stream.close()
+        if dfd is not None:
+            try:
+                raw=bytes(buf['stdout']);blob=gzip.compress(raw,mtime=0);truncated=len(blob)>131072
+                if truncated:blob=blob[:131072];partial['stdout']=True
+                write('stdout.raw.gz',blob);write('stderr.raw',bytes(buf['stderr']))
+                receipt=dict(schema='wordling.BOOTSTRAP_SOURCE01-admin-custody/v2',actual_exit=None if child is None else child.returncode,actual_waitstatus=status,error=error,elapsed_seconds=time.monotonic()-begin,stdout=dict(size=len(raw),sha256=hashlib.sha256(raw).hexdigest(),compressed_size=len(blob),compressed_sha256=hashlib.sha256(blob).hexdigest(),complete_gzip=not truncated,partial=partial['stdout']),stderr=dict(size=len(buf['stderr']),sha256=hashlib.sha256(buf['stderr']).hexdigest(),partial=partial['stderr']),unretained_suffix='UNKNOWN'if any(partial.values())else None,wait4=None if usage is None else dict(user_seconds=usage.ru_utime,system_seconds=usage.ru_stime,maxrss_kib=usage.ru_maxrss),writer_named_binding=named_directory(OUT,dfd),namespace_identity=namespace_identity,preflight_read_bytes=metadata_reads,reader_asset_read_cap=1966080,total_read_cap=2097152,qualified_tool=False,accepted_reference=False,current_context_created=False,qualification_clock_started=False,no_retry=True)
+                write('process.json',encode(receipt));os.fsync(dfd)
+            finally:os.close(dfd)
+    print(json.dumps(dict(status='UNACCEPTED_SOURCE_CUSTODY',actual_exit=None if child is None else child.returncode,error=error)))
+    raise SystemExit(0 if error is None and child is not None and child.returncode in(0,2)else 2)
+
+if __name__=='__main__':
+    if sys.argv[1:]==['--read-bootstrap-source-v1']:reader_main()
+    else:main()
