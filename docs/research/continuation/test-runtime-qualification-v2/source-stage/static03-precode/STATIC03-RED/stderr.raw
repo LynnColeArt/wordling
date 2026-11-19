@@ -1,0 +1,27 @@
+test_recorded_adjacent_filebacked_union_reaches_canonical_mapping (__main__.Static03StringTableDataTests.test_recorded_adjacent_filebacked_union_reaches_canonical_mapping) ... FAIL
+
+======================================================================
+FAIL: test_recorded_adjacent_filebacked_union_reaches_canonical_mapping (__main__.Static03StringTableDataTests.test_recorded_adjacent_filebacked_union_reaches_canonical_mapping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 672, in checked_offset
+    return self.c.elf_string_table_offset(programs, address, size)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py", line 142, in elf_string_table_offset
+    raise Incomplete('ELFStringTableMappingAmbiguous')
+current_test_qualification.Incomplete: ELFStringTableMappingAmbiguous
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 680, in test_recorded_adjacent_filebacked_union_reaches_canonical_mapping
+    self.assertEqual(self.checked_offset(programs, 4191704, 42266), 1496)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 674, in checked_offset
+    self.fail('STATIC03_CANONICAL_CONTIGUOUS_FILE_COVERAGE_REQUIRED:' + str(error))
+AssertionError: STATIC03_CANONICAL_CONTIGUOUS_FILE_COVERAGE_REQUIRED:ELFStringTableMappingAmbiguous
+
+----------------------------------------------------------------------
+Ran 1 test in 0.006s
+
+FAILED (failures=1)

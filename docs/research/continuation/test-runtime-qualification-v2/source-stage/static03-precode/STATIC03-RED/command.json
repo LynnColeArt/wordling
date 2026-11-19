@@ -1,0 +1,44 @@
+{
+  "case_id": "STATIC03-RED",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=0",
+    "--nofile=64",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+    "Static03StringTableDataTests.test_recorded_adjacent_filebacked_union_reaches_canonical_mapping",
+    "-v"
+  ],
+  "cwd": "/home/lynn/projects/wordling",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reviewed_manifest_sha256": "b1d5d7513269d815b8d29483f18877c54f5cb18e7bdd5cb62c9f67fbd6097c6a",
+  "execution_head": "cb24b54909ed341bf76fddca3dd6a04e3d9e83f1",
+  "official_baseline_head": "a404bbc3121d66c750d1018c37f1864eb520630e",
+  "new_test_hashes": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 44823,
+      "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13026,
+      "sha256": "53f12d42acbcc8d747c9a8c082f0f2257b7686dea06ca287b4fe8711dc1c09de"
+    }
+  },
+  "raw_combined_limit": 262144,
+  "scope": "Bounded reviewed DATA/AST source-checkpoint suite; no genuine current context/reference/preparation/P/TEST/CONTROL/Original/Mac action"
+}
