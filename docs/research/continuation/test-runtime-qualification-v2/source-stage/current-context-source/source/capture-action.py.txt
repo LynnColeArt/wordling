@@ -1,0 +1,58 @@
+"""UNEXECUTED fixed retained ROOT application adapter. No JSON actor or resume."""
+from pathlib import Path
+import hashlib
+import importlib.util
+import json
+import os
+import selectors
+import sys
+import time
+ROOT=Path('/home/lynn/projects/wordling')
+PINS={'internal/document/evidence/reference_controller/tests/runtime_qualification.py': {'size': 335432, 'sha256': '37226ed23be8c5c6c8ad066add0025872d276a436790dd5fceb444cbbecba263'}, 'internal/document/evidence/reference_controller/tests/controller_deployment.py': {'size': 26648, 'sha256': 'c50a129acbb0faf2ab3f14e8dc6d3b0332252c82eefa317f89140eb39db19647'}, 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py': {'size': 59331, 'sha256': '265119c13f497924bf676983e285d7a9f1608cc4286a1aeef08561c56c9638d2'}, 'internal/document/evidence/reference_controller/tests/current_test_qualification.py': {'size': 97396, 'sha256': '9053257945395516a48b85db4ac6dc856bf92c6b64660d204069eff596d87c7b'}}
+def load_source():
+ for relative,wanted in PINS.items():
+  path=ROOT/relative;raw=path.read_bytes()
+  if len(raw)!=wanted['size'] or hashlib.sha256(raw).hexdigest()!=wanted['sha256']:raise RuntimeError('FixedCurrentSourceChanged')
+ for name in ('runtime_qualification','controller_deployment','runtime_qualification_supervisor','current_test_qualification'):
+  path=ROOT/'internal/document/evidence/reference_controller/tests'/(name+'.py')
+  spec=importlib.util.spec_from_file_location(name,path)
+  if spec is None or type(spec.loader).__name__!='SourceFileLoader':raise RuntimeError('FixedSourceLoader')
+  module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+ q=sys.modules['runtime_qualification']
+ # Mandatory original R2 cases, not extra gates or a metadata verdict. This
+ # partial source checkpoint deliberately cannot start qualification without
+ # the remaining real case implementations and their reviewed proof.
+ required=('_current_qualification_data16','_current_qualification_mutants4','_current_owner_negative')
+ missing=[name for name in required if not callable(getattr(q,name,None))]
+ if missing:raise RuntimeError('MandatoryRuntimeCaseSourceIncomplete:'+','.join(missing))
+ return sys.modules['current_test_qualification']
+def main():
+ if sys.argv[1:]:raise RuntimeError('NoGenericSourceArguments')
+ current=load_source();session=current.begin_current_test_session()
+ actions={'ACCEPT_SOURCE':session.accept_source,'REFERENCE':current.capture_reference,
+  'ACCEPT_REFERENCE':session.accept_reference,'DISPOSABLE':current.prepare_disposable,
+  'ACCEPT_DISPOSABLE':session.accept_disposable,'COLD':session.cold_artifacts,
+  'FINAL':current.prepare_final,'ACCEPT_CANDIDATE':session.accept_candidate,
+  'ADMIN':current.test_admin,'HEALTHY':current.test_healthy}
+ pending=bytearray();commands=0;source_wait_end=time.monotonic()+90
+ os.set_blocking(sys.stdin.fileno(),False)
+ try:
+  with selectors.DefaultSelector() as selector:
+   selector.register(sys.stdin,selectors.EVENT_READ)
+   while not session.finished and not session.failed:
+    end=session.whole_end if session.whole_end is not None else source_wait_end
+    if time.monotonic()>=end:raise RuntimeError('SameWholeDeadlineIncludesROOTWait')
+    if not selector.select(min(.1,end-time.monotonic())):continue
+    raw=os.read(sys.stdin.fileno(),66-len(pending))
+    if not raw:break
+    pending.extend(raw)
+    if len(pending)>64:raise RuntimeError('FixedROOTCommandBound')
+    if b'\n' not in pending:continue
+    if pending.count(b'\n')!=1 or not pending.endswith(b'\n'):raise RuntimeError('OneDeliberateROOTActionPerLine')
+    command=bytes(pending[:-1]).decode('ascii');pending.clear();commands+=1
+    if commands>10 or command not in actions:raise RuntimeError('FixedROOTActionRoster')
+    actions[command]()
+    print(json.dumps(dict(action=command,stage=session.stage,release_approval=False)),flush=True)
+  return 0 if session.finished and not session.failed else 2
+ finally:session.close()
+if __name__=='__main__':raise SystemExit(main())

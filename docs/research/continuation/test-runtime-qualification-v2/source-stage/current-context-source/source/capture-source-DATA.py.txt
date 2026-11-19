@@ -1,0 +1,218 @@
+"""Finite WP108 local DATA/AST custody only. No qualification entry is called."""
+from pathlib import Path
+import gzip
+import hashlib
+import json
+import os
+import selectors
+import shutil
+import signal
+import subprocess
+import sys
+import time
+import traceback
+
+ROOT = Path('/home/lynn/projects/wordling')
+OUT = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/source'
+COMMAND_SHA = '693460edd3ac194f5c54ad123e9c30b9bb9b05ee4e6a7de2a1b74fcbe2fa04b1'
+MUTANT_SHA = 'cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702'
+FREEZE = '76951755be8a658ab55ea9c9ddd947a0928955ee'
+
+
+def pin(path):
+    h = hashlib.sha256()
+    total = 0
+    with Path(path).open('rb') as stream:
+        while True:
+            raw = stream.read(65536)
+            if not raw:
+                break
+            total += len(raw)
+            h.update(raw)
+    return dict(size=total, sha256=h.hexdigest())
+
+
+def load(name, wanted):
+    path = OUT / name
+    assert pin(path)['sha256'] == wanted, 'FIXED_DATA_MANIFEST_CHANGED'
+    return json.loads(path.read_bytes())
+
+
+def main():
+    assert len(sys.argv) == 2
+    case = sys.argv[1]
+    capture_before = pin(__file__)
+    manifest = load('command-manifest.json', COMMAND_SHA)
+    mutants = load('mutant-command-manifest.json', MUTANT_SHA)
+    assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() == FREEZE
+    assert manifest['source_checkpoint'] == mutants['source_checkpoint'] == FREEZE
+    command = next((r for r in manifest['commands'] if r['id'] == case), None)
+    member = None
+    if command is None:
+        for m in mutants['mutants']:
+            if case in (m['id'] + '-CONTROL', m['id'] + '-MUTANT'):
+                member = m
+                break
+        assert member is not None, 'UNLISTED_DATA_CASE'
+        command = dict(manifest['commands'][1])
+        command['argv'] = command['argv'] + [member['test_selector']]
+    before = {p: pin(ROOT / p) for p in manifest['inputs']}
+    assert before == manifest['inputs'], 'SOURCE_BEFORE_CHANGED'
+    launchers = json.loads((ROOT / manifest['launcher_artifact']).read_bytes())
+    tools = []
+    for row in launchers['rows']:
+        observed = pin(row['resolved'])
+        assert observed == {k: row[k] for k in ('size', 'sha256')}
+        logical = Path(row['logical'])
+        assert logical.is_symlink() == row['logical_is_symlink']
+        assert (os.readlink(logical) if logical.is_symlink() else None) == row['link_text']
+        rights = Path(row['resolved']).stat()
+        assert dict(mode=rights.st_mode & 0o7777, uid=rights.st_uid, gid=rights.st_gid) == {k: row[k] for k in ('mode', 'uid', 'gid')}
+        tools.append(dict(logical=str(logical), resolved=row['resolved'], **observed))
+    directory = OUT / case
+    assert not directory.exists()
+    clone = None
+    clone_before = clone_after = None
+    cleanup = None
+    argv = list(command['argv'])
+    if member is not None:
+        # One disposable source copy, preserving the real helper's exact path
+        # depth. Both members use this SAME canonical sibling path.
+        clone = Path(member['isolation'])
+        assert str(clone).startswith('/tmp/wordling-wp108-current-context-mutants/')
+        assert not clone.exists()
+        for relative in member['copies']:
+            dest = clone / relative
+            dest.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, dest)
+            os.chmod(dest, 0o600)
+        if case.endswith('-MUTANT'):
+            postimage = OUT / member['postimage_path']
+            assert pin(postimage) == member['postimage']
+            shutil.copyfile(postimage, clone / member['target'])
+        clone_before = {p: pin(clone / p) for p in member['copies']}
+        for relative in member['copies']:
+            wanted = member['postimage'] if case.endswith('-MUTANT') and relative == member['target'] else before[relative]
+            assert clone_before[relative] == wanted
+        argv = [str(clone) + value[len(str(ROOT)):] if value.startswith(str(ROOT) + '/') else value for value in argv]
+    directory.mkdir(mode=0o700)
+    files = {name: (directory / (name + '.raw.gz')).open('xb') for name in ('stdout', 'stderr')}
+    streams = {name: gzip.GzipFile(filename='', mode='wb', fileobj=f, mtime=0) for name, f in files.items()}
+    hashes = {name: hashlib.sha256() for name in streams}
+    sizes = {name: 0 for name in streams}
+    caps = dict(stdout=262144, stderr=16384)
+    selector = selectors.DefaultSelector()
+    process = None
+    status = usage = None
+    error = None
+    partial = False
+    reaped = False
+    start = time.monotonic()
+    deadline = start + 32
+    cleanup_end = start + 34
+    try:
+        process = subprocess.Popen(argv, cwd=clone or ROOT, env=manifest['env'], stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        selector.register(process.stdout, selectors.EVENT_READ, 'stdout')
+        selector.register(process.stderr, selectors.EVENT_READ, 'stderr')
+        while selector.get_map() or status is None:
+            if time.monotonic() >= deadline:
+                raise RuntimeError('DATA_OUTER_WATCHDOG')
+            for key, _ in selector.select(0.01):
+                name = key.data
+                raw = os.read(key.fileobj.fileno(), min(4096, caps[name] - sizes[name] + 1))
+                if not raw:
+                    selector.unregister(key.fileobj)
+                    key.fileobj.close()
+                    continue
+                kept = raw[:caps[name] - sizes[name]]
+                streams[name].write(kept)
+                hashes[name].update(kept)
+                sizes[name] += len(kept)
+                if len(kept) != len(raw):
+                    partial = True
+                    raise RuntimeError('DATA_RAW_STREAM_CAP:' + name)
+            # Retain the real direct leader until all streams have settled and
+            # no future group signal can be required. Never signal after reap.
+            observed = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if observed is not None and not selector.get_map():
+                got, value, facts = os.wait4(process.pid, os.WNOHANG)
+                if got:
+                    status, usage = value, facts
+                    process.returncode = os.waitstatus_to_exitcode(status)
+                    reaped = True
+    except BaseException as failure:
+        error = ''.join(traceback.format_exception(failure))[:8192]
+        partial = True
+        if process is not None and not reaped:
+            try:
+                os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            while time.monotonic() < cleanup_end:
+                got, value, facts = os.wait4(process.pid, os.WNOHANG)
+                if got:
+                    status, usage = value, facts
+                    process.returncode = os.waitstatus_to_exitcode(status)
+                    reaped = True
+                    break
+                time.sleep(0.005)
+    finally:
+        selector.close()
+        for stream in streams.values():
+            stream.close()
+        for f in files.values():
+            f.close()
+        if process is not None:
+            for stream in (process.stdout, process.stderr):
+                if stream is not None and not stream.closed:
+                    stream.close()
+        if clone is not None:
+            clone_after = {p: pin(clone / p) for p in member['copies']}
+            shutil.rmtree(clone.parent)
+            cleanup = dict(path=str(clone.parent), exists_after=clone.parent.exists(), source_bytes_preserved_in_Git_and_mutant_artifact=True)
+    after = {p: pin(ROOT / p) for p in manifest['inputs']}
+    raw_streams = {name: gzip.decompress((directory / (name + '.raw.gz')).read_bytes()) for name in streams}
+    for name, raw in raw_streams.items():
+        assert len(raw) == sizes[name] and hashlib.sha256(raw).hexdigest() == hashes[name].hexdigest(), 'GZIP_CUSTODY_IDENTITY'
+    stderr = raw_streams['stderr']
+    code = None if not reaped else process.returncode
+    count = 1 if member is not None else manifest['expected_counts'][case]
+    count_line = ('Ran ' + str(count) + (' test ' if count == 1 else ' tests ')).encode('ascii')
+    common = error is None and not partial and reaped and before == after and clone_before == clone_after and count_line in stderr and capture_before == pin(__file__)
+    expected = 1 if member is not None and case.endswith('-MUTANT') else 0
+    classification = 'UNEXPECTED_FAILURE_PRESERVED'
+    if common and code == 0 and expected == 0 and b'\nOK\n' in stderr and b'ERROR:' not in stderr:
+        classification = 'PASS_ACTUAL_CANONICAL_DATA' if member is not None else 'PASS_ACTUAL_FULL_OR_NEW_DATA_AST'
+    elif common and code == 1 and expected == 1 and b'FAIL:' in stderr and b'ERROR:' not in stderr and member['causal_failure_contains'].encode() in stderr:
+        classification = 'KILLED_ACTUAL_SOURCE_MUTANT_BY_CAUSAL_ASSERTION_OR_EFFECT_FENCE'
+    value = dict(schema='wordling.wp108-current-context-source-DATA-receipt/v1', case_id=case,
+        argv=argv, cwd=str(clone or ROOT), env=manifest['env'], source_checkpoint=FREEZE,
+        command_manifest=dict(path='command-manifest.json', sha256=COMMAND_SHA), mutant_manifest=dict(path='mutant-command-manifest.json', sha256=MUTANT_SHA),
+        capture_source=dict(path=str(Path(__file__).absolute()), before=capture_before, after=pin(__file__)),
+        input_before=before, input_after=after, primary_inputs_equal=before == after,
+        isolated_input_before=clone_before, isolated_input_after=clone_after, isolated_inputs_equal=clone_before == clone_after,
+        isolation_cleanup=cleanup, launcher_pins=tools,
+        actual_exit=code, reaped_actual_direct_child=reaped, error=error, partial_prefix=partial,
+        unretained_suffix='UNKNOWN' if partial else None, elapsed_seconds=time.monotonic() - start,
+        streams={name: dict(raw_size=sizes[name], raw_sha256=hashes[name].hexdigest(), gzip_pin=pin(directory / (name + '.raw.gz')), exact_roundtrip=True) for name in streams},
+        separate_stream_caps=caps, wait4=None if usage is None else dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,
+            maxrss_kib=usage.ru_maxrss, minor_faults=usage.ru_minflt, major_faults=usage.ru_majflt,
+            inblock=usage.ru_inblock, oublock=usage.ru_oublock, voluntary_context_switches=usage.ru_nvcsw, involuntary_context_switches=usage.ru_nivcsw),
+        classification=classification, expected_exit=expected, actual_expected_method_count=count, operational_actions=0,
+        qualified_reference_or_context=False, qualification_clock_started=False, public_runtime_lookup=False)
+    encoded = (json.dumps(value, indent=2) + '\n').encode('ascii')
+    assert len(encoded) <= 65536
+    with (directory / 'process.json').open('xb') as f:
+        f.write(encoded)
+    assert (directory / 'stdout.raw.gz').stat().st_size <= 262400
+    assert (directory / 'stderr.raw.gz').stat().st_size <= 16640
+    print(json.dumps(dict(case_id=case, actual_exit=code, classification=classification,
+        stderr_size=sizes['stderr'], stderr_sha256=hashes['stderr'].hexdigest(), elapsed_seconds=value['elapsed_seconds'])), flush=True)
+    if classification == 'UNEXPECTED_FAILURE_PRESERVED':
+        raise SystemExit(2)
+
+
+if __name__ == '__main__':
+    main()

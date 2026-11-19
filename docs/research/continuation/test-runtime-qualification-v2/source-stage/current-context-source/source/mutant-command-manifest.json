@@ -1,0 +1,157 @@
+{
+  "schema": "wordling.wp108-current-context-source-mutant-pairs/v1",
+  "source_checkpoint": "76951755be8a658ab55ea9c9ddd947a0928955ee",
+  "command_manifest": {
+    "size": 11380,
+    "sha256": "693460edd3ac194f5c54ad123e9c30b9bb9b05ee4e6a7de2a1b74fcbe2fa04b1"
+  },
+  "mutants": [
+    {
+      "id": "EXPECTED-ADOPTION",
+      "target": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+      "function": "_current_selection_data",
+      "owner": null,
+      "original": {
+        "size": 335432,
+        "sha256": "37226ed23be8c5c6c8ad066add0025872d276a436790dd5fceb444cbbecba263"
+      },
+      "postimage": {
+        "size": 335381,
+        "sha256": "10452f125810b722612f54c66a33fd7abde2f2c0c3480d566ca170e6df117ac7"
+      },
+      "postimage_path": "mutant-postimages/EXPECTED-ADOPTION.py.txt",
+      "change": {
+        "original": "_current_data_digest(files) != selection['files_sha256']",
+        "replacement": "False"
+      },
+      "test_selector": "CurrentToolSelectionDataTests.test_observed_expected_postimage_does_not_replace_preaccepted_digest",
+      "isolation": "/tmp/wordling-wp108-current-context-mutants/EXPECTED-ADOPTION/repo",
+      "copies": [
+        "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+        "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "control_expected_exit": 0,
+      "mutant_expected_exit": 1,
+      "causal_failure_contains": "canonical data validator accepted selected invalid record set",
+      "meaning": "Actual source-valid canonical helper postimage at the same sibling path; no validator clone or forged live context."
+    },
+    {
+      "id": "WHEEL-DATA",
+      "target": "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+      "function": "_review_payload_pin",
+      "owner": null,
+      "original": {
+        "size": 26648,
+        "sha256": "c50a129acbb0faf2ab3f14e8dc6d3b0332252c82eefa317f89140eb39db19647"
+      },
+      "postimage": {
+        "size": 26601,
+        "sha256": "20372d6c8e4f0bc9654017146cbe46b098a901776e867ced2b9926de35cc5641"
+      },
+      "postimage_path": "mutant-postimages/WHEEL-DATA.py.txt",
+      "change": {
+        "original": "pin(source) != wanted or declared_size != wanted['size']",
+        "replacement": "False"
+      },
+      "test_selector": "CurrentWheelSourceDataTests.test_source_pin_is_checked_before_payload_read_on_both_wheel_routes",
+      "isolation": "/tmp/wordling-wp108-current-context-mutants/WHEEL-DATA/repo",
+      "copies": [
+        "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+        "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "control_expected_exit": 0,
+      "mutant_expected_exit": 1,
+      "causal_failure_contains": "UNFROZEN_WHEEL_SOURCE_READ",
+      "meaning": "Actual source-valid canonical helper postimage at the same sibling path; no validator clone or forged live context."
+    },
+    {
+      "id": "PROVIDER-LABEL",
+      "target": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+      "function": "_current_selection_data",
+      "owner": null,
+      "original": {
+        "size": 335432,
+        "sha256": "37226ed23be8c5c6c8ad066add0025872d276a436790dd5fceb444cbbecba263"
+      },
+      "postimage": {
+        "size": 335352,
+        "sha256": "608577d7af42067dec42eec06f5c238f50eee159e4dd3b221a1a2be937e09500"
+      },
+      "postimage_path": "mutant-postimages/PROVIDER-LABEL.py.txt",
+      "change": {
+        "original": "expected['approved_providers'] != wanted or selection['approved_providers'] != wanted",
+        "replacement": "False"
+      },
+      "test_selector": "CurrentToolSelectionDataTests.test_current_lifetime_bytes_cannot_carry_old_provider_label",
+      "isolation": "/tmp/wordling-wp108-current-context-mutants/PROVIDER-LABEL/repo",
+      "copies": [
+        "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+        "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "control_expected_exit": 0,
+      "mutant_expected_exit": 1,
+      "causal_failure_contains": "canonical data validator accepted selected invalid record set",
+      "meaning": "Actual source-valid canonical helper postimage at the same sibling path; no validator clone or forged live context."
+    },
+    {
+      "id": "OWNER-ADMISSION",
+      "target": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+      "function": "__init__",
+      "owner": "Preparation",
+      "original": {
+        "size": 335432,
+        "sha256": "37226ed23be8c5c6c8ad066add0025872d276a436790dd5fceb444cbbecba263"
+      },
+      "postimage": {
+        "size": 335405,
+        "sha256": "58a21204f4795c6ba186964780a6cc92040fdc5e4098e391272aa4d6e3fff1b0"
+      },
+      "postimage_path": "mutant-postimages/OWNER-ADMISSION.py.txt",
+      "change": {
+        "original": "_current_expected_data(expected)",
+        "replacement": "False"
+      },
+      "test_selector": "CurrentAdmissionNegativeTests.test_v2_data_cannot_enter_preparation_without_live_context",
+      "isolation": "/tmp/wordling-wp108-current-context-mutants/OWNER-ADMISSION/repo",
+      "copies": [
+        "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+        "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "control_expected_exit": 0,
+      "mutant_expected_exit": 1,
+      "causal_failure_contains": "PROCESS_EFFECT_BEFORE_CONTEXT",
+      "meaning": "Actual source-valid canonical helper postimage at the same sibling path; no validator clone or forged live context."
+    }
+  ],
+  "pairs": 4,
+  "launches": 8,
+  "each_seconds": 30,
+  "cleanup": 2,
+  "stdout": 262144,
+  "stderr": 16384,
+  "setup": {
+    "maximum_simultaneous_isolation": 1,
+    "files": 6,
+    "bytes": 610263,
+    "exact_path_depth": "repo/internal/document/evidence/reference_controller/tests",
+    "copies_removed_after_raw_custody": true,
+    "proof_not_discarded": "Git source blobs, full mutant postimages, raw gzip streams, argv/source/fixture pins retained"
+  },
+  "operational_actions": 0
+}
