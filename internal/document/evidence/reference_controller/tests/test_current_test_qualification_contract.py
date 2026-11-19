@@ -262,7 +262,42 @@ class CurrentFiniteRuntimeWiringStructuralTests(unittest.TestCase):
         loader = ast.unparse(function(tree, '_current_refuse_helper_caches'))
         for name in ('runtime_qualification', 'controller_deployment', 'runtime_qualification_supervisor', 'current_test_qualification'):
             self.assertIn(name, loader)
-        self.assertIn('_current_refuse_helper_caches', ast.unparse(function(tree, '_current_phase_entry')))
+        self.assertIn('_current_phase_source_modules', ast.unparse(function(tree, '_current_phase_entry')))
+        self.assertIn('_current_refuse_helper_caches', ast.unparse(function(tree, '_current_phase_source_modules')))
+
+
+class CurrentCorrectionStructuralTests(unittest.TestCase):
+    def test_current_entry_has_one_q_identity_and_pinned_siblings_before_bootstrap(self):
+        tree = source_tree('runtime_qualification.py')
+        entry = function(tree, '_current_phase_entry')
+        source = ast.unparse(entry)
+        self.assertLess(source.index('_current_phase_source_modules'), source.index('_current_bootstrap'))
+        loader = ast.unparse(function(tree, '_current_phase_source_modules'))
+        self.assertIn("sys.modules['runtime_qualification'] = executing", loader)
+        self.assertIn('CurrentConflictingCanonicalModule', loader)
+        self.assertIn('CurrentConflictingSiblingModule', loader)
+        self.assertIn("('current_test_qualification', 'controller_deployment')", loader)
+        self.assertIn('same(path,', loader)
+        self.assertIn('compile(raw, str(path)', loader)
+        self.assertNotIn('.exec_module(', loader)
+
+    def test_actual_capture_routes_legacy_failures_to_abort_and_distinct_popen_reason(self):
+        capture = function(source_tree('runtime_qualification.py'), '_capture_command')
+        source = ast.unparse(capture)
+        self.assertIn('_capture_popen_failure_data(error)', source)
+        popen = next(n for n in ast.walk(capture) if isinstance(n, ast.If)
+            and ast.unparse(n.test) == 'popen_failure is not None'
+            and any(isinstance(item, ast.Raise) for item in n.body))
+        self.assertIn("supervisor_notice('abort')", ast.unparse(popen))
+        self.assertIn("RuntimeError('PreparationPopenFailure')", ast.unparse(popen))
+        failed = next(n for n in ast.walk(capture) if isinstance(n, ast.If)
+            and ast.unparse(n.test) == 'failure or p is None or p.returncode')
+        self.assertIn("supervisor_notice('abort')", ast.unparse(failed))
+        # Expected TOOL02 semantic custody remains with the actual current
+        # Preparation wrapper, not a fake owner or a generalized suppression.
+        wrapper = ast.unparse(function(source_tree('runtime_qualification.py'), 'run', 'Preparation'))
+        self.assertIn("label == 'tool-negative'", wrapper)
+        self.assertIn("str(error) == 'UnsupportedRelativeOrUnknownExec'", wrapper)
 
 
 if __name__ == "__main__":

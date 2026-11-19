@@ -1439,5 +1439,31 @@ class CurrentFiniteCaseSourceDataTests(unittest.TestCase):
             self.q._current_header_native_data(records + [dict(records[1], actor=12, result='13')], executables)
 
 
+class CurrentCaptureCorrectionDataTests(unittest.TestCase):
+    """Post-103-review regressions; no Preparation or live context fabricated."""
+    @classmethod
+    def setUpClass(cls):
+        cls.q = canonical_helper()
+
+    def test_actual_capture_popen_failure_projection_keeps_historical_results(self):
+        for error, expected_type in ((FileNotFoundError('DATA'), 'FileNotFoundError'),
+                (PermissionError('DATA'), 'PermissionError'),
+                (self.q.subprocess.SubprocessError('DATA'), 'SubprocessError')):
+            with self.subTest(error=expected_type):
+                self.assertEqual(self.q._capture_popen_failure_data(error),
+                    dict(failure='PopenFailure:' + expected_type, partial_prefix=False,
+                        unretained_suffix=None, child_started=False))
+        with self.assertRaisesRegex(RuntimeError, '^CaptureExceptionRequired$'):
+            self.q._capture_popen_failure_data({'error': 'DATA'})
+
+    def test_imported_module_cannot_masquerade_as_current_executable_entry(self):
+        with mock.patch.object(self.q, 'pin', side_effect=AssertionError('SOURCE_READ_BEFORE_ENTRY')) as pin:
+            with mock.patch.object(self.q.subprocess, 'Popen', side_effect=AssertionError('CHILD_BEFORE_ENTRY')) as popen:
+                with self.assertRaisesRegex(RuntimeError, '^CurrentPhaseExecutableModuleRequired$'):
+                    self.q._current_phase_source_modules('reference', '0' * 64)
+        pin.assert_not_called()
+        popen.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

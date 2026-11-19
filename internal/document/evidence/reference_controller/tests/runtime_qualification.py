@@ -3677,6 +3677,13 @@ def _consume_tool_origins(self,path,label,capture=None):
     if not executed:raise RuntimeError('MissingToolProcessTrace')
     self.check()
 
+def _capture_popen_failure_data(error):
+    """Historical pre-child result, shared by the actual capture path."""
+    if not isinstance(error,BaseException):raise RuntimeError('CaptureExceptionRequired')
+    return dict(failure='PopenFailure:'+type(error).__name__,partial_prefix=False,
+        unretained_suffix=None,child_started=False)
+
+
 def _capture_command(self,argv,label,tool=False):
     """One canonical process/trace engine for genuine preparation/reference owners."""
     reference=type(self)is not Preparation
@@ -3727,7 +3734,7 @@ def _capture_command(self,argv,label,tool=False):
     def file_ceiling():
         cap=33554432 if label.endswith('venv') else 2097152
         resource.setrlimit(resource.RLIMIT_FSIZE,(cap,cap))
-    p=None;sel=None
+    p=None;sel=None;popen_failure=None
     try:
         p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
             pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
@@ -3746,7 +3753,10 @@ def _capture_command(self,argv,label,tool=False):
                 total=sum(g['used'] for g in {id(g):g for g in allocations.values()}.values())
                 if len(raw)>remaining:partial=True;raise RuntimeError('PreparationLiveOutputBound')
         p.wait(timeout=max(.001,min(1,end-time.monotonic())))
-    except BaseException as error:failure=error_tag(error)
+    except BaseException as error:
+        if p is None:
+            popen_failure=_capture_popen_failure_data(error);failure=popen_failure['failure']
+        else:failure=error_tag(error)
     finally:
         if p is not None and p.poll()is None:
             p.terminate()
@@ -3760,10 +3770,15 @@ def _capture_command(self,argv,label,tool=False):
         total=sum(g['used'] for g in {id(g):g for g in allocations.values()}.values())
         receipt=dict(**spec,exit=None if p is None else p.returncode,failure=failure,combined_retained_bytes=total,
             partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None,child_started=p is not None)
+        if popen_failure is not None:receipt.update(popen_failure)
         if not reference:
             self.budget.document(layout['whole'],receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(layout['whole'])
     try:
+        if popen_failure is not None:
+            if not reference:supervisor_notice('abort')
+            raise RuntimeError('PreparationPopenFailure') from None
         if failure or p is None or p.returncode:
+            if not reference:supervisor_notice('abort')
             raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
         if not reference:supervisor_notice('idle')
         if tool:
@@ -4463,15 +4478,45 @@ def _current_parent_bootstrap(session,phase,channel,child,end):
     return dict(child_frame=raw.decode('ascii'),owner_frame=sent.decode('ascii'),actual_credentials=[child.pid,os.getuid(),os.getgid()],private_source_relation=True)
 
 
-def _current_phase_entry(phase,source_sha):
+def _current_phase_source_modules(phase,source_sha):
     import importlib.util
     if phase not in ('reference','disposable','final'):raise RuntimeError('CurrentFinitePhase')
+    executing=sys.modules.get(__name__)
+    if (__name__!='__main__' or executing is None or executing.__dict__ is not globals()
+            or sys.argv[1:]!=['--current-phase',phase,source_sha]
+            or Path(sys.argv[0]).resolve()!=Path(__file__).resolve()):
+        raise RuntimeError('CurrentPhaseExecutableModuleRequired')
+    canonical=sys.modules.get('runtime_qualification')
+    if canonical is not None and canonical is not executing:raise RuntimeError('CurrentConflictingCanonicalModule')
+    if (type(source_sha)is not str or re.fullmatch('[0-9a-f]{64}',source_sha)is None
+            or pin(Path(__file__).resolve())['sha256']!=source_sha):raise RuntimeError('CurrentPhaseSourceChanged')
     _current_refuse_helper_caches()
-    path=Path(__file__).with_name('current_test_qualification.py')
-    # Canonical source-only loader; never consult a cache or ordinary sys.path.
-    spec=importlib.util.spec_from_file_location('current_test_qualification',path)
-    if spec is None or type(spec.loader).__name__!='SourceFileLoader':raise RuntimeError('CurrentCanonicalCoordinatorLoader')
-    module=importlib.util.module_from_spec(spec);sys.modules['current_test_qualification']=module;spec.loader.exec_module(module)
+    # This alias is the actual executing object, not a second import of q.
+    # Its Preparation identity is therefore the same for both sibling modules.
+    sys.modules['runtime_qualification']=executing
+    manifest=_current_manifest(source_sha,'admin')
+    loaded={}
+    for name in ('current_test_qualification','controller_deployment'):
+        if name in sys.modules:raise RuntimeError('CurrentConflictingSiblingModule:'+name)
+        path=Path(__file__).with_name(name+'.py').resolve()
+        same(path,manifest['sources'][str(path)])
+        spec=importlib.util.spec_from_file_location(name,path)
+        if (spec is None or type(spec.loader).__name__!='SourceFileLoader' or spec.origin!=str(path)):
+            raise RuntimeError('CurrentCanonicalCoordinatorLoader')
+        # Compile the exact pinned source bytes directly. exec_module/get_code
+        # could read an opaque cache despite -B; neither cache nor sys.path is
+        # a source-selection mechanism for these two fixed helper names.
+        raw=path.read_bytes()
+        if len(raw)>524288 or hashlib.sha256(raw).hexdigest()!=manifest['sources'][str(path)]['sha256']:
+            raise RuntimeError('CurrentPhaseSiblingSourceChanged')
+        module=importlib.util.module_from_spec(spec);sys.modules[name]=module
+        exec(compile(raw,str(path),'exec',dont_inherit=True),module.__dict__)
+        loaded[name]=module
+    return loaded['current_test_qualification']
+
+
+def _current_phase_entry(phase,source_sha):
+    module=_current_phase_source_modules(phase,source_sha)
     root=_current_bootstrap(module,source_sha)
     _current_load_reference(root)
     try:
