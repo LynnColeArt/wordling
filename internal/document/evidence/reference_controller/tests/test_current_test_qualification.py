@@ -804,6 +804,8 @@ class Static04InterpreterGraphDataTests(unittest.TestCase):
                 rowmap.pop(('alias', logical))
             elif bad == 'MALFORMED':
                 alias_row['resolved'] = 12
+            elif bad == 'MALFORMED_CHAIN':
+                alias_row['aliases'][0]['target'] = 12
             else:
                 alias_row['status'] = bad
                 if bad == 'INCOMPLETE':
@@ -814,6 +816,8 @@ class Static04InterpreterGraphDataTests(unittest.TestCase):
                 rowmap.pop(('ELF_seed', target))
             elif bad == 'MALFORMED':
                 target_row['sha256'] = 'NOT_A_CANONICAL_DIGEST'
+            elif bad == 'MALFORMED_ELF':
+                target_row['ELF']['machine'] = '62'
             else:
                 target_row['status'] = bad
                 if bad == 'INCOMPLETE':
@@ -882,12 +886,12 @@ class Static04InterpreterGraphDataTests(unittest.TestCase):
         self.assertFalse(self.c._actual_context(edges[0]))
 
     def test_alias_zero_partial_foreign_receipt_and_malformed_refuse(self):
-        for status in ('MISSING', 'INCOMPLETE', 'UNACCEPTED_VALIDATOR_DATA', 'MALFORMED'):
+        for status in ('MISSING', 'INCOMPLETE', 'UNACCEPTED_VALIDATOR_DATA', 'MALFORMED', 'MALFORMED_CHAIN'):
             with self.subTest(DATA_variant=status):
                 self.refused('ALIAS_BAD_' + status)
 
     def test_target_zero_partial_foreign_receipt_and_malformed_refuse(self):
-        for status in ('MISSING', 'INCOMPLETE', 'UNACCEPTED_VALIDATOR_DATA', 'MALFORMED'):
+        for status in ('MISSING', 'INCOMPLETE', 'UNACCEPTED_VALIDATOR_DATA', 'MALFORMED', 'MALFORMED_ELF'):
             with self.subTest(DATA_variant=status):
                 self.refused('TARGET_BAD_' + status)
 

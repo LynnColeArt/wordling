@@ -1,0 +1,68 @@
+{
+  "schema": "wordling.wp108-STATIC04-unexecuted-custody-packet/v1",
+  "status": "PENDING_SOURCE_FOR_STATIC04_ONLY_REVIEW_AND_ROOT_DELIBERATE_ACTION",
+  "launcher": {
+    "path": "/tmp/wordling-wp108-test-prep/STATIC04-packet/capture-STATIC04.py",
+    "size": 14135,
+    "sha256": "006a3c920c96a2068155c7c8907a66347e310c1c56d955bef9a1481504dedc59"
+  },
+  "root_invocation": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/tmp/wordling-wp108-test-prep/STATIC04-packet/capture-STATIC04.py"
+  ],
+  "child_argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=262144",
+    "--nofile=32",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "--static-inspect-v1"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reader": {
+    "size": 36404,
+    "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+  },
+  "plan": {
+    "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json",
+    "size": 28339,
+    "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+  },
+  "prior_actual_wrapper": {
+    "size": 14144,
+    "sha256": "d1137225e9c72b41ad39179c5f3e98efb93118bd5833ff4d24d8b647634f0025"
+  },
+  "delta": "Only fixedSTATIC04labels/namespace, source and plan path/size/SHA/sourceidentity; no launch/capture/cleanup/bounds changes",
+  "bounds": {
+    "whole_seconds": 30,
+    "cleanup_seconds": 2,
+    "preflight_read_requests": 9437184,
+    "stdout": 262144,
+    "stderr": 16384,
+    "AS": 167772160,
+    "FD": 32,
+    "nproc_after_launcher": 0,
+    "CPU": 20,
+    "write_once_files": 7,
+    "write_once_bytes": 409600
+  },
+  "authority": "Metadata only. ROOT must verify independent fixed-source verdict and source/test/plan/wrapper/tool/retention pins then deliberately invoke once. No runtime-role/reference/current-context/ROOTCONTROL-clock grant.",
+  "actual_action": false
+}

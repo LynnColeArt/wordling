@@ -16,8 +16,8 @@ import struct
 import sys
 import time
 
-_PLAN_SHA = '95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3'
-_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json'
+_PLAN_SHA = 'c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f'
+_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json'
 _DIAGNOSTIC_NAMES = frozenset((
     '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12',
     '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1'))
@@ -210,7 +210,7 @@ def static_plan_layout_data(plan):
     expected = [dict(kind=kind, path=path) for kind, key in keys for path in plan[key]]
     # Historical/current lower DATA grammars are unaccepted. The action reads
     # only the one source-pinned active plan; a DATA id cannot raise any cap.
-    count = {'STATIC01': 76, 'STATIC02': 109, 'STATIC03': 117}.get(plan.get('id'))
+    count = {'STATIC01': 76, 'STATIC02': 109, 'STATIC03': 117, 'STATIC04': 135}.get(plan.get('id'))
     if count is None or len(expected) != count or plan['fixed_item_order'] != expected:
         raise GlobalStop('StaticPlanRosterConservation')
     return expected
@@ -249,6 +249,101 @@ def _diagnostic_update(diagnostic, **values):
     if len(raw) > 32768:
         raise GlobalStop('StaticDiagnosticByteBound')
     diagnostic.update(values)
+
+
+def interpreter_edge_data(source_row, original_rows, declared_alias_names, declared_ELF_seed_names):
+    """Pure completed-observation DATA lookup, never a live/reference binding.
+
+    Original matching rows are counted BEFORE eligibility filtering. Incomplete
+    duplicates cannot disappear into the graph's last-wins needed-edge view.
+    No path resolution, revalidation, filesystem access or runtime search occurs.
+    """
+    name = source_row.get('resolved') if type(source_row) is dict else None
+    literal = source_row.get('ELF', {}).get('interpreter') if (type(source_row) is dict
+        and type(source_row.get('ELF')) is dict) else None
+    edge = dict(source=name, interpreter=literal, target=None,
+        status='INCOMPLETE_UNLISTED_OR_AMBIGUOUS_INTERPRETER',
+        permission_granted=False, reference_qualification=False, current_context_created=False)
+    if (type(original_rows) is not list or len(original_rows) > 135
+            or type(declared_alias_names) is not list or len(declared_alias_names) > 135
+            or type(declared_ELF_seed_names) is not list or len(declared_ELF_seed_names) > 135
+            or any(type(n) is not str for n in declared_alias_names + declared_ELF_seed_names)):
+        return edge
+    alias_names = set(declared_alias_names)
+    seed_names = set(declared_ELF_seed_names)
+
+    def rights(row):
+        return (all(type(row.get(k)) is int and 0 <= row[k] < 2**64 for k in ('mode', 'uid', 'gid'))
+            and row['mode'] <= 0o7777)
+
+    def string(value):
+        return type(value) is str and 0 < len(value) < 4096 and value.isascii()
+
+    def links(row, required=False):
+        values = row['aliases']
+        return (type(values) is list and int(required) <= len(values) <= 8
+            and all(type(link) is dict and len(link) == 6
+                and set(link) == {'logical', 'text', 'target', 'mode', 'uid', 'gid'}
+                and type(link['logical']) is str and link['logical'] in alias_names
+                and type(link['text']) is str and 0 < len(link['text']) <= 4096 and link['text'].isascii()
+                and type(link['target']) is str
+                and link['target'] in alias_names | seed_names and rights(link) for link in values))
+
+    def elf_values(value):
+        return (type(value) is dict and len(value) == 8
+            and set(value) == {'kind', 'machine', 'program_headers', 'interpreter', 'needed', 'soname', 'rpath', 'runpath'}
+            and type(value['kind']) is int and value['kind'] in (2, 3)
+            and type(value['machine']) is int and value['machine'] == 62
+            and type(value['program_headers']) is int and 1 <= value['program_headers'] <= 64
+            and all(value[k] is None or string(value[k]) for k in ('interpreter', 'soname', 'rpath', 'runpath'))
+            and type(value['needed']) is list and len(value['needed']) <= 128
+            and all(string(text) for text in value['needed']))
+
+    def complete_seed(row):
+        keys = {'kind', 'path', 'resolved', 'aliases', 'mode', 'uid', 'gid', 'status', 'size', 'sha256', 'ELF'}
+        return (type(row) is dict and len(row) == 11 and set(row) == keys
+            and row['kind'] == 'ELF_seed' and row['status'] == 'OBSERVED_UNACCEPTED_METADATA'
+            and type(row['path']) is str and row['path'] in seed_names
+            and type(row['resolved']) is str and row['resolved'] in seed_names
+            and links(row) and rights(row)
+            and type(row['size']) is int and 64 <= row['size'] <= 67108864
+            and type(row['sha256']) is str and len(row['sha256']) == 64
+            and all(c in '0123456789abcdef' for c in row['sha256'])
+            and elf_values(row['ELF']))
+
+    def complete_alias(row):
+        keys = {'kind', 'path', 'resolved', 'aliases', 'mode', 'uid', 'gid', 'status'}
+        return (type(row) is dict and len(row) == 8 and set(row) == keys
+            and row['kind'] == 'alias' and row['status'] == 'OBSERVED_UNACCEPTED_METADATA'
+            and type(row['path']) is str and row['path'] in alias_names
+            and type(row['resolved']) is str and row['resolved'] in seed_names
+            and links(row, required=True) and rights(row))
+
+    def seed_matches(path):
+        return [row for row in original_rows if type(row) is dict and row.get('kind') == 'ELF_seed'
+            and (row.get('path') == path or row.get('resolved') == path)]
+
+    if not complete_seed(source_row) or type(literal) is not str:
+        return edge
+    sources = seed_matches(source_row['resolved'])
+    if len(sources) != 1 or sources[0] is not source_row:
+        return edge
+    direct = seed_matches(literal)
+    if direct:
+        if len(direct) != 1 or not complete_seed(direct[0]):
+            return edge
+        target = direct[0]['resolved']
+    else:
+        aliases = [row for row in original_rows if type(row) is dict
+            and row.get('kind') == 'alias' and row.get('path') == literal]
+        if len(aliases) != 1 or not complete_alias(aliases[0]):
+            return edge
+        targets = seed_matches(aliases[0]['resolved'])
+        if len(targets) != 1 or not complete_seed(targets[0]):
+            return edge
+        target = targets[0]['resolved']
+    edge.update(target=target, status='DECLARED_UNACCEPTED_DATA')
+    return edge
 
 
 def _load_static_plan():
@@ -568,8 +663,10 @@ class _StaticInventory:
                         self.output_reserved += len(raw) + 1
                         graph.append(edge)
                     interpreter = row['ELF']['interpreter']
-                    if interpreter and interpreter not in safe:
-                        edge = dict(source=name, interpreter=interpreter, target=None, status='INCOMPLETE_UNLISTED_INTERPRETER')
+                    if interpreter:
+                        self.check()
+                        edge = interpreter_edge_data(row, self.rows, self.plan['declared_logical_aliases'],
+                            self.plan['declared_ELF_seed_files'])
                         raw = json.dumps(edge, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
                         if self.output_reserved + len(raw) + 1 > 262144:
                             raise GlobalStop('StaticGraphOutputReservationBound')

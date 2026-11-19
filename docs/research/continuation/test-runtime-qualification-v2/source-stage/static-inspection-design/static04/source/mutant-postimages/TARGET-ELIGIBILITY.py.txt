@@ -1,0 +1,703 @@
+"""Dormant current-TEST DATA boundary and finite static input inspection.
+
+The static reader never executes an input or accepts a reference/role. Operational
+current contexts remain unavailable until their separately reviewed real closure.
+No TEST/P/Original modules, factories, deployment or probe are imported here.
+ELF metadata definitions: https://gabi.xinuos.com/elf/02-eheader.html,
+https://gabi.xinuos.com/elf/07-pheader.html and /elf/08-dynamic.html.
+"""
+import hashlib
+import json
+import os
+from pathlib import Path
+import posixpath
+import stat
+import struct
+import sys
+import time
+
+_PLAN_SHA = 'c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f'
+_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json'
+_DIAGNOSTIC_NAMES = frozenset((
+    '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12',
+    '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1'))
+_UNRESOLVED = ('reference roots/source review', 'BASE/stdlib/config/aliases/rights',
+    'runtime native loader/dependency/mapped data', 'compiler/offline tools/cache/header closure',
+    'actual reference capture and independent acceptance', 'writer/joint-memory/clock/case closure',
+    'genuine finite coordinator and accepted current-context producer')
+_LIVE_CONTEXTS = set()
+
+
+class _CurrentContext:
+    """No DATA constructor or reconstruction route exists in this checkpoint."""
+    __slots__ = ()
+
+    def __new__(cls):
+        raise TypeError('CurrentTestGenuineProducerUnavailable')
+
+    def __copy__(self):
+        raise TypeError('CurrentTestContextNotCopyable')
+
+    def __deepcopy__(self, memo):
+        raise TypeError('CurrentTestContextNotCopyable')
+
+    def __reduce__(self):
+        raise TypeError('CurrentTestContextNotSerializable')
+
+
+def _actual_context(value):
+    return type(value) is _CurrentContext and value in _LIVE_CONTEXTS
+
+
+def current_status():
+    return dict(schema='wordling.current-test-dormant-status/v1',
+        disposition='UNACCEPTED_DATA_ONLY', unresolved=list(_UNRESOLVED),
+        live_contexts=len(_LIVE_CONTEXTS), permission_granted=False)
+
+
+def _operational_blocked():
+    raise RuntimeError('CurrentTestExecutionClosureUnresolved')
+
+
+# These finite names cannot start a clock or turn a record/schema into a role.
+# Real implementations await the closed reference/coordinator source stage.
+capture_reference = _operational_blocked
+prepare_disposable = _operational_blocked
+prepare_final = _operational_blocked
+test_admin = _operational_blocked
+test_healthy = _operational_blocked
+
+
+class Incomplete(Exception):
+    """A single declared item is unread/unaccepted; never an authority result."""
+
+
+class GlobalStop(Exception):
+    """The entire finite inventory stops; remaining items are not examined."""
+
+
+def elf_header_data(raw, file_size):
+    """Decode bounded ELF64 LE/x86_64 header DATA, without loading any input."""
+    if type(raw) is not bytes or len(raw) != 64 or type(file_size) is not int or file_size < 64:
+        raise Incomplete('ELFHeaderBound')
+    if raw[:7] != b'\x7fELF\x02\x01\x01':
+        raise Incomplete('ELFFormatUnsupported')
+    fields = struct.unpack('<16sHHIQQQIHHHHHH', raw)
+    _, kind, machine, version, _, phoff, _, _, ehsize, phsize, phcount, _, _, _ = fields
+    if kind not in (2, 3) or machine != 62 or version != 1 or ehsize != 64:
+        raise Incomplete('ELFNativeHeaderUnsupported')
+    if phsize != 56 or not 1 <= phcount <= 64 or phoff < 64 or phoff + phsize * phcount > file_size:
+        raise Incomplete('ELFProgramHeaderBound')
+    return dict(kind=kind, machine=machine, phoff=phoff, phsize=phsize, phcount=phcount)
+
+
+def elf_program_data(raw, file_size):
+    if type(raw) is not bytes or not raw or len(raw) % 56 or len(raw) > 4096:
+        raise Incomplete('ELFProgramTableBound')
+    rows = []
+    for offset in range(0, len(raw), 56):
+        kind, flags, position, address, _, size, memory, alignment = struct.unpack_from('<IIQQQQQQ', raw, offset)
+        if position > file_size or size > file_size - position or (kind == 1 and size > memory):
+            raise Incomplete('ELFSegmentInterval')
+        if kind == 1 and alignment not in (0, 1) and (alignment & (alignment - 1) or address % alignment != position % alignment):
+            raise Incomplete('ELFLoadAlignment')
+        rows.append(dict(kind=kind, flags=flags, offset=position, address=address, size=size, memory=memory))
+    if len(rows) > 64:
+        raise Incomplete('ELFProgramCount')
+    if sum(r['kind'] == 3 for r in rows) > 1 or sum(r['kind'] == 2 for r in rows) > 1:
+        raise Incomplete('ELFAmbiguousMetadataSegment')
+    return rows
+
+
+def elf_dynamic_data(raw):
+    if type(raw) is not bytes or not raw or len(raw) % 16 or len(raw) > 65536:
+        raise Incomplete('ELFDynamicBound')
+    entries = []
+    for offset in range(0, len(raw), 16):
+        tag, value = struct.unpack_from('<qQ', raw, offset)
+        if tag == 0:
+            return entries
+        entries.append((tag, value))
+    raise Incomplete('ELFDynamicTerminator')
+
+
+def elf_string_data(raw, offset):
+    if type(raw) is not bytes or len(raw) > 65536 or type(offset) is not int or not 0 <= offset < len(raw):
+        raise Incomplete('ELFStringOffset')
+    end = raw.find(b'\0', offset, min(len(raw), offset + 4096))
+    if end < 0 or end == offset:
+        raise Incomplete('ELFStringTerminator')
+    value = raw[offset:end]
+    if not value.isascii():
+        raise Incomplete('ELFStringAscii')
+    return value.decode('ascii')
+
+
+def elf_string_table_offset(programs, address, size, *, diagnostic=None):
+    """Prove one contiguous file interval for the WHOLE logical VA table.
+
+    This is the single canonical mapping decision. Its diagnostic is DATA,
+    never a second predicate or authority. Memory-only bytes cannot contribute.
+    """
+    if (type(address) is not int or type(size) is not int or not 0 <= address < 2**64
+            or not 0 < size <= 67108864 or size > 2**64 - address):
+        _diagnostic_update(diagnostic, mapping=dict(state='NOT_EVALUATED_STRING_BOUND', count=None, candidates=[]))
+        raise Incomplete('ELFStringTableBound')
+    if type(programs) is not list or not 1 <= len(programs) <= 64:
+        raise Incomplete('ELFStringTableProgramBound')
+    end = address + size
+    relevant = []
+    for index, row in enumerate(programs):
+        if type(row) is not dict or type(row.get('kind')) is not int:
+            raise Incomplete('ELFStringTableProgramBound')
+        if row['kind'] != 1:
+            continue
+        if (any(type(row.get(k)) is not int or not 0 <= row[k] < 2**64
+                for k in ('address', 'offset', 'size'))
+                or row['size'] > 2**64 - row['address'] or row['size'] > 2**64 - row['offset']):
+            raise Incomplete('ELFStringTableSegmentBound')
+        start = max(address, row['address'])
+        stop = min(end, row['address'] + row['size'])
+        if start < stop:
+            relevant.append(dict(program_index=index, VA_start=start, VA_end=stop,
+                file_offset=row['offset'] + start - row['address'],
+                bias=row['address'] - row['offset']))
+    relevant.sort(key=lambda row: (row['VA_start'], row['VA_end'], row['program_index']))
+    if not relevant:
+        _diagnostic_update(diagnostic, mapping=dict(state='ZERO', count=0, candidates=[]))
+        raise Incomplete('ELFStringTableMappingAmbiguous')
+    first = relevant[0]['file_offset']
+    bias = relevant[0]['bias']
+    VA_cursor, file_cursor = address, first
+    for row in relevant:
+        # Inspect EVERY intersection, even after apparent complete coverage.
+        # A full first match must not hide a later partial/identical overlap.
+        state = None
+        if row['VA_start'] < VA_cursor:
+            state = 'MULTIPLE'
+        elif row['VA_start'] != VA_cursor:
+            state = 'VA_GAP'
+        elif row['file_offset'] != file_cursor or row['bias'] != bias:
+            state = 'FILE_DISCONTIGUOUS'
+        if state is not None:
+            _diagnostic_update(diagnostic, mapping=dict(state=state, count=len(relevant), candidates=relevant))
+            raise Incomplete('ELFStringTableMappingAmbiguous')
+        file_cursor += row['VA_end'] - row['VA_start']
+        VA_cursor = row['VA_end']
+    if VA_cursor != end or file_cursor != first + size:
+        _diagnostic_update(diagnostic, mapping=dict(state='VA_GAP', count=len(relevant), candidates=relevant))
+        raise Incomplete('ELFStringTableMappingAmbiguous')
+    _diagnostic_update(diagnostic, mapping=dict(state='CONTIGUOUS_FILE_BACKED', count=len(relevant),
+        candidates=relevant, file_offset=first, logical_size=size, whole_range_proved=True))
+    return first
+
+
+def alias_target_data(prefix, text, remaining, names):
+    """Pure lexical DATA. It never resolves/queries a filesystem target."""
+    if type(text) is not str or len(os.fsencode(text)) > 4096:
+        raise GlobalStop('StaticAliasTextBound')
+    target = posixpath.normpath(text if text.startswith('/') else posixpath.join(posixpath.dirname(prefix), text))
+    target = posixpath.normpath(posixpath.join(target, *remaining))
+    if target not in names:
+        raise Incomplete('StaticUnlistedAliasTarget:' + target)
+    return target
+
+
+def static_plan_layout_data(plan):
+    keys = (('ancestor', 'declared_exact_ancestor_metadata'), ('alias', 'declared_logical_aliases'),
+            ('directory', 'declared_metadata_only_directories'), ('ELF_seed', 'declared_ELF_seed_files'),
+            ('loader_data', 'declared_nonexecuted_loader_data_files'))
+    expected = [dict(kind=kind, path=path) for kind, key in keys for path in plan[key]]
+    # Historical/current lower DATA grammars are unaccepted. The action reads
+    # only the one source-pinned active plan; a DATA id cannot raise any cap.
+    count = {'STATIC01': 76, 'STATIC02': 109, 'STATIC03': 117, 'STATIC04': 135}.get(plan.get('id'))
+    if count is None or len(expected) != count or plan['fixed_item_order'] != expected:
+        raise GlobalStop('StaticPlanRosterConservation')
+    return expected
+
+
+def static_plan_bytes_data(raw):
+    if type(raw) is not bytes or len(raw) > 32768 or hashlib.sha256(raw).hexdigest() != _PLAN_SHA:
+        raise GlobalStop('StaticPlanIdentity')
+    value = json.loads(raw)
+    if value['schema'] != 'wordling.wp108-finite-static-inspection-proposal/v2':
+        raise GlobalStop('StaticPlanSchema')
+    static_plan_layout_data(value)
+    return value
+
+
+def _stamp(value):
+    return (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+
+
+def _rights(value):
+    return dict(mode=stat.S_IMODE(value.st_mode), uid=value.st_uid, gid=value.st_gid)
+
+
+def _identity(value):
+    return dict(device=value.st_dev, inode=value.st_ino, size=value.st_size,
+        mtime_ns=value.st_mtime_ns, ctime_ns=value.st_ctime_ns, **_rights(value))
+
+
+def _diagnostic_update(diagnostic, **values):
+    if diagnostic is None:
+        return
+    candidate = dict(diagnostic, **values)
+    # Inputs here are already bounded canonical header/program/tag DATA. This
+    # extra cap applies inside, never in addition to, the existing output cap.
+    raw = json.dumps(candidate, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+    if len(raw) > 32768:
+        raise GlobalStop('StaticDiagnosticByteBound')
+    diagnostic.update(values)
+
+
+def interpreter_edge_data(source_row, original_rows, declared_alias_names, declared_ELF_seed_names):
+    """Pure completed-observation DATA lookup, never a live/reference binding.
+
+    Original matching rows are counted BEFORE eligibility filtering. Incomplete
+    duplicates cannot disappear into the graph's last-wins needed-edge view.
+    No path resolution, revalidation, filesystem access or runtime search occurs.
+    """
+    name = source_row.get('resolved') if type(source_row) is dict else None
+    literal = source_row.get('ELF', {}).get('interpreter') if (type(source_row) is dict
+        and type(source_row.get('ELF')) is dict) else None
+    edge = dict(source=name, interpreter=literal, target=None,
+        status='INCOMPLETE_UNLISTED_OR_AMBIGUOUS_INTERPRETER',
+        permission_granted=False, reference_qualification=False, current_context_created=False)
+    if (type(original_rows) is not list or len(original_rows) > 135
+            or type(declared_alias_names) is not list or len(declared_alias_names) > 135
+            or type(declared_ELF_seed_names) is not list or len(declared_ELF_seed_names) > 135
+            or any(type(n) is not str for n in declared_alias_names + declared_ELF_seed_names)):
+        return edge
+    alias_names = set(declared_alias_names)
+    seed_names = set(declared_ELF_seed_names)
+
+    def rights(row):
+        return (all(type(row.get(k)) is int and 0 <= row[k] < 2**64 for k in ('mode', 'uid', 'gid'))
+            and row['mode'] <= 0o7777)
+
+    def string(value):
+        return type(value) is str and 0 < len(value) < 4096 and value.isascii()
+
+    def links(row, required=False):
+        values = row['aliases']
+        return (type(values) is list and int(required) <= len(values) <= 8
+            and all(type(link) is dict and len(link) == 6
+                and set(link) == {'logical', 'text', 'target', 'mode', 'uid', 'gid'}
+                and type(link['logical']) is str and link['logical'] in alias_names
+                and type(link['text']) is str and 0 < len(link['text']) <= 4096 and link['text'].isascii()
+                and type(link['target']) is str
+                and link['target'] in alias_names | seed_names and rights(link) for link in values))
+
+    def elf_values(value):
+        return (type(value) is dict and len(value) == 8
+            and set(value) == {'kind', 'machine', 'program_headers', 'interpreter', 'needed', 'soname', 'rpath', 'runpath'}
+            and type(value['kind']) is int and value['kind'] in (2, 3)
+            and type(value['machine']) is int and value['machine'] == 62
+            and type(value['program_headers']) is int and 1 <= value['program_headers'] <= 64
+            and all(value[k] is None or string(value[k]) for k in ('interpreter', 'soname', 'rpath', 'runpath'))
+            and type(value['needed']) is list and len(value['needed']) <= 128
+            and all(string(text) for text in value['needed']))
+
+    def complete_seed(row):
+        keys = {'kind', 'path', 'resolved', 'aliases', 'mode', 'uid', 'gid', 'status', 'size', 'sha256', 'ELF'}
+        return (type(row) is dict and len(row) == 11 and set(row) == keys
+            and row['kind'] == 'ELF_seed' and row['status'] == 'OBSERVED_UNACCEPTED_METADATA'
+            and type(row['path']) is str and row['path'] in seed_names
+            and type(row['resolved']) is str and row['resolved'] in seed_names
+            and links(row) and rights(row)
+            and type(row['size']) is int and 64 <= row['size'] <= 67108864
+            and type(row['sha256']) is str and len(row['sha256']) == 64
+            and all(c in '0123456789abcdef' for c in row['sha256'])
+            and elf_values(row['ELF']))
+
+    def complete_alias(row):
+        keys = {'kind', 'path', 'resolved', 'aliases', 'mode', 'uid', 'gid', 'status'}
+        return (type(row) is dict and len(row) == 8 and set(row) == keys
+            and row['kind'] == 'alias' and row['status'] == 'OBSERVED_UNACCEPTED_METADATA'
+            and type(row['path']) is str and row['path'] in alias_names
+            and type(row['resolved']) is str and row['resolved'] in seed_names
+            and links(row, required=True) and rights(row))
+
+    def seed_matches(path):
+        return [row for row in original_rows if type(row) is dict and row.get('kind') == 'ELF_seed'
+            and (row.get('path') == path or row.get('resolved') == path)]
+
+    if not complete_seed(source_row) or type(literal) is not str:
+        return edge
+    sources = seed_matches(source_row['resolved'])
+    if len(sources) != 1 or sources[0] is not source_row:
+        return edge
+    direct = seed_matches(literal)
+    if direct:
+        if len(direct) != 1 or not complete_seed(direct[0]):
+            return edge
+        target = direct[0]['resolved']
+    else:
+        aliases = [row for row in original_rows if type(row) is dict
+            and row.get('kind') == 'alias' and row.get('path') == literal]
+        if len(aliases) != 1 or not complete_alias(aliases[0]):
+            return edge
+        targets = seed_matches(aliases[0]['resolved'])
+        if len(targets) != 1 or type(targets[0].get('resolved')) is not str:
+            return edge
+        target = targets[0]['resolved']
+    edge.update(target=target, status='DECLARED_UNACCEPTED_DATA')
+    return edge
+
+
+def _load_static_plan():
+    # A fixed reviewed repository DATA document, never a caller path or role.
+    root = Path(__file__).absolute().parents[5]
+    path = root / _PLAN_REL
+    # Source DATA is a fixed repository input, not a discovered public role.
+    # Anchor its parents too: final O_NOFOLLOW alone is insufficient.
+    directory = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    fd = None
+    try:
+        for part in path.parts[1:-1]:
+            before = os.stat(part, dir_fd=directory, follow_symlinks=False)
+            if not stat.S_ISDIR(before.st_mode):
+                raise GlobalStop('StaticSourcePlanParentType')
+            following = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+            if _stamp(before) != _stamp(os.fstat(following)):
+                os.close(following)
+                raise GlobalStop('StaticSourcePlanParentChanged')
+            os.close(directory)
+            directory = following
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+        initial = os.fstat(fd)
+        size = initial.st_size
+        if not stat.S_ISREG(initial.st_mode) or not 0 <= size <= 32768:
+            raise GlobalStop('StaticPlanByteBound')
+        raw = os.read(fd, size + 1)
+        if len(raw) != size or hashlib.sha256(raw).hexdigest() != _PLAN_SHA:
+            raise GlobalStop('StaticPlanIdentity')
+        if _stamp(initial) != _stamp(os.fstat(fd)):
+            raise GlobalStop('StaticSourcePlanChanged')
+    finally:
+        if fd is not None:
+            os.close(fd)
+        os.close(directory)
+    return static_plan_bytes_data(raw), len(raw)
+
+
+class _StaticInventory:
+    """Finite read-only metadata scope. Not a supervisor, role or validator grant."""
+    def __init__(self, plan, source_bytes):
+        self.plan = plan
+        self.aliases = set(plan['declared_logical_aliases'])
+        self.directories = set(plan['declared_exact_ancestor_metadata']) | set(plan['declared_metadata_only_directories'])
+        self.names = self.aliases | self.directories | set(plan['declared_ELF_seed_files']) | set(plan['declared_nonexecuted_loader_data_files'])
+        self.end = time.monotonic() + 30
+        self.requested = source_bytes
+        self.actual = source_bytes
+        self.per_file = {}
+        self.metadata = 0
+        self.metadata_total = 0
+        self.operations = 0
+        self.rows = []
+        self.output_reserved = 8192
+
+    def check(self):
+        if time.monotonic() >= self.end:
+            raise GlobalStop('StaticWholeDeadline')
+        self.operations += 1
+        if self.operations > 76 * 64 * 8:
+            raise GlobalStop('StaticComponentWorkBound')
+
+    def charge(self, name, count, metadata=False):
+        self.check()
+        if type(count) is not int or count < 0 or count > 65536:
+            raise GlobalStop('StaticReadChunkBound')
+        previous = self.per_file.get(name, 0)
+        if previous + count > 67108864 or self.requested + count > 268435456:
+            raise GlobalStop('StaticReadByteBound')
+        if metadata and self.metadata + count > 1048576:
+            raise Incomplete('ELFMetadataReadBound')
+        if metadata and self.metadata_total + count > 16777216:
+            raise GlobalStop('StaticTotalMetadataReadBound')
+        self.requested += count
+        self.per_file[name] = previous + count
+        if metadata:
+            self.metadata += count
+            self.metadata_total += count
+
+    def pread(self, fd, name, count, offset, diagnostic=None):
+        self.charge(name, count, metadata=True)
+        # A failed charge has not performed I/O. Report the strtab syscall only
+        # after its canonical charge succeeds, including a later short read.
+        _diagnostic_update(diagnostic, strtab_read_performed=True)
+        raw = os.pread(fd, count, offset)
+        self.actual += len(raw)
+        if len(raw) != count:
+            raise Incomplete('StaticShortMetadataRead')
+        return raw
+
+    def path_info(self, path, open_file=False):
+        """Walk from a held root, no-follow EVERY component before any input read."""
+        original = path
+        chain = []
+        for hop in range(9):
+            self.check()
+            if path not in self.names or not path.startswith('/') or '..' in Path(path).parts:
+                raise Incomplete('StaticUnlistedPath:' + path)
+            pieces = [p for p in path.split('/') if p]
+            if len(pieces) > 64:
+                raise GlobalStop('StaticPathDepthBound')
+            directory = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            restart = None
+            try:
+                if not pieces:
+                    return os.fstat(directory), None, path, chain
+                for index, part in enumerate(pieces):
+                    self.check()
+                    prefix = '/' + '/'.join(pieces[:index + 1])
+                    last = index == len(pieces) - 1
+                    if prefix not in self.names:
+                        raise Incomplete('StaticUnlistedParent:' + prefix)
+                    before = os.stat(part, dir_fd=directory, follow_symlinks=False)
+                    if stat.S_ISLNK(before.st_mode):
+                        if prefix not in self.aliases or hop == 8:
+                            raise Incomplete('StaticUnlistedOrDeepAlias:' + prefix)
+                        text = os.readlink(part, dir_fd=directory)
+                        remaining = pieces[index + 1:]
+                        target = alias_target_data(prefix, text, remaining, self.names)
+                        after = os.stat(part, dir_fd=directory, follow_symlinks=False)
+                        if _stamp(before) != _stamp(after):
+                            raise Incomplete('StaticAliasChanged:' + prefix)
+                        chain.append(dict(logical=prefix, text=text, target=target, **_rights(before)))
+                        restart = target
+                        break
+                    if not last:
+                        if prefix not in self.directories or not stat.S_ISDIR(before.st_mode):
+                            raise Incomplete('StaticParentNotDeclaredDirectory:' + prefix)
+                        following = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+                        if _stamp(os.fstat(following)) != _stamp(before):
+                            os.close(following)
+                            raise Incomplete('StaticParentChanged:' + prefix)
+                        os.close(directory)
+                        directory = following
+                    else:
+                        if open_file:
+                            if not stat.S_ISREG(before.st_mode):
+                                raise Incomplete('StaticNotRegular:' + original)
+                            fd = os.open(part, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+                            if _stamp(os.fstat(fd)) != _stamp(before):
+                                os.close(fd)
+                                raise Incomplete('StaticFileChangedAtOpen:' + original)
+                            return before, fd, path, chain
+                        return before, None, path, chain
+            finally:
+                os.close(directory)
+            if restart is None:
+                raise GlobalStop('StaticPathTraversalInvariant')
+            path = restart
+        raise Incomplete('StaticAliasDepthBound')
+
+    def elf(self, fd, name, size, diagnostic=None):
+        self.metadata = 0
+        _diagnostic_update(diagnostic, phase='header', strtab_read_performed=False)
+        raw_header = self.pread(fd, name, 64, 0)
+        _diagnostic_update(diagnostic, header_raw_hex=raw_header.hex())
+        h = elf_header_data(raw_header, size)
+        _diagnostic_update(diagnostic, header=h, phase='program_headers')
+        programs = elf_program_data(self.pread(fd, name, h['phsize'] * h['phcount'], h['phoff']), size)
+        _diagnostic_update(diagnostic, program_headers=programs)
+        result = dict(kind=h['kind'], machine=h['machine'], program_headers=len(programs), interpreter=None,
+                      needed=[], soname=None, rpath=None, runpath=None)
+        for row in programs:
+            if row['kind'] == 3:
+                _diagnostic_update(diagnostic, phase='interpreter')
+                if not 1 < row['size'] <= 4096:
+                    raise Incomplete('ELFInterpreterBound')
+                result['interpreter'] = elf_string_data(self.pread(fd, name, row['size'], row['offset']), 0)
+            if row['kind'] == 2:
+                _diagnostic_update(diagnostic, phase='dynamic')
+                entries = elf_dynamic_data(self.pread(fd, name, row['size'], row['offset']))
+                singles = {}
+                dynamic = dict(strtab_va=None, strsz=None, entries_decoded=len(entries))
+                _diagnostic_update(diagnostic, dynamic=dynamic)
+                for tag, value in entries:
+                    if tag in (5, 10):
+                        field = {5: 'strtab_va', 10: 'strsz'}[tag]
+                        if tag in singles:
+                            _diagnostic_update(diagnostic, duplicate_dynamic_entry=dict(tag=tag, value=value))
+                        else:
+                            dynamic = dict(dynamic, **{field: value})
+                            _diagnostic_update(diagnostic, dynamic=dynamic)
+                    if tag in (5, 10, 14, 15, 29):
+                        if tag in singles:
+                            raise Incomplete('ELFDuplicateDynamicSingleton')
+                        singles[tag] = value
+                strings = [(tag, value) for tag, value in entries if tag in (1, 14, 15, 29)]
+                if len(strings) > 131 or sum(tag == 1 for tag, _ in strings) > 128:
+                    raise Incomplete('ELFDynamicStringCount')
+                if strings:
+                    if 5 not in singles or 10 not in singles:
+                        raise Incomplete('ELFDynamicStringTableMissing')
+                    _diagnostic_update(diagnostic, phase='string_table_mapping')
+                    position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)
+                    # Whole logical coverage and actual frozen-file bounds
+                    # precede every referenced window. Never copy the table.
+                    if position < 0 or position > size or singles[10] > size - position:
+                        raise Incomplete('ELFStringTableFileBound')
+                    for tag, value in strings:
+                        if type(value) is not int or not 0 <= value < singles[10]:
+                            raise Incomplete('ELFStringOffset')
+                        window_size = min(4096, singles[10] - value)
+                        _diagnostic_update(diagnostic, phase='string_window_read')
+                        window = self.pread(fd, name, window_size, position + value, diagnostic)
+                        text = elf_string_data(window, 0)
+                        if tag == 1:
+                            result['needed'].append(text)
+                        else:
+                            result[{14: 'soname', 15: 'rpath', 29: 'runpath'}[tag]] = text
+        _diagnostic_update(diagnostic, phase='complete')
+        return result
+
+    def item(self, entry):
+        kind, name = entry['kind'], entry['path']
+        before, fd, resolved, aliases = self.path_info(name, open_file=kind in ('ELF_seed', 'loader_data'))
+        row = dict(kind=kind, path=name, resolved=resolved, aliases=aliases, **_rights(before))
+        if fd is None:
+            if kind in ('ancestor', 'directory') and not stat.S_ISDIR(before.st_mode):
+                raise Incomplete('StaticNotDirectory:' + name)
+            if kind == 'alias' and not aliases:
+                row['alias_observation'] = 'DECLARED_LOGICAL_NAME_IS_REGULAR_OR_DIRECTORY'
+            return dict(row, status='OBSERVED_UNACCEPTED_METADATA')
+        try:
+            if before.st_size > 67108864:
+                raise GlobalStop('StaticFileSizeReadBound')
+            digest = hashlib.sha256()
+            remaining = before.st_size
+            while remaining:
+                size = min(65536, remaining)
+                self.charge(name, size)
+                raw = os.read(fd, size)
+                self.actual += len(raw)
+                if not raw:
+                    raise Incomplete('StaticShortFileRead:' + name)
+                remaining -= len(raw)
+                digest.update(raw)
+            row.update(size=before.st_size, sha256=digest.hexdigest())
+            parse_error = None
+            diagnostic = {} if kind == 'ELF_seed' and name in _DIAGNOSTIC_NAMES else None
+            if kind == 'ELF_seed':
+                try:
+                    row['ELF'] = self.elf(fd, name, before.st_size, diagnostic)
+                except Incomplete as error:
+                    if diagnostic is None:
+                        raise
+                    parse_error = error
+                    _diagnostic_update(diagnostic, refusal=str(error)[:512])
+            after = os.fstat(fd)
+            current = None
+            path_failure = None
+            try:
+                current, _, current_path, _ = self.path_info(name)
+            except (Incomplete, FileNotFoundError, NotADirectoryError) as error:
+                if parse_error is None:
+                    raise
+                path_failure = str(error)[:512]
+                current_path = None
+            stable = (current is not None and _stamp(before) == _stamp(after)
+                and _stamp(before) == _stamp(current) and current_path == resolved)
+            if parse_error is not None:
+                observation = dict(stream_sha256=row['sha256'], stream_bytes=before.st_size,
+                    stream_hash_complete=True, stability='STABLE_IDENTITY' if stable else 'UNSTABLE_IDENTITY',
+                    identity_before=_identity(before), identity_fd_after=_identity(after),
+                    identity_path_after=None if current is None else _identity(current),
+                    path_after=current_path, path_refusal=path_failure)
+                if stable:
+                    observation['stable_identity'] = _identity(before)
+                # No completed ELF field or OBSERVED status: retained partial
+                # hashes/diagnostics cannot enter run()'s safe graph pool.
+                del row['sha256'], row['size']
+                row.update(status='INCOMPLETE', reason=str(parse_error)[:512], file_observation=observation)
+                if diagnostic is not None:
+                    row['ELF_diagnostic'] = diagnostic
+                return row
+            if not stable:
+                raise Incomplete('StaticFileChangedDuringRead:' + name)
+            return dict(row, status='OBSERVED_UNACCEPTED_METADATA')
+        finally:
+            os.close(fd)
+
+    def append(self, row):
+        raw = json.dumps(row, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+        if self.output_reserved + len(raw) + 1 > 262144:
+            raise GlobalStop('StaticOutputReservationBound')
+        self.output_reserved += len(raw) + 1
+        self.rows.append(row)
+
+    def run(self):
+        failure = None
+        entries = self.plan['fixed_item_order']
+        for entry in entries:
+            try:
+                self.check()
+                try:
+                    row = self.item(entry)
+                except (Incomplete, FileNotFoundError, NotADirectoryError) as error:
+                    row = dict(**entry, status='INCOMPLETE', reason=str(error)[:512])
+                self.append(row)
+            except BaseException as error:
+                failure = dict(type=type(error).__name__, reason=str(error)[:512])
+                break
+        safe = {r['resolved']: r for r in self.rows if r['status'] == 'OBSERVED_UNACCEPTED_METADATA' and 'ELF' in r}
+        graph = []
+        # Graph serialization is charged before growth, just like item rows.
+        # A global fault cannot renew the clock or continue graph work.
+        if failure is None:
+            try:
+                for name, row in safe.items():
+                    for needed in row['ELF']['needed']:
+                        self.check()
+                        matches = [n for n, value in safe.items() if value['ELF']['soname'] == needed or posixpath.basename(n) == needed]
+                        edge = dict(source=name, needed=needed, target=matches[0] if len(matches) == 1 else None,
+                            status='DECLARED_UNACCEPTED_EDGE' if len(matches) == 1 else 'INCOMPLETE_UNLISTED_OR_AMBIGUOUS_EDGE')
+                        raw = json.dumps(edge, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+                        if self.output_reserved + len(raw) + 1 > 262144:
+                            raise GlobalStop('StaticGraphOutputReservationBound')
+                        self.output_reserved += len(raw) + 1
+                        graph.append(edge)
+                    interpreter = row['ELF']['interpreter']
+                    if interpreter:
+                        self.check()
+                        edge = interpreter_edge_data(row, self.rows, self.plan['declared_logical_aliases'],
+                            self.plan['declared_ELF_seed_files'])
+                        raw = json.dumps(edge, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+                        if self.output_reserved + len(raw) + 1 > 262144:
+                            raise GlobalStop('StaticGraphOutputReservationBound')
+                        self.output_reserved += len(raw) + 1
+                        graph.append(edge)
+            except BaseException as error:
+                failure = dict(type=type(error).__name__, reason=str(error)[:512])
+        incomplete = failure is not None or len(self.rows) != len(entries) or any(r['status'] == 'INCOMPLETE' for r in self.rows) or any(r['status'].startswith('INCOMPLETE') for r in graph)
+        result = dict(schema='wordling.current-test-static-inspection/v1', status='INCOMPLETE' if incomplete else 'UNACCEPTED_STATIC_DATA',
+            plan_sha256=_PLAN_SHA, items=self.rows, graph=graph, global_stop=failure,
+            unexamined_items=len(entries) - len(self.rows), byte_read_requests=self.requested,
+            actual_bytes_read=self.actual, operations=self.operations, output_reserved=self.output_reserved,
+            permission_granted=False, reference_qualification=False, current_context_created=False,
+            BASE_executed=False, TEST_P_Original_actions=False)
+        raw = json.dumps(result, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+        if len(raw) + 1 > 262144:
+            # A violated reservation is a source invariant failure, never a
+            # reason to prune a partial inventory into apparent success.
+            raise GlobalStop('StaticFinalOutputReservationInvariant')
+        return result
+
+
+def static_inspection():
+    """Fixed no-argument DATA action; ROOT must approve exact source before use."""
+    plan, source_bytes = _load_static_plan()
+    return _StaticInventory(plan, source_bytes).run()
+
+
+if __name__ == '__main__':
+    if sys.argv[1:] != ['--static-inspect-v1']:
+        raise SystemExit('DORMANT: no current role; only fixed reviewed static DATA inspection is defined')
+    value = static_inspection()
+    print(json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=True))
+    raise SystemExit(0 if value['status'] == 'UNACCEPTED_STATIC_DATA' else 2)

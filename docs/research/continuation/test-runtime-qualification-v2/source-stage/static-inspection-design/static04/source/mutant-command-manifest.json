@@ -1,0 +1,443 @@
+{
+  "schema": "wordling.wp108-STATIC04-four-causal-graph-mutant-pairs/v1",
+  "source_base": "009feb027f23e9fc92e2f2afe406ca9fc1fe3e78",
+  "source_inputs": {
+    "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+      "size": 36404,
+      "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+      "size": 251281,
+      "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+    },
+    "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 52574,
+      "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13120,
+      "sha256": "16d96e83f92fb834902d1f3871592d8c930f419875f047f0a93d7ffe2af390aa"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_tool_selection.json": {
+      "size": 86493,
+      "sha256": "635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json": {
+      "size": 18094,
+      "sha256": "58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+      "size": 23390,
+      "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+      "size": 24976,
+      "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+      "size": 28339,
+      "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+    }
+  },
+  "commands": [
+    {
+      "id": "ALIAS-UNIQUENESS-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_alias_ambiguity_refuses_partial_duplicate_in_both_orders",
+        "-v"
+      ],
+      "family": "ALIAS-UNIQUENESS",
+      "phase": "CONTROL",
+      "expected": "PASS",
+      "edits": {
+        "old": "if len(aliases) != 1 or not complete_alias(aliases[0]):",
+        "new": "if not aliases or not complete_alias(aliases[0]):"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/ALIAS-UNIQUENESS.py.txt",
+        "size": 36398,
+        "sha256": "995dabc5090e364c162f3f5872bdc06c53ff1cb22c7281f8f03280bd76f58224"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36404,
+          "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "ALIAS-UNIQUENESS-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_alias_ambiguity_refuses_partial_duplicate_in_both_orders",
+        "-v"
+      ],
+      "family": "ALIAS-UNIQUENESS",
+      "phase": "MUTANT",
+      "expected": "ASSERTION_FAIL",
+      "edits": {
+        "old": "if len(aliases) != 1 or not complete_alias(aliases[0]):",
+        "new": "if not aliases or not complete_alias(aliases[0]):"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/ALIAS-UNIQUENESS.py.txt",
+        "size": 36398,
+        "sha256": "995dabc5090e364c162f3f5872bdc06c53ff1cb22c7281f8f03280bd76f58224"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36398,
+          "sha256": "995dabc5090e364c162f3f5872bdc06c53ff1cb22c7281f8f03280bd76f58224"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "TARGET-UNIQUENESS-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_target_ambiguity_refuses_complete_and_partial_duplicates",
+        "-v"
+      ],
+      "family": "TARGET-UNIQUENESS",
+      "phase": "CONTROL",
+      "expected": "PASS",
+      "edits": {
+        "old": "if len(targets) != 1 or not complete_seed(targets[0]):",
+        "new": "if not targets or not complete_seed(targets[0]):"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/TARGET-UNIQUENESS.py.txt",
+        "size": 36398,
+        "sha256": "0792f35a18f2d7bebd61d8a378e717a11e7bed3239f6a1ac0439f85344558039"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36404,
+          "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "TARGET-UNIQUENESS-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_target_ambiguity_refuses_complete_and_partial_duplicates",
+        "-v"
+      ],
+      "family": "TARGET-UNIQUENESS",
+      "phase": "MUTANT",
+      "expected": "ASSERTION_FAIL",
+      "edits": {
+        "old": "if len(targets) != 1 or not complete_seed(targets[0]):",
+        "new": "if not targets or not complete_seed(targets[0]):"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/TARGET-UNIQUENESS.py.txt",
+        "size": 36398,
+        "sha256": "0792f35a18f2d7bebd61d8a378e717a11e7bed3239f6a1ac0439f85344558039"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36398,
+          "sha256": "0792f35a18f2d7bebd61d8a378e717a11e7bed3239f6a1ac0439f85344558039"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "ALIAS-ELIGIBILITY-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_alias_zero_partial_foreign_receipt_and_malformed_refuse",
+        "-v"
+      ],
+      "family": "ALIAS-ELIGIBILITY",
+      "phase": "CONTROL",
+      "expected": "PASS",
+      "edits": {
+        "old": "if len(aliases) != 1 or not complete_alias(aliases[0]):",
+        "new": "if len(aliases) != 1 or type(aliases[0].get('resolved')) is not str:"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/ALIAS-ELIGIBILITY.py.txt",
+        "size": 36417,
+        "sha256": "e77f66472b713069319aee01f30aafe746e5f808229dd74c14ae2829dda2993e"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36404,
+          "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "ALIAS-ELIGIBILITY-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_alias_zero_partial_foreign_receipt_and_malformed_refuse",
+        "-v"
+      ],
+      "family": "ALIAS-ELIGIBILITY",
+      "phase": "MUTANT",
+      "expected": "ASSERTION_FAIL",
+      "edits": {
+        "old": "if len(aliases) != 1 or not complete_alias(aliases[0]):",
+        "new": "if len(aliases) != 1 or type(aliases[0].get('resolved')) is not str:"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/ALIAS-ELIGIBILITY.py.txt",
+        "size": 36417,
+        "sha256": "e77f66472b713069319aee01f30aafe746e5f808229dd74c14ae2829dda2993e"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36417,
+          "sha256": "e77f66472b713069319aee01f30aafe746e5f808229dd74c14ae2829dda2993e"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "TARGET-ELIGIBILITY-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_target_zero_partial_foreign_receipt_and_malformed_refuse",
+        "-v"
+      ],
+      "family": "TARGET-ELIGIBILITY",
+      "phase": "CONTROL",
+      "expected": "PASS",
+      "edits": {
+        "old": "if len(targets) != 1 or not complete_seed(targets[0]):",
+        "new": "if len(targets) != 1 or type(targets[0].get('resolved')) is not str:"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/TARGET-ELIGIBILITY.py.txt",
+        "size": 36418,
+        "sha256": "caf07e23e35f7aaccb47ec5e973c8a1e6ec70c26b4f6f1be58ccc7f66734ca8b"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36404,
+          "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    },
+    {
+      "id": "TARGET-ELIGIBILITY-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static04InterpreterGraphDataTests.test_target_zero_partial_foreign_receipt_and_malformed_refuse",
+        "-v"
+      ],
+      "family": "TARGET-ELIGIBILITY",
+      "phase": "MUTANT",
+      "expected": "ASSERTION_FAIL",
+      "edits": {
+        "old": "if len(targets) != 1 or not complete_seed(targets[0]):",
+        "new": "if len(targets) != 1 or type(targets[0].get('resolved')) is not str:"
+      },
+      "fixed_postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/source/mutant-postimages/TARGET-ELIGIBILITY.py.txt",
+        "size": 36418,
+        "sha256": "caf07e23e35f7aaccb47ec5e973c8a1e6ec70c26b4f6f1be58ccc7f66734ca8b"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 36418,
+          "sha256": "caf07e23e35f7aaccb47ec5e973c8a1e6ec70c26b4f6f1be58ccc7f66734ca8b"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 52574,
+          "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+        },
+        "/tmp/wordling-wp108-test-prep/static04-graph-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+          "size": 28339,
+          "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+        }
+      }
+    }
+  ],
+  "command_count": 8,
+  "same_path_original_controls_first": true,
+  "fixture_root": "/tmp/wordling-wp108-test-prep/static04-graph-fixture",
+  "fixture_files": 3,
+  "post_command_source": "Immutable approved command-manifest.json exact3postrows, captured by same shared sourceartifact; no extra postmanifest file.",
+  "public_actions": 0,
+  "role_or_clock": false
+}
