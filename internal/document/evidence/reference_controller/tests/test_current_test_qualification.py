@@ -1334,18 +1334,27 @@ class CurrentFiniteCaseSourceDataTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, '^CurrentDeadlineProjection$'):
             self.q._current_deadline_projection(1., float('nan'), 1.5)
 
+    def capacity_data(self):
+        return dict(schema='wordling.current-capacity/v2', E_bytes=0, E_files=0, E_inventory=[],
+            evidence_root=str(Path(__file__).resolve().parents[5]), canonical_reference_roots=[],
+            scope=dict(normal_repository=True, excluded_VCS_storage='.git',
+                included_physical_VCS_metadata='.git/spec-kitty',
+                retained_prefix='docs/research/continuation/test-runtime-qualification-v2',
+                retained_files=1245, retained_bytes=536870912, runtime_literal_writers=205))
+
     def test_pure_seed_constructor_keeps_all_selected_pins_and_unaccepted_roles(self):
         import gzip
         e, s = v2_unaccepted_data()
-        capacity = dict(E_bytes=0, E_files=0, E_inventory=[], evidence_root='/DATA/evidence',
-            canonical_reference_roots=[])
+        capacity = self.capacity_data()
         payload = self.q._current_seed_serialization_data(e, s, capacity, [])
         self.assertEqual(set(payload), {'expected-inputs.json.gz', 'source-binding.json',
-            'capacity.json', 'tool-selection.json', 'reference-roots.json'})
+            'capacity.json', 'tool-selection.json', 'reference-roots.json', 'capture-source-manifest.json'})
         self.assertEqual(json.loads(gzip.decompress(payload['expected-inputs.json.gz'])), e)
         self.assertEqual(json.loads(payload['tool-selection.json']), s)
         self.assertEqual(json.loads(payload['source-binding.json'])['parent_capacity'],
-            dict(E_bytes=0, E_files=0))
+            dict(E_bytes=sum(map(len, payload.values())), E_files=6))
+        self.assertEqual(json.loads(payload['capacity.json'])['current_seed_baseline'],
+            {name: dict(size=len(raw), mode=0o644, uid=1000, gid=1000) for name, raw in payload.items()})
         self.assertEqual(json.loads(payload['tool-selection.json'])['disposition'], 'UNACCEPTED_VALIDATOR_DATA')
         self.assertLessEqual(len(payload['tool-selection.json']), 1048576)
         self.assertLessEqual(len(payload['capacity.json']), 262144)
@@ -1358,12 +1367,55 @@ class CurrentFiniteCaseSourceDataTests(unittest.TestCase):
             e['files'][name] = row
             s['new_tool_records'].append(dict(path=name, **row))
         s['files_sha256'] = digest(e['files'])
-        capacity = dict(E_bytes=0, E_files=0, E_inventory=[], evidence_root='/DATA/evidence',
-            canonical_reference_roots=[])
+        capacity = self.capacity_data()
         before = len(s['new_tool_records'])
         with self.assertRaisesRegex(RuntimeError, '^CurrentSeedWriterFit:'):
             self.q._current_seed_serialization_data(e, s, capacity, [])
         self.assertEqual(len(s['new_tool_records']), before)
+
+    def test_tool_chains_are_lexical_bounded_and_cannot_skip_a_parent(self):
+        e, s = v2_unaccepted_data()
+        rights = dict(mode=0o777, uid=1000, gid=1000)
+        e['directories'] = {name: dict(mode=0o755, uid=1000, gid=1000)
+            for name in ('/DATA', '/DATA/tool')}
+        e['links'] = {
+            '/ALIAS': dict(target='/DATA', resolved='/DATA', rights=rights,
+                role='TOOL_PARENT_ALIAS', resolution='CAPTURED_DIRECTORY_HOP'),
+            '/DATA/entry': dict(target='middle', resolved='/DATA/middle', rights=rights,
+                role='TOOL_CHAIN_LINK', resolution='CAPTURED_LEXICAL_HOP'),
+            '/DATA/middle': dict(target='/DATA/tool/python', resolved='/DATA/tool/python', rights=rights,
+                role='TOOL_CHAIN_LINK', resolution='CAPTURED_LEXICAL_HOP')}
+        chain = [dict(logical=name, text=e['links'][name]['target'],
+            target=e['links'][name]['resolved'], rights=rights)
+            for name in ('/ALIAS', '/DATA/entry', '/DATA/middle')]
+        s['shell_aliases'] = [dict(logical='/ALIAS/entry', resolved='/DATA/tool/python', chain=chain)]
+        s['roles_sha256'] = digest(roles_projection(e))
+        self.assertEqual(self.q.check_selection_records(e, s)['disposition'], 'UNACCEPTED_VALIDATOR_DATA')
+        for variant, wanted in (('skip-parent', 'CurrentToolChainFirstHop'),
+                ('cycle', 'CurrentToolChainCycle'), ('unknown-parent', 'CurrentToolChainUndeclaredParent'),
+                ('uncovered', 'CurrentToolChainCoverage'), ('bad-hop', 'CurrentToolChainSchema'),
+                ('missing-terminal', 'CurrentToolChainTerminal')):
+            with self.subTest(variant=variant):
+                bad_e, bad_s = copy.deepcopy((e, s))
+                alias = bad_s['shell_aliases'][0]
+                if variant == 'skip-parent':
+                    alias['chain'] = alias['chain'][1:]
+                elif variant == 'cycle':
+                    bad_e['links']['/DATA/middle'].update(target='/DATA/entry', resolved='/DATA/entry')
+                    alias['chain'][2].update(text='/DATA/entry', target='/DATA/entry')
+                elif variant == 'unknown-parent':
+                    del bad_e['directories']['/DATA/tool']
+                elif variant == 'uncovered':
+                    bad_e['links']['/DATA/uncovered'] = dict(bad_e['links']['/DATA/middle'])
+                elif variant == 'bad-hop':
+                    alias['chain'][0]['logical'] = []
+                else:
+                    del bad_e['files']['/DATA/tool/python']
+                    bad_e['payload_bytes'] = sum(row['size'] for row in bad_e['files'].values())
+                    bad_s['files_sha256'] = digest(bad_e['files'])
+                bad_s['roles_sha256'] = digest(roles_projection(bad_e))
+                with self.assertRaisesRegex(RuntimeError, '^' + wanted + '$'):
+                    self.q.check_selection_records(bad_e, bad_s)
 
     def test_reference_layout_has_exact_independent_raw_caps_and_no_second_origin(self):
         one = self.q._current_reference_layout_data('REF01')
@@ -1376,6 +1428,15 @@ class CurrentFiniteCaseSourceDataTests(unittest.TestCase):
         self.assertEqual(header['origin'].parent, header['trace'].parent)
         with self.assertRaisesRegex(RuntimeError, '^CurrentFiniteReferenceCaptureLabel$'):
             self.q._current_reference_layout_data('UNDECLARED')
+        records = [dict(actor=11, kind='exec', syscall='execve', success=True, result='0'),
+            dict(actor=11, kind='control', syscall='vfork', success=True, result='12'),
+            dict(actor=12, kind='exec', syscall='execve', success=True, result='0')]
+        executables = ['/usr/bin/x86_64-linux-gnu-gcc-13', '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1']
+        self.assertEqual(self.q._current_header_native_data(records, executables)['maximum_native_processes'], 3)
+        with self.assertRaisesRegex(RuntimeError, '^CurrentHeaderNativeGraph$'):
+            self.q._current_header_native_data(records, executables + ['/DATA/UNDECLARED'])
+        with self.assertRaisesRegex(RuntimeError, '^CurrentHeaderNativeGraph$'):
+            self.q._current_header_native_data(records + [dict(records[1], actor=12, result='13')], executables)
 
 
 if __name__ == "__main__":

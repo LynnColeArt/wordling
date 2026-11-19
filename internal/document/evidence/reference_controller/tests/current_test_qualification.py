@@ -61,7 +61,7 @@ class _CurrentSession:
         'expected_fd', 'expected_identity', 'phase_results', 'used', 'budget',
         'claimed', 'arena', 'frozen_disposable', 'candidate', 'nonce', 'source_accepted',
         'case_rows', 'owner_negative', 'mutant_citations', 'data_written',
-        'capacity_checked', 'capacity_fd', 'capacity_identity')
+        'capacity_checked', 'capacity_fd', 'capacity_identity', 'manifest_pin')
 
     def __new__(cls):
         raise TypeError('CurrentFixedApplicationEntryOnly')
@@ -90,7 +90,11 @@ class _CurrentSession:
         # This direct action is independent of the SOURCE seed's JSON/hash.
         # Its code/roles/writers/cases/memory/startup closure must already be
         # complete; an incomplete compiler/raw plan cannot start a clock.
-        _q()._current_source_acceptance(self)
+        try:
+            _q()._current_source_acceptance(self)
+        except BaseException:
+            self.failed = True
+            raise
         self.source_accepted = True
 
     def phase(self, name):
@@ -129,8 +133,12 @@ class _CurrentSession:
         self.check()
         if self.stage != 'REFERENCE_PENDING_ACCEPTANCE' or 'reference' not in self.phase_results:
             raise RuntimeError('CurrentReferenceAcceptanceOrder')
-        _q()._current_qualification_mutants4(self)
-        _q()._current_session_acceptance(self, 'reference')
+        try:
+            _q()._current_qualification_mutants4(self)
+            _q()._current_session_acceptance(self, 'reference')
+        except BaseException:
+            self.failed = True
+            raise
         self.stage = 'REFERENCE_ACCEPTED'
 
     def accept_disposable(self):
@@ -187,7 +195,7 @@ class _RootBoundary:
     __slots__ = ('channel', 'parentfd', 'peer', 'nonce', 'source_sha', 'state',
         'whole_origin', 'whole_end', 'phase_end', 'failed', 'finished', 'expected', 'selection',
         'capacity', 'groups', 'budget', 'arena', 'contexts', 'sequence', 'proof',
-        'source', 'repository', 'frozen_disposable', 'candidate', 'used_stages', 'case_rows', 'case_reads')
+        'source', 'repository', 'frozen_disposable', 'candidate', 'used_stages', 'case_rows', 'case_reads', 'manifest_sha')
 
     def __new__(cls):
         raise TypeError('CurrentLiveBootstrapOnly')
@@ -329,8 +337,8 @@ class _CurrentContext:
         self.check()
         wanted = (_CURRENT_ROOT_PATH.absolute(), self.root.repository / 'docs/research/continuation/test-runtime-qualification-v2')
         if (tuple(Path(p).absolute() for p in roots) != wanted
-                or baseline_bytes != self.root.capacity['E_bytes']
-                or baseline_files != self.root.capacity['E_files']
+                or baseline_bytes != self.root.capacity['E_bytes'] + 536870912
+                or baseline_files != self.root.capacity['E_files'] + 1245
                 or earlier_document_cap is not None):
             raise RuntimeError('CurrentBudgetConstructor')
         _q()._current_capacity_proof(self.root)
@@ -349,7 +357,7 @@ class _CurrentContext:
         q = _q()
         if self.root.budget is None:
             q.EvidenceBudget([_CURRENT_ROOT_PATH, self.root.repository / 'docs/research/continuation/test-runtime-qualification-v2'],
-                self.root.capacity['E_bytes'], self.root.capacity['E_files'], current_test=self)
+                self.root.capacity['E_bytes'] + 536870912, self.root.capacity['E_files'] + 1245, current_test=self)
         self.budget = self.root.budget
         self.budget._current_test_book = self
         q._ACTIVE_BUDGET = self.budget

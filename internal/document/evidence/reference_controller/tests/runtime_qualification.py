@@ -353,7 +353,7 @@ class EvidenceBudget:
             if current_test is not None or campaign is not None or qualification is not None or not _actual_current_session(current_owner):raise RuntimeError('CurrentActualOwnerBudgetRequired')
             current_owner.check()
             if (tuple(Path(p).absolute() for p in roots)!=(Path('/tmp/wordling-WP70-current-test-qualification-v2'),current_owner.repository/'docs/research/continuation/test-runtime-qualification-v2')
-                    or baseline_bytes!=current_owner.capacity['E_bytes'] or baseline_files!=current_owner.capacity['E_files'] or earlier_document_cap is not None):raise RuntimeError('CurrentOwnerBudgetConstructor')
+                    or baseline_bytes!=current_owner.capacity['E_bytes']+536870912 or baseline_files!=current_owner.capacity['E_files']+1245 or earlier_document_cap is not None):raise RuntimeError('CurrentOwnerBudgetConstructor')
         if current_test is not None:
             if campaign is not None or qualification is not None:
                 raise RuntimeError('CurrentTestMixedPurpose')
@@ -520,6 +520,60 @@ def _current_data_path(value):
     return value
 
 
+def _current_tool_alias_chain_data(expected,alias,tools):
+    """Bounded lexical TOOL chain DATA; no lookup, resolve, or role grant."""
+    if (type(alias)is not dict or set(alias)!={'logical','resolved','chain'}
+            or type(alias['logical'])is not str or type(alias['resolved'])is not str
+            or type(alias['chain'])is not list or not 1<=len(alias['chain'])<=8):
+        raise RuntimeError('CurrentToolChainSchema')
+    current=_current_data_path(alias['logical']);terminal=_current_data_path(alias['resolved'])
+    if current.startswith('//') or os.path.normpath(current)!=current or os.path.normpath(terminal)!=terminal:
+        raise RuntimeError('CurrentToolChainPath')
+    seen={current};covered=set();links=expected['links'];directories=expected['directories']
+    for hop in alias['chain']:
+        if (type(hop)is not dict or set(hop)!={'logical','text','target','rights'}
+                or type(hop['logical'])is not str or type(hop['target'])is not str or type(hop['text'])is not str
+                or type(hop['rights'])is not dict or set(hop['rights'])!={'mode','uid','gid'}
+                or any(type(hop['rights'][k])is not int or not 0<=hop['rights'][k]<2**64 for k in hop['rights'])
+                or hop['rights']['mode']>0o7777):
+            raise RuntimeError('CurrentToolChainSchema')
+        logical=_current_data_path(hop['logical']);target=_current_data_path(hop['target'])
+        # Resolve the FIRST declared symlink component left-to-right. A full
+        # pathname hop cannot jump over an unexamined parent alias.
+        first=None;prefix=''
+        for part in current.split('/')[1:]:
+            prefix+='/'+part
+            if prefix in links:first=prefix;break
+            if prefix!=current and prefix not in directories:raise RuntimeError('CurrentToolChainUndeclaredParent')
+        if first is None or first!=logical or logical in covered:raise RuntimeError('CurrentToolChainFirstHop')
+        row=links[logical]
+        parent=logical!=current
+        role='TOOL_PARENT_ALIAS' if parent else 'TOOL_CHAIN_LINK'
+        resolution='CAPTURED_DIRECTORY_HOP' if parent else 'CAPTURED_LEXICAL_HOP'
+        if (row['role']!=role or row['resolution']!=resolution
+                or hop!=dict(logical=logical,text=row['target'],target=row['resolved'],rights=row['rights'])):
+            raise RuntimeError('CurrentToolChainBinding')
+        lexical=os.path.normpath(hop['text'] if hop['text'].startswith('/') else os.path.join(os.path.dirname(logical),hop['text']))
+        if target!=lexical:raise RuntimeError('CurrentToolChainBinding')
+        if parent and (target not in directories or target in links):raise RuntimeError('CurrentToolChainParentTarget')
+        suffix=current[len(logical):]
+        if suffix and not suffix.startswith('/'):raise RuntimeError('CurrentToolChainPrefix')
+        if len(target)+len(suffix)>512:raise RuntimeError('CurrentToolChainPath')
+        current=os.path.normpath(target+suffix);_current_data_path(current)
+        if current in seen:raise RuntimeError('CurrentToolChainCycle')
+        seen.add(current);covered.add(logical)
+    # No unexamined parent component may remain after the final hop either.
+    prefix=''
+    for part in current.split('/')[1:]:
+        prefix+='/'+part
+        if prefix in links:raise RuntimeError('CurrentToolChainUnresolvedAlias')
+        if prefix!=current and prefix not in directories:raise RuntimeError('CurrentToolChainUndeclaredParent')
+    if (current!=terminal or terminal not in tools or terminal not in expected['files']
+            or terminal in expected['runtime_elf'] or terminal in expected['runtime_mapped_data']):
+        raise RuntimeError('CurrentToolChainTerminal')
+    return covered
+
+
 def _current_role_frames_data(expected, selection):
     """Canonical V2 role-frame consistency only, never live-role admission."""
     def right_shape(row):
@@ -551,8 +605,8 @@ def _current_role_frames_data(expected, selection):
                 or type(row['target']) is not str or not row['target'].isascii()
                 or not 0<len(row['target'])<=4096 or chr(0) in row['target']
                 or not right_shape(row['rights'])
-                or row['role'] not in ('RUNTIME_ALIAS','TOOL_ALIAS','NONEXECUTED_METADATA')
-                or row['resolution'] not in ('CAPTURED_SINGLE_HOP','LEXICAL_ONLY_NO_FOLLOW')
+                or row['role'] not in ('RUNTIME_ALIAS','TOOL_ALIAS','NONEXECUTED_METADATA','TOOL_CHAIN_LINK','TOOL_PARENT_ALIAS')
+                or row['resolution'] not in ('CAPTURED_SINGLE_HOP','LEXICAL_ONLY_NO_FOLLOW','CAPTURED_LEXICAL_HOP','CAPTURED_DIRECTORY_HOP')
                 or name in expected['files'] or name in directories):
             raise RuntimeError('CurrentReferenceAliasSchema')
         resolved=_current_data_path(row['resolved'])
@@ -566,6 +620,12 @@ def _current_role_frames_data(expected, selection):
             if resolved not in expected['files'] or resolved not in tools or resolved in runtime:
                 raise RuntimeError('CurrentToolAliasTarget')
             if row['resolution']!='CAPTURED_SINGLE_HOP':raise RuntimeError('CurrentToolAliasResolution')
+        elif row['role']=='TOOL_CHAIN_LINK':
+            if row['resolution']!='CAPTURED_LEXICAL_HOP' or resolved not in links and resolved not in tools:
+                raise RuntimeError('CurrentToolChainLink')
+        elif row['role']=='TOOL_PARENT_ALIAS':
+            if row['resolution']!='CAPTURED_DIRECTORY_HOP' or resolved not in directories or resolved in links:
+                raise RuntimeError('CurrentToolChainParentTarget')
         elif row['resolution']!='LEXICAL_ONLY_NO_FOLLOW':
             raise RuntimeError('CurrentMetadataAliasResolution')
     hooks=expected['tool_startup_hook_sets']
@@ -581,13 +641,20 @@ def _current_role_frames_data(expected, selection):
                 raise RuntimeError('CurrentToolHookSchema')
     aliases=selection['shell_aliases']
     if type(aliases) is not list or len(aliases)>64:raise RuntimeError('CurrentToolSelectionSchema')
+    covered=set();chain_names=set()
     for alias in aliases:
+        if type(alias)is dict and set(alias)=={'logical','resolved','chain'}:
+            if type(alias['logical'])is not str or alias['logical'] in chain_names:raise RuntimeError('CurrentToolChainSchema')
+            covered.update(_current_tool_alias_chain_data(expected,alias,tools));chain_names.add(alias['logical'])
+            continue
         if (type(alias) is not dict or set(alias)!={'logical','text','resolved','rights'}
                 or type(alias['logical']) is not str):
             raise RuntimeError('CurrentToolAliasSchema')
         row=links.get(alias['logical'])
         if row is None or row['role']!='TOOL_ALIAS' or any(alias[k]!=row[v] for k,v in (('text','target'),('resolved','resolved'),('rights','rights'))):
             raise RuntimeError('CurrentToolAliasSchema')
+    if {name for name,row in links.items() if row['role'] in ('TOOL_CHAIN_LINK','TOOL_PARENT_ALIAS')}!=covered:
+        raise RuntimeError('CurrentToolChainCoverage')
 
 
 def _current_selection_data(expected, selection):
@@ -3539,6 +3606,24 @@ def _current_reference_capture_admission(owner,argv,label,tool):
     return _current_reference_layout_data(label)
 
 
+def _current_header_native_data(records,executed):
+    """Exact fixed -E native graph, independent of compiler stdout content."""
+    if executed!=['/usr/bin/x86_64-linux-gnu-gcc-13','/usr/libexec/gcc/x86_64-linux-gnu/13/cc1']:
+        raise RuntimeError('CurrentHeaderNativeGraph')
+    actors={row['actor'] for row in records}
+    execs=[row for row in records if row['kind']=='exec' and row['success']]
+    births=[row for row in records if row['syscall'] in ('clone','clone3','fork','vfork') and row['success']]
+    if (len(actors)!=2 or len(execs)!=2 or len(births)!=1
+            or execs[0]['actor']==execs[1]['actor'] or actors!={row['actor'] for row in execs}
+            or births[0]['actor']!=execs[0]['actor']
+            or re.fullmatch('[0-9]{1,12}',births[0]['result'])is None
+            or int(births[0]['result'])!=execs[1]['actor']):raise RuntimeError('CurrentHeaderNativeGraph')
+    # strace is the actual untraced launcher; exactly two traced native actors
+    # gives a separate three-process envelope, not an aggregate-RSS assertion.
+    return dict(traced_native_actors=2,tracer=1,maximum_native_processes=3,
+        per_process_AS=166723584,per_process_FD=32,aggregate_AS_ceiling=500170752)
+
+
 def _consume_tool_origins(self,path,label,capture=None):
     """Canonical capture semantic consumer shared by two genuine owner types."""
     if type(self) is not Preparation:
@@ -3582,8 +3667,13 @@ def _consume_tool_origins(self,path,label,capture=None):
             same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
             observed[name]['classification']=role
         else:raise RuntimeError('UnclassifiedToolInput:'+name)
-        if record['kind']=='exec':executed.append(name)
-    write_json(origin_path,dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'))
+        if record['kind']=='exec':
+            executed.append(name)
+            if reference and len(executed)>2:raise RuntimeError('CurrentHeaderNativeGraph')
+    native=_current_header_native_data(records,executed) if reference else None
+    origin=dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted')
+    if reference:origin['fixed_native_envelope']=native
+    write_json(origin_path,origin)
     if not executed:raise RuntimeError('MissingToolProcessTrace')
     self.check()
 
@@ -3603,6 +3693,9 @@ def _capture_command(self,argv,label,tool=False):
         layout=dict(command=base.with_suffix('.command.json'),whole=base.with_suffix('.whole.json'),
             stdout=base.with_suffix('.stdout'),stderr=base.with_suffix('.stderr'),trace=base.with_suffix('.trace'),
             origin=base.with_suffix('.origins.json'),transient=base.with_suffix('.transient-data.json'),summary=None)
+    launch_terminal=None
+    if tool and self.current_test is not None:
+        launch_terminal=_current_tool_launch_admission(self.current_test,argv[0])
     base.parent.mkdir(parents=True,exist_ok=True)
     if reference:base.mkdir(mode=0o700,exist_ok=False)
     trace_read=trace_write=None;actual=list(argv);pass_fds=()
@@ -3675,6 +3768,7 @@ def _capture_command(self,argv,label,tool=False):
         if not reference:supervisor_notice('idle')
         if tool:
             capture=object.__new__(_RunCapture);launch=Path(argv[0]).resolve()
+            if launch_terminal is not None and str(launch)!=launch_terminal:raise RuntimeError('CurrentToolLaunchChanged')
             same(launch,self.expected['files'][str(launch)]);same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
             facts=dict(owner=self,trace_path=str(layout['trace']),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),
                 launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),
@@ -3894,40 +3988,27 @@ def _actual_current_session(value):
     return module is not None and type(value)is module._CurrentSession and value in module._LIVE_SESSIONS
 
 
-def _current_seed_serialization_data(expected,selection,capacity,reference_roots):
-    """Pure SOURCE construction/fit, never acceptance or a context factory.
-
-    The administrative SOURCE action supplies its independently reviewed exact
-    projection of captured members. No role is inferred from a candidate, a
-    missing target, a pyc header, or a successful serialization. Every selected
-    pin is retained; an oversized selection is an explicit amendment obligation.
-    """
+def _current_seed_serialization_data(expected,selection,capacity,reference_roots,*,source_manifest=None):
+    """Pure fixed SOURCE construction/fit; never a context or role grant."""
     check_selection_records(expected,selection)
-    check_reference_shape(capacity)
-    if reference_roots!=capacity['canonical_reference_roots']:
-        raise RuntimeError('CurrentSeedReferenceRoots')
+    if reference_roots!=capacity['canonical_reference_roots']:raise RuntimeError('CurrentSeedReferenceRoots')
+    normal_files,normal_bytes=_current_capacity_data_totals(capacity)
     def encode(value,maximum):
-        measure_json(value,8388608)
-        count=0;result=bytearray()
+        measure_json(value,8388608);count=0;result=bytearray()
         for part in json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True).iterencode(value):
             raw=part.encode('ascii');count+=len(raw)
             if len(raw)>JSON_ESCAPE_PEAK or count>8388608:raise RuntimeError('CurrentSeedSerializationBound')
             if count<=maximum:result.extend(raw)
-        if count>maximum:
-            raise RuntimeError('CurrentSeedWriterFit:'+str(count)+'>'+str(maximum))
-        result.extend(b'\n')
-        return bytes(result)
-    # Fixed public transport bounds include the final newline. The encoder
-    # refuses before opening any writer; it cannot trim TOOL/cache membership.
+        if count>maximum:raise RuntimeError('CurrentSeedWriterFit:'+str(count)+'>'+str(maximum))
+        result.extend(b'\n');return bytes(result)
     selection_raw=encode(selection,1048575)
-    selection_text,selection_charge=_json_prepared(selection_raw,1048576,True)
+    text,selection_charge=_json_prepared(selection_raw,1048576,True)
     index_charge=1024+sum(2*len(row['path'])+128 for row in selection['new_tool_records'])
+    index_charge+=sum(2*measure_json(row,65536)+512 for row in selection['shell_aliases'])
     if (index_charge>1048576 or selection_charge+len(selection_raw)>8388608
             or selection_charge+1048576>8388608):raise RuntimeError('CurrentSelectionJointCharge')
-    del selection_text
-    capacity_raw=encode(capacity,262143)
-    compressor=zlib.compressobj(9,zlib.DEFLATED,31)
-    compressed=bytearray();expected_size=0
+    del text
+    compressor=zlib.compressobj(9,zlib.DEFLATED,31);compressed=bytearray();expected_size=0
     for part in json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True).iterencode(expected):
         raw=part.encode('ascii');expected_size+=len(raw)
         if len(raw)>JSON_ESCAPE_PEAK or expected_size>8388607:raise RuntimeError('CurrentSeedSerializationBound')
@@ -3937,15 +4018,31 @@ def _current_seed_serialization_data(expected,selection,capacity,reference_roots
     piece=compressor.compress(b'\n')+compressor.flush()
     if len(compressed)+len(piece)>1572864:raise RuntimeError('CurrentCompressedExpectedBound')
     compressed.extend(piece);compressed=bytes(compressed)
-    parent=dict(E_bytes=capacity['E_bytes'],E_files=capacity['E_files'])
-    binding=dict(schema='wordling.current-source-binding/v2',disposition='UNACCEPTED_SOURCE_DATA',
-        source_binding=expected['source_binding'],parent_capacity=parent,
-        capacity=dict(size=len(capacity_raw),sha256=hashlib.sha256(capacity_raw).hexdigest()),
-        payload_role_pins_complete=True)
-    binding_raw=encode(binding,65535)
     roots_raw=encode(reference_roots,65535)
-    return {'expected-inputs.json.gz':compressed,'source-binding.json':binding_raw,
-        'capacity.json':capacity_raw,'tool-selection.json':selection_raw,'reference-roots.json':roots_raw}
+    names=('expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','capture-source-manifest.json')
+    sizes={name:0 for name in names};rights_row=dict(mode=0o644,uid=1000,gid=1000)
+    source=dict(schema='wordling.current-source-manifest/v2',sources={},closure={},inputs={},source_mutant_audit={}) if source_manifest is None else dict(source_manifest)
+    # Only sizes/rights of the six SOURCE files enter capacity. Their content
+    # hashes are bound outside that self-referential document by the actual
+    # surviving session/ACK and its exact manifest; no hash fixed-point exists.
+    for attempt in range(16):
+        data=dict(capacity,E_files=normal_files+6,E_bytes=normal_bytes+sum(sizes.values()),
+            current_seed_baseline={name:dict(size=sizes[name],**rights_row) for name in names})
+        if (data['E_files']+1245+6506>EVIDENCE_FILES or data['E_bytes']+536870912+1829830656>EVIDENCE_LIMIT):
+            raise RuntimeError('EvidenceFutureEnvelopeFit')
+        capacity_raw=encode(data,262143)
+        binding=dict(schema='wordling.current-source-binding/v2',disposition='UNACCEPTED_SOURCE_DATA',
+            source_binding=expected['source_binding'],parent_capacity=dict(E_bytes=data['E_bytes'],E_files=data['E_files']),
+            capacity=dict(size=len(capacity_raw),sha256=hashlib.sha256(capacity_raw).hexdigest()),payload_role_pins_complete=True)
+        binding_raw=encode(binding,65535)
+        payload={'expected-inputs.json.gz':compressed,'source-binding.json':binding_raw,'capacity.json':capacity_raw,
+            'tool-selection.json':selection_raw,'reference-roots.json':roots_raw}
+        source['inputs']={name:dict(size=len(raw),sha256=hashlib.sha256(raw).hexdigest(),**rights_row) for name,raw in payload.items()}
+        payload['capture-source-manifest.json']=encode(source,65535)
+        actual={name:len(payload[name]) for name in names}
+        if actual==sizes:return payload
+        sizes=actual
+    raise RuntimeError('CurrentSeedSizeFixedPoint')
 
 
 def _current_begin_session(module):
@@ -3986,6 +4083,7 @@ def _current_begin_session(module):
         if not stat.S_ISREG(identity.st_mode) or not 0<identity.st_size<=1572864:raise RuntimeError('CurrentExpectedReadOnlyFD')
         value=object.__new__(module._CurrentSession)
         value.source=source;value.repository=repository;value.manifest=manifest;value.capacity=capacity;value.groups=tuple(groups)
+        value.manifest_pin=dict(**pin(directory/'capture-source-manifest.json'),**rights(directory/'capture-source-manifest.json'))
         value.whole_origin=None;value.whole_end=None;value.stage='SOURCE_ACCEPTED_NO_CLOCK'
         value.failed=False;value.finished=False;value.active=None
         value.expected_fd=fd;value.expected_identity=(identity.st_dev,identity.st_ino,identity.st_size,identity.st_mtime_ns,identity.st_ctime_ns)
@@ -4052,6 +4150,7 @@ def _current_source_capacity(session):
 
 def _current_session_inputs(session):
     if not _actual_current_session(session):raise RuntimeError('CurrentApplicationSessionIdentity')
+    same('/tmp/wordling-WP70-current-test-qualification-v2/reference/capture-source-manifest.json',session.manifest_pin)
     if session.expected_fd is None or os.get_inheritable(session.expected_fd):raise RuntimeError('CurrentExpectedReadOnlyFD')
     row=os.fstat(session.expected_fd)
     named=os.stat('/tmp/wordling-WP70-current-test-qualification-v2/reference/expected-inputs.json.gz',follow_symlinks=False)
@@ -4065,8 +4164,8 @@ def _current_session_inputs(session):
             session.failed=True;raise RuntimeError('CurrentCapacityFDChanged')
     # Whole class limits remain authoritative even though only a finite subset
     # is consumed in any one phase. OTHER baseline is included in capacity.
-    if (session.capacity['E_bytes']+sum(r[0] for r in CLASS_LIMITS.values())>EVIDENCE_LIMIT
-            or session.capacity['E_files']+sum(r[1] for r in CLASS_LIMITS.values())>EVIDENCE_FILES):
+    if (session.capacity['E_bytes']+536870912+sum(r[0] for r in CLASS_LIMITS.values())>EVIDENCE_LIMIT
+            or session.capacity['E_files']+1245+sum(r[1] for r in CLASS_LIMITS.values())>EVIDENCE_FILES):
         raise RuntimeError('EvidenceFutureEnvelopeFit')
 
 
@@ -4076,7 +4175,7 @@ def _current_session_budget(session):
     if session.budget is None:
         if not session.capacity_checked:raise RuntimeError('CurrentActualSourceCapacityRequired')
         roots=[Path('/tmp/wordling-WP70-current-test-qualification-v2'),session.repository/'docs/research/continuation/test-runtime-qualification-v2']
-        session.budget=EvidenceBudget(roots,session.capacity['E_bytes'],session.capacity['E_files'],current_owner=session)
+        session.budget=EvidenceBudget(roots,session.capacity['E_bytes']+536870912,session.capacity['E_files']+1245,current_owner=session)
         session.capacity=dict(E_bytes=session.capacity['E_bytes'],E_files=session.capacity['E_files'])
     return session.budget
 
@@ -4359,8 +4458,8 @@ def _current_parent_bootstrap(session,phase,channel,child,end):
     value,fd,raw=_campaign_recv(channel,(child.pid,os.getuid(),os.getgid()),limit,False,256)
     sha=session.manifest['sources'][str(Path(__file__).resolve())]['sha256']
     if fd is not None or value!=dict(k='H',n=session.nonce,q=sha):raise RuntimeError('CurrentActualPhaseHELLO')
-    ack=dict(k='h',n=session.nonce,p=phase,o=session.whole_origin,w=session.whole_end,e=end)
-    sent=_campaign_send(channel,ack,limit,maximum=256)
+    ack=dict(k='h',n=session.nonce,p=phase,o=session.whole_origin,w=session.whole_end,e=end,m=session.manifest_pin['sha256'])
+    sent=_campaign_send(channel,ack,limit,maximum=384)
     return dict(child_frame=raw.decode('ascii'),owner_frame=sent.decode('ascii'),actual_credentials=[child.pid,os.getuid(),os.getgid()],private_source_relation=True)
 
 
@@ -4460,7 +4559,7 @@ def _current_source_mutant_citations(session):
             or session.mutant_citations is not None):raise RuntimeError('CurrentSourceMutantDecisionOnce')
     base=session.repository/'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/source'
     audit_row=session.manifest['source_mutant_audit'];audit_path=Path(audit_row['path'])
-    same(audit_path,{k:audit_row[k] for k in ('size','sha256')})
+    same(audit_path,{k:audit_row[k] for k in ('size','sha256','mode','uid','gid')})
     if audit_row['size']>131072:raise RuntimeError('CurrentSourceMutantAuditBound')
     audit=bounded_json_loads(audit_path.read_bytes(),131072)
     if (audit.get('schema')!='wordling.current-source-change-and-reuse/v1'
@@ -4470,7 +4569,11 @@ def _current_source_mutant_citations(session):
     ids=('EXPECTED-ADOPTION','WHEEL-DATA','PROVIDER-LABEL','OWNER-ADMISSION')
     if type(rows)is not dict or set(rows)!=set(ids):raise RuntimeError('CurrentSourceMutantConservation')
     manifest_path=base/'mutant-command-manifest.json'
-    same(manifest_path,dict(size=manifest_path.stat().st_size,sha256='cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702'))
+    manifest_pin=audit.get('old_mutant_manifest')
+    if (type(manifest_pin)is not dict or set(manifest_pin)!={'size','sha256','mode','uid','gid'}
+            or manifest_pin['size']!=7922 or manifest_pin['sha256']!='cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702'):
+        raise RuntimeError('CurrentSourceMutantManifest')
+    same(manifest_path,manifest_pin)
     manifest=bounded_json_loads(manifest_path.read_bytes(),65536)
     old={r['id']:r for r in manifest['mutants']}
     allowed={str(session.source/'tests'/n) for n in ('runtime_qualification.py','controller_deployment.py',
@@ -4482,7 +4585,7 @@ def _current_source_mutant_citations(session):
                 or type(row.get('units'))is not list or not 2<=len(row['units'])<=64):raise RuntimeError('CurrentSourceMutantConservation')
         names=set()
         for unit in row['units']:
-            if (type(unit)is not dict or set(unit)!={'path','owner','name','ast_sha256'} or unit['path'] not in allowed
+            if (type(unit)is not dict or set(unit)!={'path','owner','name','ast_sha256'} or type(unit['path'])is not str or unit['path'] not in allowed
                     or type(unit['name'])is not str or unit['owner']is not None and type(unit['owner'])is not str):
                 raise RuntimeError('CurrentSourceMutantUnit')
             path=Path(unit['path'])
@@ -4502,7 +4605,7 @@ def _current_source_mutant_citations(session):
         for suffix,exit_code in (('CONTROL',0),('MUTANT',1)):
             receipt_path=base/(key+'-'+suffix)/'process.json'
             expected_pin=row.get(suffix.lower())
-            if type(expected_pin)is not dict or set(expected_pin)!={'size','sha256'}:raise RuntimeError('CurrentSourceMutantReceiptPin')
+            if type(expected_pin)is not dict or set(expected_pin)!={'size','sha256','mode','uid','gid'}:raise RuntimeError('CurrentSourceMutantReceiptPin')
             same(receipt_path,expected_pin)
             receipt=bounded_json_loads(receipt_path.read_bytes(),65536)
             if receipt.get('actual_exit')!=exit_code or receipt.get('case_id')!=key+'-'+suffix:
@@ -4512,7 +4615,10 @@ def _current_source_mutant_citations(session):
                     or suffix=='MUTANT' and (b'FAILED (failures=1)' not in stderr or prior['causal_failure_contains'].encode('ascii') not in stderr)):
                 raise RuntimeError('CurrentSourceMutantCausalRaw')
             del receipt,stderr
-        postimage=base/prior['postimage_path'];same(postimage,prior['postimage'])
+        postimage=base/prior['postimage_path'];postimage_pin=row.get('postimage')
+        if (type(postimage_pin)is not dict or set(postimage_pin)!={'size','sha256','mode','uid','gid'}
+                or {k:postimage_pin[k] for k in ('size','sha256')}!=prior['postimage']):raise RuntimeError('CurrentSourceMutantPostimage')
+        same(postimage,postimage_pin)
         citations[str(number)]=dict(id=key,status='SCOPED_SOURCE769_CAUSAL_CITATION',
             original_checkpoint=manifest['source_checkpoint'],postimage=prior['postimage'],
             control=row['control'],mutant=row['mutant'],conservation_audit=dict(audit_row),new_full_postimage_kill=False)
@@ -4589,9 +4695,9 @@ def _current_manifest(source_sha,kind):
     if type(source['inputs'])is not dict or set(source['inputs'])!=seed_names:raise RuntimeError('CurrentSourceInputMembership')
     audit=source['source_mutant_audit']
     wanted=str(tests.parents[4]/'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/source/revision1/change-and-reuse-audit.json')
-    if type(audit)is not dict or set(audit)!={'path','size','sha256'} or audit['path']!=wanted:
+    if type(audit)is not dict or set(audit)!={'path','size','sha256','mode','uid','gid'} or audit['path']!=wanted:
         raise RuntimeError('CurrentExactSourceMutantAudit')
-    same(wanted,{k:audit[k] for k in ('size','sha256')})
+    same(wanted,{k:audit[k] for k in ('size','sha256','mode','uid','gid')})
     required={'roles','argv','writers','joint_memory','native_descendants','clock','cases','startup'}
     if type(source['closure'])is not dict or set(source['closure'])!=required or any(source['closure'][k]is not True for k in required):
         raise RuntimeError('CurrentSourceClosureIncomplete')
@@ -4702,6 +4808,7 @@ def _current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha):
     root.groups=();root.budget=None;root.arena=_CampaignArena();root.contexts=[];root.sequence=0
     root.proof=None;root.source=Path(__file__).resolve().parent.parent;root.repository=root.source.parents[3]
     root.frozen_disposable=None;root.candidate=None;root.used_stages=set();root.case_rows={};root.case_reads=0
+    root.manifest_sha=None
     module._CURRENT_ROOT=root;module._LIVE_ROOTS.add(root)
     _current_live_boundary(root)
     return root
@@ -4727,14 +4834,16 @@ def _current_bootstrap(module,source_sha):
         root=_current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha)
         handshake_end=time.monotonic_ns()+2000000000
         _campaign_send(channel,dict(k='H',n=nonce,q=source_sha),handshake_end,maximum=256)
-        ack,received,raw=_campaign_recv(channel,peer,handshake_end,False,256)
-        if (received is not None or set(ack)!={'k','n','p','o','w','e'} or ack['k']!='h' or ack['n']!=nonce
+        ack,received,raw=_campaign_recv(channel,peer,handshake_end,False,384)
+        if (received is not None or set(ack)!={'k','n','p','o','w','e','m'} or ack['k']!='h' or ack['n']!=nonce
+                or type(ack['m'])is not str or re.fullmatch('[0-9a-f]{64}',ack['m'])is None
                 or ack['p'] not in ('reference','disposable','final')
                 or any(type(ack[k]) not in (int,float) or not math.isfinite(ack[k]) for k in ('o','w','e'))
                 or not ack['o']<time.monotonic()<ack['e']<=ack['w']<=ack['o']+1200):
             raise RuntimeError('CurrentActualPhaseACK')
         root.state={'reference':'REFERENCE_RUNNING','disposable':'DISPOSABLE_PREPARING','final':'FINAL_PREPARING'}[ack['p']]
         root.whole_origin=ack['o'];root.whole_end=ack['w'];root.phase_end=ack['e']
+        root.manifest_sha=ack['m']
         return root
 
     except BaseException:
@@ -4744,6 +4853,9 @@ def _current_bootstrap(module,source_sha):
 def _current_load_reference(root):
     """Decode only the fixed public reference, never candidate-produced DATA."""
     root.check();directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
+    manifest_path=directory/'capture-source-manifest.json'
+    if manifest_path.is_symlink() or manifest_path.stat().st_size>65536 or pin(manifest_path)['sha256']!=root.manifest_sha:
+        raise RuntimeError('CurrentSourceManifestChanged')
     seed=root.state=='REFERENCE_RUNNING'
     if seed:
         # These are reviewed SOURCE-only seed bytes, not an already-qualified
@@ -4932,6 +5044,30 @@ def _current_tool_input_role(owner,name):
     raise RuntimeError('UnclassifiedCurrentToolRole:'+name)
 
 
+def _current_tool_launch_admission(context,logical):
+    context.check();facts=_CURRENT_SELECTION_RELEASES.get(context)
+    if facts is None:raise RuntimeError('CurrentToolSelectionMustBeReleased')
+    logical=_current_data_path(logical)
+    alias=facts['aliases'].get(logical)
+    terminal=logical
+    if alias is not None:
+        terminal=alias['resolved']
+        hops=alias['chain'] if 'chain' in alias else [dict(logical=alias['logical'],text=alias['text'],target=alias['resolved'],rights=alias['rights'])]
+        for hop in hops:
+            row=context.expected['links'][hop['logical']];path=Path(hop['logical']);is_link=path.is_symlink()
+            _current_link_observation_equal(hop['logical'],dict(is_symlink=is_link,
+                text=os.readlink(path) if is_link else None,rights=rights(path)),row)
+            if row['role']=='TOOL_PARENT_ALIAS':
+                target=Path(row['resolved']);is_link=target.is_symlink()
+                _current_directory_observation_equal(str(target),dict(is_symlink=is_link,
+                    is_dir=False if is_link else target.is_dir(),rights=rights(target)),context.expected['directories'][str(target)])
+    if terminal not in facts['tool_paths'] and terminal!=str(BASE):raise RuntimeError('CurrentToolLaunchRole')
+    if str(Path(logical).resolve())!=terminal:raise RuntimeError('CurrentToolLaunchChanged')
+    row=context.expected['files'][terminal]
+    _current_case_read_charge(context.root,row['size']);same(terminal,row)
+    return terminal
+
+
 def _current_release_selection(context):
     """A genuine stage records its actual validation, then drops the full map.
 
@@ -4949,12 +5085,17 @@ def _current_release_selection(context):
         if charge>1048576:raise RuntimeError('CurrentToolPathIndexCharge')
         paths.add(name)
     tool_paths=frozenset(paths);del paths
+    aliases={}
+    for row in context.selection['shell_aliases']:
+        size=measure_json(row,65536);charge+=size*2+512
+        if charge>1048576 or row['logical'] in aliases:raise RuntimeError('CurrentToolPathIndexCharge')
+        aliases[row['logical']]=row
     site=PREFIX/'lib/python3.12/site-packages'
     names={str(site/'distutils-precedence.pth'),str(site/'_distutils_hack/__init__.py'),
         str(site/'_distutils_hack/__pycache__/__init__.cpython-312.pyc')}
     startup=frozenset(row['path'] for row in context.selection['new_tool_records'] if row['path'] in names)
     _CURRENT_SELECTION_RELEASES[context]=dict(expected=context.expected,receipt=receipt,
-        files_sha256=receipt['files_sha256'],roles_sha256=receipt['roles_sha256'],startup_tools=startup,tool_paths=tool_paths)
+        files_sha256=receipt['files_sha256'],roles_sha256=receipt['roles_sha256'],startup_tools=startup,tool_paths=tool_paths,aliases=aliases)
     context.root.selection=None;context.selection=None
     context.arena.release('current-selection-data')
     context.arena.shrink('current-selection-index',charge)
@@ -5137,7 +5278,7 @@ def _current_preflight_inputs(context):
             except RuntimeError as error:_current_exact_refusal(error,'ChangedLink:'+name)
             else:raise RuntimeError('CurrentDATA10Accepted')
             _current_case_record(root,10,'ChangedLink:'+name,witness=dict(nonexecuted_target_not_followed=row['role']=='NONEXECUTED_METADATA'))
-        if row['role']!='NONEXECUTED_METADATA':
+        if row['role'] in ('RUNTIME_ALIAS','TOOL_ALIAS'):
             target=Path(row['resolved'])
             if target.is_symlink():raise RuntimeError('CurrentAliasTargetChanged')
             _current_case_read_charge(root,expected['files'][str(target)]['size']);same(target,expected['files'][str(target)])
@@ -5153,37 +5294,162 @@ def _current_preflight_inputs(context):
     context.check()
 
 
+def _current_normal_holdings():
+    """Fixed current-only normal holdings, never arbitrary caller exclusions.
+
+    VCS objects/index/refs are storage. The execution contract's physical
+    .git/spec-kitty feedback/journal holdings are an explicit counted exception.
+    The separately reserved retained V2 prefix and runtime namespace are not
+    omitted normal holdings: they have their own complete finite envelopes.
+    """
+    repository=Path(__file__).resolve().parents[5]
+    retained=repository/'docs/research/continuation/test-runtime-qualification-v2'
+    maximum_files=EVIDENCE_FILES-6506-1245-6
+    maximum_bytes=EVIDENCE_LIMIT-1829830656-536870912
+    count=0;total=0;directories=0;names_live=0
+    def walk(directory,depth):
+        nonlocal count,total,directories,names_live
+        if depth>24 or directories>=16384:raise RuntimeError('CurrentNormalDirectoryBound')
+        directories+=1;before=directory.lstat()
+        if not stat.S_ISDIR(before.st_mode):raise RuntimeError('CurrentNormalDirectoryKind')
+        names=[];charge=0
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                charge+=2*len(entry.name)+256
+                if len(names)>=4096 or names_live+2*len(entry.name)+256>2097152:raise RuntimeError('CurrentNormalNamesBound')
+                names_live+=2*len(entry.name)+256
+                names.append(entry.name)
+        names.sort()
+        for name in names:
+            path=directory/name
+            if path==retained:continue
+            if path==repository/'.git':continue
+            relative=str(path.relative_to(repository))
+            if not relative.isascii() or len(relative)>512:raise RuntimeError('CurrentNormalPathBound')
+            row=path.lstat()
+            if stat.S_ISDIR(row.st_mode):
+                yield from walk(path,depth+1);continue
+            if count>=maximum_files or row.st_size>maximum_bytes-total:raise RuntimeError('CurrentNormalEnvelopeFit')
+            count+=1;total+=row.st_size
+            rights_row=dict(mode=stat.S_IMODE(row.st_mode),uid=row.st_uid,gid=row.st_gid)
+            if stat.S_ISLNK(row.st_mode):
+                target=os.readlink(path)
+                if not target.isascii() or len(target)>4096 or len(target.encode('ascii'))!=row.st_size:
+                    raise RuntimeError('CurrentNormalLinkBound')
+                observed=dict(relative=relative,kind='symlink',bytes=row.st_size,
+                    sha256=hashlib.sha256(target.encode('ascii')).hexdigest(),target=target,**rights_row)
+                after=path.lstat()
+                if (row.st_dev,row.st_ino,row.st_size,row.st_mtime_ns,row.st_ctime_ns)!=(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns):
+                    raise RuntimeError('CurrentNormalHoldingChanged')
+            elif stat.S_ISREG(row.st_mode):
+                fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+                digest=hashlib.sha256();read=0
+                try:
+                    held=os.fstat(fd)
+                    identity=lambda st:(st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns)
+                    if identity(held)!=identity(row):raise RuntimeError('CurrentNormalHoldingChanged')
+                    while read<row.st_size:
+                        raw=os.read(fd,min(65536,row.st_size-read))
+                        if not raw:raise RuntimeError('CurrentNormalHoldingShortRead')
+                        read+=len(raw);digest.update(raw)
+                    if os.read(fd,1) or identity(os.fstat(fd))!=identity(row) or identity(path.lstat())!=identity(row):
+                        raise RuntimeError('CurrentNormalHoldingChanged')
+                finally:os.close(fd)
+                observed=dict(relative=relative,kind='file',bytes=row.st_size,sha256=digest.hexdigest(),**rights_row)
+            else:raise RuntimeError('CurrentNormalUnsupportedHolding')
+            yield observed
+        del names
+        names_live-=charge
+        after=directory.lstat()
+        if (before.st_dev,before.st_ino,before.st_mtime_ns,before.st_ctime_ns)!=(after.st_dev,after.st_ino,after.st_mtime_ns,after.st_ctime_ns):
+            raise RuntimeError('CurrentNormalDirectoryChanged')
+    yield from walk(repository,0)
+    vcs=repository/'.git'
+    if vcs.is_file() or vcs.is_symlink():raise RuntimeError('CurrentExplicitPhysicalMetadataRootRequired')
+    metadata=vcs/'spec-kitty'
+    try:metadata.lstat()
+    except FileNotFoundError:return
+    yield from walk(metadata,0)
+
+
+def _current_capacity_data_totals(data):
+    repository=Path(__file__).resolve().parents[5]
+    if (type(data)is not dict or data.get('schema')!='wordling.current-capacity/v2'
+            or data.get('evidence_root')!=str(repository)
+            or data.get('scope')!=dict(normal_repository=True,excluded_VCS_storage='.git',
+                included_physical_VCS_metadata='.git/spec-kitty',
+                retained_prefix='docs/research/continuation/test-runtime-qualification-v2',
+                retained_files=1245,retained_bytes=536870912,runtime_literal_writers=205)):
+        raise RuntimeError('CurrentExactCapacityScope')
+    rows=data.get('E_inventory')
+    if type(rows)is not list or len(rows)>2483:raise RuntimeError('CurrentNormalEnvelopeFit')
+    names=set();total=0
+    for row in rows:
+        keys={'relative','kind','bytes','sha256','mode','uid','gid'}
+        if type(row)is not dict or row.get('kind') not in ('file','symlink'):raise RuntimeError('CurrentNormalHoldingSchema')
+        if row['kind']=='symlink':keys.add('target')
+        if set(row)!=keys or type(row['relative'])is not str:raise RuntimeError('CurrentNormalHoldingSchema')
+        name=row['relative']
+        if (not name or not name.isascii() or len(name)>512 or Path(name).is_absolute() or '..' in Path(name).parts
+                or name in names or name=='.git' or name.startswith('.git/') and not name.startswith('.git/spec-kitty/')
+                or name.startswith('docs/research/continuation/test-runtime-qualification-v2/')):
+            raise RuntimeError('CurrentNormalHoldingScope')
+        if (any(type(row[k])is not int or not 0<=row[k]<2**64 for k in ('bytes','mode','uid','gid'))
+                or row['mode']>0o7777 or type(row['sha256'])is not str or re.fullmatch('[0-9a-f]{64}',row['sha256'])is None):
+            raise RuntimeError('CurrentNormalHoldingSchema')
+        if row['kind']=='symlink' and (type(row['target'])is not str or not row['target'].isascii()
+                or len(row['target'])!=row['bytes'] or hashlib.sha256(row['target'].encode('ascii')).hexdigest()!=row['sha256']):
+            raise RuntimeError('CurrentNormalHoldingSchema')
+        names.add(name);total+=row['bytes']
+    check_reference_shape(data)
+    external_names=set()
+    for ref in data['canonical_reference_roots']:
+        for row in ref['members']:
+            name=row['path']
+            if name in external_names or Path(name).is_relative_to(repository):raise RuntimeError('CurrentExternalHoldingOverlap')
+            external_names.add(name);total+=row['bytes']
+    return len(rows)+len(external_names),total
+
+
 def _current_capacity_proof(root):
-    """Check the actual complete baseline before the canonical budget allocates."""
+    """Current-only fixed normal/retained/runtime accounting before allocation."""
     root.check();data=root.capacity
     if type(data)is dict and set(data)=={'E_bytes','E_files'}:
         if _CURRENT_CAPACITY_PROOFS.get(root)is not data:raise RuntimeError('CurrentActualCapacityProofRequired')
         return
-    check_reference_shape(data)
-    base=Path(data['evidence_root']);rows=data['E_inventory']
-    if len(rows)!=data['E_files'] or sum(r['bytes'] for r in rows)!=data['E_bytes']:
-        raise RuntimeError('EvidenceBaselineTotals')
-    wanted={r['relative'] for r in rows}
-    if len(wanted)!=len(rows):raise RuntimeError('EvidenceBaselineNameSet')
-    admitted=set() if root.budget is None else {str(p.relative_to(base)) for p in root.budget.slots if p.is_relative_to(base) and p.is_file()}
-    actual=set()
-    for p in base.rglob('*'):
+    files,total=_current_capacity_data_totals(data)
+    wanted={row['relative']:row for row in data['E_inventory']}
+    count=0
+    for observed in _current_normal_holdings():
         root.check()
-        if p.is_file():
-            if len(actual)>=EVIDENCE_FILES:raise RuntimeError('EvidenceBaselineCardinality')
-            actual.add(str(p.relative_to(base)))
-    if actual!=wanted|admitted:raise RuntimeError('EvidenceBaselineNameSet')
-    for row in rows:
-        same(base/row['relative'],dict(size=row['bytes'],**{k:row[k] for k in ('sha256','mode','uid','gid')}))
-        root.check()
+        if wanted.get(observed['relative'])!=observed:raise RuntimeError('CurrentNormalHoldingChanged')
+        count+=1
+    if count!=len(wanted):raise RuntimeError('EvidenceBaselineNameSet')
     for ref in data['canonical_reference_roots']:
         directory=Path(ref['root']);members=ref['members']
-        if {str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}!={r['relative'] for r in members}:
-            raise RuntimeError('ImmutableReferenceMembers')
+        actual={str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}
+        if actual!={row['relative'] for row in members}:raise RuntimeError('ImmutableReferenceMembers')
         for row in members:
-            same(directory/row['relative'],dict(size=row['bytes'],**{k:row[k] for k in ('sha256','mode','uid','gid')}))
-            root.check()
-    if data['E_bytes']+sum(r[0] for r in CLASS_LIMITS.values())>EVIDENCE_LIMIT or data['E_files']+sum(r[1] for r in CLASS_LIMITS.values())>EVIDENCE_FILES:
+            same(directory/row['relative'],dict(size=row['bytes'],**{k:row[k] for k in ('sha256','mode','uid','gid')}));root.check()
+    seed=data.get('current_seed_baseline');names=('expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','capture-source-manifest.json')
+    if type(seed)is not dict or set(seed)!=set(names):raise RuntimeError('CurrentSixSourceSeedBaseline')
+    directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
+    source=_current_manifest(root.manifest['sources'][str(Path(__file__).resolve())]['sha256'],'admin') if _actual_current_session(root) else _current_manifest(root.source_sha,'admin')
+    for name,row in seed.items():
+        if (type(row)is not dict or set(row)!={'size','mode','uid','gid'}
+                or any(type(row[k])is not int or row[k]<0 for k in row)):
+            raise RuntimeError('CurrentSixSourceSeedBaseline')
+        path=directory/name
+        if path.is_symlink() or not path.is_file() or path.stat().st_size!=row['size'] or rights(path)!={k:row[k] for k in ('mode','uid','gid')}:
+            raise RuntimeError('CurrentSourceSeedHoldingChanged')
+        if name!='capture-source-manifest.json':same(path,source['inputs'][name])
+        else:
+            expected_sha=root.manifest_pin['sha256'] if _actual_current_session(root) else root.manifest_sha
+            if pin(path)['sha256']!=expected_sha:raise RuntimeError('CurrentSourceManifestChanged')
+        files+=1;total+=row['size']
+    if data['E_files']!=files or data['E_bytes']!=total:raise RuntimeError('EvidenceBaselineTotals')
+    if (files+1245+sum(row[1] for row in CLASS_LIMITS.values())>EVIDENCE_FILES
+            or total+536870912+sum(row[0] for row in CLASS_LIMITS.values())>EVIDENCE_LIMIT):
         raise RuntimeError('EvidenceFutureEnvelopeFit')
 
 
