@@ -1,0 +1,13 @@
+# ROOT decision: one read-only STATIC04 inventory
+
+ROOT adopts the independently reviewed fixed source7297b7d54c514c6deb773797ad49a9315c021f25 for exactly one STATIC04 metadata inspection. The actual existing-run positive and semantic RED remain committed at5d11a34e with causal observation009feb02. Independent55 DATA plus12 AST checks pass; four actual source mutant/control pairs and source conservation are verified. The nested-frame test corrections are post-RED, with19 final variants.
+
+The scoped independent report is90de4f4d345bf245b21c4cda8d39557bca65875f6b4773c6f940b6a4fa175a51; structured verdict0e8d092adc061ecbf77296e43bfba6f2375eb5c44463ef948d675b0f0d622ae8. All12 review artifacts and current source/test/plan/launcher packet hashes were verified before this decision. Reader128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a;135-item plan c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f.
+
+Invoke only `/usr/bin/python3 -I -B /tmp/wordling-wp108-test-prep/STATIC04-packet/capture-STATIC04.py`, matching tracked wrapper006a3c920c96a2068155c7c8907a66347e310c1c56d955bef9a1481504dedc59 and packet1fc684961b2b60ac8a88cddeaf884ac0517a71b716ca63bbf76a3e134efedcf5. The reviewed launcher must verify fixed source/plan/R4/tool hashes, aliases and rights through held descriptors before launching the child. Fail closed on drift. It may create only a fresh STATIC04 custody namespace; do not precreate it, rerun it, follow discovered paths, expand the roster or execute an inspected input.
+
+Keep30 seconds including launcher preflight plus2 seconds cleanup;160MiB AS, CPU20s, FD32, nproc0, fixed argv/environment,256MiB reader requests,64MiB/file,64KiB chunks,1MiB/ELF metadata,16MiB total metadata and262144/16384 stdout/stderr. Complete raw output may honestly remain INCOMPLETE. Transport success is not qualification.
+
+Allocation:710 prior files +9 design +10 precode +45 source +12 review =786. This decision uses one of the nine reserved ROOT files; six launcher outputs plus one exact packet copy and one analysis complete795/1024.512MiB stays unchanged. Actual source-stage direct entries are23 before this decision and26 after the three planned additions, below64; the earlier60 was conservative. Whole future qualification writers/cases/joint memory and clock closure remain pending.
+
+This is one separately reviewed source-inspection action. It creates no accepted reference, live current context, Preparation, TEST/P/CONTROL/Original action or qualification/ROOT campaign clock. WP108 and its implementation Op remain open; no subtask, ticket7, Mission1 or platform acceptance is promoted. New Mac builds/tests remain deferred to milestone end.
