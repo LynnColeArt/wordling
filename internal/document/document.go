@@ -134,6 +134,7 @@ const (
 	PrinterCommand
 	LanguageCode
 	KerningCode
+	AdvanceCode
 	StyleOn
 	StyleOff
 	StyleEndCodes
@@ -314,6 +315,8 @@ func identify(raw []byte) Kind {
 		return ParagraphJustification
 	case justificationCache(raw):
 		return ParagraphPosition
+	case advanceOwner(raw):
+		return AdvanceCode
 	case kerningOwner(raw):
 		return KerningCode
 	case languageOwner(raw):
@@ -516,6 +519,11 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 			return "[Ref(" + ref.Name + "):Pg " + ref.Value + "]"
 		}
 		return ref.Value
+	case AdvanceCode:
+		if reveal {
+			return advanceLabel(raw)
+		}
+		return ""
 	case KerningCode:
 		if reveal {
 			if raw[5] == 1 {

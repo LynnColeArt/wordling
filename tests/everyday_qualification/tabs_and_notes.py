@@ -83,7 +83,8 @@ def exercise(run, case):
         run.step("2", "select Amount of Note to Keep Together", "Amount of Note to Keep Together")
         for key in ("0.5", ENTER, F7):
             run.step(key, "commit the minimum note fragment")
-        for i in range(1, 7):
+        asymmetric = case == "note-continuation-asymmetric"
+        for i in range(1, 6 if asymmetric else 7):
             run.step(f"Row {i}", "fill a body row before the note")
             run.step(ENTER, "start the next row")
         for key in ("Body", CTRL_F7, "1", "1"):
@@ -94,7 +95,7 @@ def exercise(run, case):
         for key in ("Last note line", F7, ENTER, "After note"):
             run.step(key, "save the note and force a continuation at the page bottom")
         run.wait('Pg 2 Ln 2"')
-        body(run, "SPLIT.WP", "mission1-note-continuation")
+        body(run, "ASYM.WP" if asymmetric else "SPLIT.WP", "mission1-note-continuation")
     run.exit_application()
 
 

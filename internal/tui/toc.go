@@ -47,11 +47,12 @@ const (
 	contentsAuthoritySection
 	contentsAuthorityFull
 	contentsAuthorityShort
+	contentsRemoveComparison
 )
 
 func (m Model) contentsPress(key input.Key) (tea.Model, tea.Cmd) {
 	menu := &m.contents
-	if key.IsRepeat || key.Mod != 0 && menu.stage != contentsReferencePosition && ((menu.stage != contentsCompare && menu.stage != contentsSubdocument && menu.stage != contentsReferenceName && menu.stage != contentsAuthorityFull && menu.stage != contentsAuthorityShort) || key.Mod & ^(tea.ModShift|tea.ModCapsLock) != 0) {
+	if key.IsRepeat || key.Mod != 0 && menu.stage != contentsReferencePosition && ((menu.stage != contentsRemoveComparison && menu.stage != contentsCompare && menu.stage != contentsSubdocument && menu.stage != contentsReferenceName && menu.stage != contentsAuthorityFull && menu.stage != contentsAuthorityShort) || key.Mod & ^(tea.ModShift|tea.ModCapsLock) != 0) {
 		return m, nil
 	}
 	if key.Code == tea.KeyEscape || key.Code == tea.KeyF1 {
@@ -220,6 +221,8 @@ func (m Model) contentsPress(key input.Key) (tea.Model, tea.Cmd) {
 		}
 	case contentsGenerate:
 		switch key.Code {
+		case '1':
+			menu.stage = contentsRemoveComparison
 		case '2':
 			menu.stage, menu.filename = contentsCompare, m.session.Snapshot().Name
 		case '5':
@@ -243,6 +246,13 @@ func (m Model) contentsPress(key input.Key) (tea.Model, tea.Cmd) {
 					menu.compareTyped = true
 				}
 			}
+		}
+	case contentsRemoveComparison:
+		switch key.Code {
+		case 'y', 'Y':
+			apply = m.session.RemoveComparisonMarks
+		case 'n', 'N', tea.KeyEnter:
+			m.contents = contentsUI{}
 		}
 	case contentsConfirm:
 		switch key.Code {
@@ -300,8 +310,11 @@ func (m Model) contentsView(view tea.View) tea.View {
 			"", "     2 - Display Last Level in     No", "           Wrapped Format", "", "     3 - Page Numbering - Level 1  Flush right with leader",
 			"                          Level 2", "                          Level 3", "                          Level 4", "                          Level 5"},
 			"Selection: 0", m.notice)
-	case contentsGenerate, contentsConfirm, contentsCompare:
+	case contentsGenerate, contentsConfirm, contentsCompare, contentsRemoveComparison:
 		prompt = "Selection: 0"
+		if m.contents.stage == contentsRemoveComparison {
+			prompt = "Remove redline markings and strikeout text? No (Yes)"
+		}
 		if m.contents.stage == contentsCompare {
 			prompt = "Other Document: " + m.contents.filename
 		}

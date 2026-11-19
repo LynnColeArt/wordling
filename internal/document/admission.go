@@ -299,7 +299,7 @@ func (d *Document) checkOrdinaryBody() error {
 		switch identify(raw[span.Offset : span.Offset+span.Length]) {
 		case ASCII, ExtendedCharacter, HardSpace, DOSControl, HardReturn, SoftReturn, Tab, HardPage, SoftPage, DeletedSoftReturn, Indent, EndIndent, PageNumberReset, BlockProtectOn, BlockProtectOff, LineMargins, PageMargins, CenterLine, FlushRight, EndAlignment, LineSpacing, LineHeight:
 		case ParagraphJustification, ParagraphPosition, DoubleIndent, MarginRelease, Footnote, Endnote, PageTextCode, LineNumbering, ConditionalPage, PageNumberPosition, SuppressPageNumber,
-			WidowProtectionOn, WidowProtectionOff, TabSetCode, DecimalTab, FootnoteOptions, DateCode, SoftDecimalTab, Comment, ContentsMark, ContentsDefinition, ContentsEnd, ContentsLeader, Subdocument, PageReference, ReferenceTarget, AuthorityMark, OutlineOn, OutlineNumber, MathOn, MathOff, MathSubtotal, PrinterCommand, LanguageCode, KerningCode:
+			WidowProtectionOn, WidowProtectionOff, TabSetCode, DecimalTab, FootnoteOptions, DateCode, SoftDecimalTab, Comment, ContentsMark, ContentsDefinition, ContentsEnd, ContentsLeader, Subdocument, PageReference, ReferenceTarget, AuthorityMark, OutlineOn, OutlineNumber, MathOn, MathOff, MathSubtotal, PrinterCommand, LanguageCode, KerningCode, AdvanceCode:
 		case StyleOn, StyleOff:
 			if styles == nil {
 				styles = map[uint16]NamedStyle{}
