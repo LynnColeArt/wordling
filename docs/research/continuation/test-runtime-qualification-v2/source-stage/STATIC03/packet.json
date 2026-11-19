@@ -1,0 +1,68 @@
+{
+  "schema": "wordling.wp108-one-STATIC03-source-pinned-custody/v1",
+  "status": "SOURCE_REVIEW_CANDIDATE_ONLY_NOT_EXECUTED",
+  "launcher": {
+    "path": "/tmp/wordling-wp108-test-prep/STATIC03-packet/capture-STATIC03.py",
+    "size": 14144,
+    "sha256": "d1137225e9c72b41ad39179c5f3e98efb93118bd5833ff4d24d8b647634f0025"
+  },
+  "root_invocation": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/tmp/wordling-wp108-test-prep/STATIC03-packet/capture-STATIC03.py"
+  ],
+  "child_argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=262144",
+    "--nofile=32",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "--static-inspect-v1"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reader": {
+    "path": "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "size": 31068,
+    "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+  },
+  "plan": {
+    "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json",
+    "size": 24976,
+    "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+  },
+  "prior_executed_wrapper_sha256": "57b52fbe8b6a74cd44d8fc2dd706cdf5af1c2750682672cede57236dcdcd9ffa",
+  "delta": "Fixed labels/namespace and source/plan path/size/SHA/source identity text only; actual capture/bounds/cleanup/child literal argv/env unchanged",
+  "bounds": {
+    "outer_seconds_including_preflight": 30,
+    "cleanup_seconds": 2,
+    "preflight_read_requests": 9437184,
+    "stdout": 262144,
+    "stderr": 16384,
+    "source_AS": 167772160,
+    "source_FD": 32,
+    "source_nproc_after_launcher": 0,
+    "source_CPU_seconds": 20,
+    "write_once_files_max": 7,
+    "write_once_bytes_max": 409600
+  },
+  "future_namespace": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC03",
+  "gate": "ROOT must verify independent SOURCE_FOR_STATIC03_ONLY and actual source/test/plan/wrapper/tool pins and retention/writer allocation, then deliberately invoke once. No current/ROOT CONTROL role/ref/context/clock authority from this metadata.",
+  "source_commit": "ROOT records clean fixed-source commit separately; exact source bytes pinned",
+  "no_action": true
+}
