@@ -1,0 +1,20 @@
+{
+  "DATA_bound_fixture": {
+    "old": "        raw = self.fixture(strsz=70000)\n        row, _, reads = self.observe(raw, target='cc1')\n        self.assertEqual(row['reason'], 'ELFStringTableBound')\n        diagnostic = self.partial(row, raw, 'STABLE_IDENTITY')\n        self.assertEqual(diagnostic['dynamic']['strsz'], 70000)",
+    "new": "        raw = self.fixture(strsz=67108865)\n        row, _, reads = self.observe(raw, target='cc1')\n        self.assertEqual(row['reason'], 'ELFStringTableBound')\n        diagnostic = self.partial(row, raw, 'STABLE_IDENTITY')\n        self.assertEqual(diagnostic['dynamic']['strsz'], 67108865)",
+    "reason": "Old70000 whole-copy refusal remains immutable historical source/raw; new explicit logical<=64MiB policy uses67108865 to preserve logical-cap rejection before mapping/read. No silent old guard preservation claim."
+  },
+  "AST_policy": "elf_string_table_offset AST pin is deliberately retired for this additional reviewed admission amendment; canonical elf_string_data+global check AST remain exact. Existing12AST methods conserved in count; baseline109/new117 conservation changes explicit.",
+  "test_postimages": {
+    "test_current_test_qualification.py": {
+      "path": "/tmp/wordling-wp108-test-prep/STATIC03-design/test_current_test_qualification.py.draft",
+      "size": 44823,
+      "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+    },
+    "test_current_test_qualification_contract.py": {
+      "path": "/tmp/wordling-wp108-test-prep/STATIC03-design/test_current_test_qualification_contract.py.draft",
+      "size": 13026,
+      "sha256": "53f12d42acbcc8d747c9a8c082f0f2257b7686dea06ca287b4fe8711dc1c09de"
+    }
+  }
+}

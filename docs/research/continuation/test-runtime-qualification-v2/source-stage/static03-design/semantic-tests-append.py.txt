@@ -1,0 +1,110 @@
+
+
+class Static03StringTableDataTests(unittest.TestCase):
+    """Unaccepted synthetic metadata, never physical BASE/cc1 input or a role."""
+    @classmethod
+    def setUpClass(cls):
+        cls.c = canonical_current_data()
+        import struct
+        cls.struct = struct
+
+    def row(self, address, offset, size, memory=None):
+        return dict(kind=1, flags=4, address=address, offset=offset, size=size,
+            memory=size if memory is None else memory)
+
+    def checked_offset(self, programs, address, size):
+        try:
+            return self.c.elf_string_table_offset(programs, address, size)
+        except self.c.Incomplete as error:
+            self.fail('STATIC03_CANONICAL_CONTIGUOUS_FILE_COVERAGE_REQUIRED:' + str(error))
+
+    def test_recorded_adjacent_filebacked_union_reaches_canonical_mapping(self):
+        # Literal integer DATA from the independently preserved STATIC02 report;
+        # expected1496 is VA4191704 minus recorded common bias4190208.
+        programs = [self.row(4190208, 0, 4096), self.row(4194304, 4096, 134512)]
+        self.assertEqual(self.checked_offset(programs, 4191704, 42266), 1496)
+
+    def test_recorded_large_cc1_logical_table_is_not_a_whole_copy_request(self):
+        programs = [self.row(4194304, 0, 2135512)]
+        self.assertEqual(self.checked_offset(programs, 5062960, 1199001), 868656)
+
+    def test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant(self):
+        # Six logical DATA cases, charged separately in the command manifest.
+        cases = [
+            ('VA_GAP', [self.row(100, 0, 16), self.row(117, 17, 32)], 108, 20),
+            ('FILE_GAP_BIAS_CHANGE', [self.row(100, 0, 16), self.row(116, 17, 32)], 108, 20),
+            ('PARTIAL_CONFLICTING_OVERLAP', [self.row(100, 0, 40), self.row(116, 200, 32)], 108, 20),
+            ('PARTIAL_IDENTICAL_BIAS_OVERLAP', [self.row(100, 0, 40), self.row(116, 16, 32)], 108, 20),
+            ('MEMSZ_ONLY_TAIL', [self.row(100, 0, 16, memory=64)], 108, 20),
+            ('ELF64_NONWRAP', [self.row(2**64 - 4, 0, 16)], 2**64 - 2, 8),
+        ]
+        for name, programs, address, size in cases:
+            with self.subTest(logical_DATA_case=name):
+                with self.assertRaises(self.c.Incomplete):
+                    self.c.elf_string_table_offset(programs, address, size)
+        # Existing StaticReaderDataTests retains duplicate/identical-overlap
+        # refusal. None of those old negatives is removed or relabeled positive.
+
+    def sparse_elf(self, relative=1000000, raw_string=None):
+        # A sparse byte-reply fixture: no1199001-byte table is allocated or read.
+        table_size, file_size, table_offset = 1199001, 2200000, 400
+        if raw_string is None:
+            raw_string = b'libOK.so\0' + b'X' * (4096 - 9)
+        header = self.struct.pack('<16sHHIQQQIHHHHHH', b'\x7fELF\x02\x01\x01' + b'\0' * 9,
+            3, 62, 1, 0, 64, 0, 0, 64, 56, 2, 0, 0, 0)
+        programs = (self.struct.pack('<IIQQQQQQ', 1, 4, 0, 4096, 0, file_size, file_size, 1)
+            + self.struct.pack('<IIQQQQQQ', 2, 4, 256, 0, 0, 64, 64, 1))
+        dynamic = self.struct.pack('<qQqQqQqQ', 5, 4096 + table_offset, 10, table_size, 1, relative, 0, 0)
+        replies = {(0, 64): header, (64, 112): programs, (256, 64): dynamic}
+        reads = []
+        def pread(fd, count, position):
+            self.assertEqual(fd, 99)
+            self.assertLessEqual(count, 4096, 'WHOLE_LOGICAL_TABLE_COPY_FORBIDDEN')
+            reads.append((position, count))
+            if (position, count) in replies:
+                return replies[(position, count)]
+            self.assertEqual(position, table_offset + relative)
+            self.assertLess(relative, table_size, 'OUTSIDE_LOGICAL_TABLE_READ')
+            self.assertEqual(count, min(4096, table_size - relative))
+            self.assertGreaterEqual(len(raw_string), count)
+            return raw_string[:count]
+        root = Path(__file__).absolute().parents[5]
+        plan = self.c.static_plan_bytes_data((root / self.c._PLAN_REL).read_bytes())
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0):
+            inv = self.c._StaticInventory(plan, 0)
+        return inv, pread, reads, file_size
+
+    def parse_sparse(self, relative=1000000, raw_string=None):
+        inv, pread, reads, size = self.sparse_elf(relative, raw_string)
+        diagnostic = {}
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(self.c.os, 'open', side_effect=AssertionError('UNEXPECTED_PUBLIC_OPEN')), \
+             mock.patch.object(self.c.os, 'pread', side_effect=pread):
+            result = inv.elf(99, '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12', size, diagnostic)
+        return result, reads, inv, diagnostic
+
+    def test_large_logical_table_fetches_only_referenced_string_window(self):
+        try:
+            result, reads, inv, diagnostic = self.parse_sparse()
+        except self.c.Incomplete as error:
+            self.fail('STATIC03_REFERENCED_WINDOW_REQUIRED:' + str(error))
+        self.assertEqual(result['needed'], ['libOK.so'])
+        self.assertEqual(reads, [(0, 64), (64, 112), (256, 64), (1000400, 4096)])
+        self.assertEqual(inv.actual, 4336)
+        self.assertTrue(diagnostic['strtab_read_performed'])
+
+    def test_suffix_window_stops_at_logical_table_end(self):
+        try:
+            result, reads, _, _ = self.parse_sparse(relative=1198997, raw_string=b'a\0xx')
+        except self.c.Incomplete as error:
+            self.fail('STATIC03_SUFFIX_WINDOW_REQUIRED:' + str(error))
+        self.assertEqual(result['needed'], ['a'])
+        self.assertEqual(reads[-1], (1199397, 4))
+
+    def test_missing_nul_is_refused_inside_canonical_4096_window(self):
+        with self.assertRaisesRegex(self.c.Incomplete, '^ELFStringTerminator$'):
+            self.parse_sparse(raw_string=b'A' * 4096)
+
+    def test_string_offset_at_table_end_refused_before_window_read(self):
+        with self.assertRaisesRegex(self.c.Incomplete, '^ELFStringOffset$'):
+            self.parse_sparse(relative=1199001)

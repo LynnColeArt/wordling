@@ -1,0 +1,140 @@
+{
+  "schema": "wordling.wp108-STATIC03-admission-roster-design/v1",
+  "status": "SCRATCH_ONLY_NO_PRODUCT_PROTOTYPE_IMPORT_TEST_OR_PUBLIC_LOOKUP",
+  "source_head": "37733bc8ae395ea1842526965e3824c4dbe5149a",
+  "source": {
+    "path": "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "size": 29015,
+    "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+  },
+  "observed_inputs": [
+    {
+      "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC02/stdout.raw",
+      "size": 46819,
+      "sha256": "a3abfc566dcc28550daf908523ff8bb8f073d78e00eb84eceb4db92f8a28a640"
+    },
+    {
+      "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC02-analysis.json",
+      "size": 20652,
+      "sha256": "4da6983760b2cc4b573c539769bc013a5e77d5d603728e2b19ba1134377d00a0"
+    },
+    {
+      "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC02/process.json",
+      "size": 4319,
+      "sha256": "2ce1fd2a8e47f84c54e0575c4915febd7c50a6db7a5ed50b241c967a4c783164"
+    }
+  ],
+  "observed_layouts": [
+    {
+      "name": "BASE",
+      "stream_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "VA": 4191704,
+      "size": 42266,
+      "VA_end": 4233970,
+      "segments": [
+        {
+          "VA": 4190208,
+          "size": 4096,
+          "file_offset": 0
+        },
+        {
+          "VA": 4194304,
+          "size": 134512,
+          "file_offset": 4096
+        }
+      ],
+      "common_bias": 4190208,
+      "expected_file_range": [
+        1496,
+        43762
+      ]
+    },
+    {
+      "name": "cc1",
+      "stream_sha256": "5d1679131184e2de4435b426eb264bf13472fe026db8e5c6bc97445814e8e2f4",
+      "VA": 5062960,
+      "size": 1199001,
+      "VA_end": 6261961,
+      "segment": {
+        "VA": 4194304,
+        "size": 2135512,
+        "file_offset": 0
+      },
+      "expected_file_range": [
+        868656,
+        2067657
+      ]
+    }
+  ],
+  "canonical_API": "elf_string_table_offset(programs,address,size,*,diagnostic=None)->int file_offset; existing3pos remains valid. New optional diagnostic DATA only after source implementation. Existing actual elf()/pread()/elf_string_data APIs retained. The unchanged old3pos call is the initial genuine RED target.",
+  "new_mapping_policy": [
+    "Strict integer uint64 fields and checked nonwrapping VA/file endpoints; logical table0<size<=67108864. Canonical production programs are already file-interval-checked against actual file_size by elf_program_data.",
+    "Collect ALL nonempty PT_LOAD file-backed intervals intersecting the requested VA range (<=64). Memory-only p_memsz contributes no bytes. Sort bounded relevant intervals by VA solely to prove coverage; do not stop after one whole match or after first apparent complete coverage.",
+    "Every requested VA byte must be covered exactly once. Refuse zero coverage, holes, any intersecting overlap (identical or conflicting), including a partial second mapping when another segment covers the whole request. No identical-overlap admission is proposed.",
+    "Adjacent intersections must retain identical VA-file bias and contiguous actual file offsets. Prove whole requested VA range maps to one continuous file interval. Caller checks offset>=0 and size<=actual_file_size-offset before reading any referenced string.",
+    "Only then return first file offset. No first-match acceptance, section-header fallback, p_memsz substitution, relocation/load-base guess or forcing BASE qualified.",
+    "Canonical elf_string_table_offset remains the ONE mapping acceptance implementation and emits bounded diagnostic DATA itself. Remove old report-only duplicated mapping predicate from elf(); do not add an alternate validator. Failed overlap/zero diagnostics retain MULTIPLE/ZERO compatible negative states."
+  ],
+  "string_policy": {
+    "logical_table_cap": 67108864,
+    "whole_logical_table_allocation_or_read": false,
+    "referenced_tags": [
+      1,
+      14,
+      15,
+      29
+    ],
+    "max_references": 131,
+    "window": "For each strict0<=offset<DT_STRSZ, read exactly min(4096, DT_STRSZ-offset) bytes at proved_file_table_offset+offset; no table-prefix/suffix read beyond bounds. Then actual unchanged canonical elf_string_data(window,0).",
+    "max_window": 4096,
+    "canonical_raw_buffer_cap_unchanged": 65536,
+    "NUL_bound_unchanged": 4096,
+    "max_metadata_upper_calculation": "64header+4096phdr+65536dynamic+4096interp+131*4096string=610368 <1048576; every actual read charged to existing perfile/aggregate counters",
+    "no_window_before_whole_file_coverage": true
+  },
+  "diagnostic_and_partial_scope": "Exact two-name BASE/cc1 set, literal mirror, stable/unstable identity rules and completed-vs-partial graph eligibility unchanged. Mapping diagnostic now describes the same canonical interval proof; no guessed target/reference/context.",
+  "plan": {
+    "path": "/tmp/wordling-wp108-test-prep/STATIC03-design/static03-reader-plan.json",
+    "size": 24976,
+    "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+  },
+  "new_roster": {
+    "exact_alias_targets_from_STATIC02": [
+      "/usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0",
+      "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0.0.0",
+      "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8.0.1",
+      "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.5",
+      "/usr/lib/x86_64-linux-gnu/libctf.so.0.0.0",
+      "/usr/lib/x86_64-linux-gnu/libjansson.so.4.14.0"
+    ],
+    "new_unverified_SONAME_hypothesis": "/usr/lib/x86_64-linux-gnu/libsframe.so.1",
+    "typed_added": 8,
+    "total117": 117,
+    "new_ancestors": 0,
+    "new_aliases": 1,
+    "new_ELF_seeds": 7,
+    "no_Tcl_guess": true
+  },
+  "missing_hypotheses": "All old109 kept, including absent system Tcl9 paths and wrong oldcollect2 name; absentwrong hypotheses remain INCOMPLETE observations, not required valid actual-role inputs. Future needed-role vs wrong/unneeded classification requires explicit independently accepted binding; none is implemented here.",
+  "unchanged": "All global caps incl38912/30s+2/AS160MiB/FD32/nproc0/chunk65536/file64MiB/read256MiB/ELF1MiB/metadata16MiB/JSON262144; graph/path/cleanup/current-context/blocked ops/helpers/contracts unchanged. This explicit logical-table admission change is not called AST preservation of oldmapping/wholecopyguard.",
+  "future_gates": "Independent design/test/command approval -> ROOT quiet exacttest/planDATA adoption -> existing-source positive +one canonical adjacency semanticRED -> actual observed test-onlyRED commit -> narrow source implementation -> bounded postsource/full60 tests +actual source-valid mutants/controls -> fixed reader/test/plan/wrapper/source safety independent review -> ROOT deliberate STATIC03 once. Source/role/reference/coordinator/capture/writer/jointmemory/clock closure remains pending.",
+  "retention": "ROOT amendment87348bf3 bounds existing retained evidence1024files/512MiB, actual546files after STATIC02; immediate family35/64used. New proposal does not allocate operational192future docs or grant writers/capture permission; source/preflight/receipts/mutant writers must still be explicitly counted on adoption.",
+  "ABI_sources": [
+    {
+      "url": "https://gabi.xinuos.com/elf/07-pheader.html",
+      "supports": "p_offset/p_vaddr/p_filesz define file-backed segment bytes; p_memsz-only tail is not file bytes."
+    },
+    {
+      "url": "https://gabi.xinuos.com/elf/08-dynamic.html",
+      "supports": "DT_STRTAB d_ptr is virtual address; DT_STRSZ d_val gives table byte count; referenced names are offsets into table. Inference: full unambiguous adjacent same-bias file coverage can be proven without copying the logical table."
+    }
+  ],
+  "actual_actions": {
+    "primary_index_writes": false,
+    "production_prototype": false,
+    "imports_or_tests": false,
+    "public_assets_read": false,
+    "accepted_reference_or_role": false,
+    "campaign_clock": false
+  }
+}
