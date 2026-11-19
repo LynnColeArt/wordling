@@ -765,5 +765,148 @@ class Static03StringTableDataTests(unittest.TestCase):
             self.parse_sparse(relative=1199001)
 
 
+
+
+class Static04InterpreterGraphDataTests(unittest.TestCase):
+    """Pure graph DATA fixtures only: no observed file, actor or live context.
+
+    Uses the existing canonical run()/graph API for initial semantic RED. The
+    mocked item rows are metadata inputs, never a forged Preparation/Case/role.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.c = canonical_current_data()
+
+    def observed(self, scenario='ALIAS', reverse=False):
+        import copy
+        root = Path(__file__).absolute().parents[5]
+        plan = self.c.static_plan_bytes_data((root / self.c._PLAN_REL).read_bytes())
+        source = '/usr/bin/python3.12'
+        logical = '/lib64/ld-linux-x86-64.so.2'
+        target = '/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2'
+        alternate_alias = '/usr/lib64/ld-linux-x86-64.so.2'
+        alternate_seed = '/usr/lib/x86_64-linux-gnu/libm.so.6'
+        def elf(path, interpreter=None):
+            return dict(kind='ELF_seed', path=path, resolved=path, aliases=[],
+                mode=0o755, uid=0, gid=0, size=256, sha256='1' * 64,
+                status='OBSERVED_UNACCEPTED_METADATA', ELF=dict(kind=3, machine=62,
+                    program_headers=1, interpreter=interpreter, needed=[], soname=None, rpath=None, runpath=None))
+        source_row = elf(source, target if scenario == 'DIRECT' else logical)
+        target_row = elf(target)
+        alias_row = dict(kind='alias', path=logical, resolved=target, mode=0o755, uid=0, gid=0,
+            status='OBSERVED_UNACCEPTED_METADATA', aliases=[dict(logical=logical,
+                text=target, target=target, mode=0o777, uid=0, gid=0)])
+        rowmap = {('ELF_seed', source): source_row, ('ELF_seed', target): target_row,
+                  ('alias', logical): alias_row}
+        if scenario.startswith('ALIAS_BAD_'):
+            bad = scenario.removeprefix('ALIAS_BAD_')
+            if bad == 'MISSING':
+                rowmap.pop(('alias', logical))
+            elif bad == 'MALFORMED':
+                alias_row['resolved'] = 12
+            else:
+                alias_row['status'] = bad
+                if bad == 'INCOMPLETE':
+                    alias_row['file_observation'] = dict(stability='UNSTABLE_IDENTITY')
+        if scenario.startswith('TARGET_BAD_'):
+            bad = scenario.removeprefix('TARGET_BAD_')
+            if bad == 'MISSING':
+                rowmap.pop(('ELF_seed', target))
+            elif bad == 'MALFORMED':
+                target_row['sha256'] = 'NOT_A_CANONICAL_DIGEST'
+            else:
+                target_row['status'] = bad
+                if bad == 'INCOMPLETE':
+                    target_row['file_observation'] = dict(stability='UNSTABLE_IDENTITY')
+        if scenario == 'DUPLICATE_ALIAS':
+            other = copy.deepcopy(alias_row)
+            other['status'] = 'INCOMPLETE'
+            other['file_observation'] = dict(stability='UNSTABLE_IDENTITY')
+            if reverse:
+                rowmap[('alias', logical)] = other
+                rowmap[('alias', alternate_alias)] = alias_row
+            else:
+                rowmap[('alias', alternate_alias)] = other
+        if scenario in ('DUPLICATE_TARGET', 'PARTIAL_DUPLICATE_TARGET'):
+            other = copy.deepcopy(target_row)
+            other['sha256'] = '2' * 64
+            if scenario == 'PARTIAL_DUPLICATE_TARGET':
+                other['status'] = 'INCOMPLETE'
+                other['file_observation'] = dict(stability='UNSTABLE_IDENTITY')
+            if reverse:
+                rowmap[('ELF_seed', target)] = other
+                rowmap[('ELF_seed', alternate_seed)] = target_row
+            else:
+                rowmap[('ELF_seed', alternate_seed)] = other
+        if scenario == 'UNLISTED_ALIAS':
+            source_row['ELF']['interpreter'] = '/DATA/UNLISTED_LOADER'
+            alias_row['path'] = '/DATA/UNLISTED_LOADER'
+        if scenario == 'MALFORMED_SOURCE':
+            source_row['sha256'] = 'NOT_A_CANONICAL_DIGEST'
+        def item(entry):
+            return copy.deepcopy(rowmap.get((entry['kind'], entry['path']),
+                dict(**entry, status='INCOMPLETE', reason='SYNTHETIC_UNUSED_DATA_ONLY')))
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0):
+            inventory = self.c._StaticInventory(plan, 0)
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(inventory, 'item', side_effect=item), \
+             mock.patch.object(self.c.os, 'open', side_effect=AssertionError('GRAPH_PUBLIC_OPEN')), \
+             mock.patch.object(self.c.os, 'stat', side_effect=AssertionError('GRAPH_PUBLIC_STAT')), \
+             mock.patch.object(self.c.os, 'readlink', side_effect=AssertionError('GRAPH_PUBLIC_READLINK')):
+            result = inventory.run()
+        edges = [row for row in result['graph'] if row.get('source') == source and 'interpreter' in row]
+        self.assertFalse(result['permission_granted'])
+        self.assertFalse(result['reference_qualification'])
+        self.assertFalse(result['current_context_created'])
+        return edges, target
+
+    def refused(self, scenario, reverse=False):
+        edges, _ = self.observed(scenario, reverse)
+        self.assertEqual(len(edges), 1)
+        self.assertIsNone(edges[0]['target'])
+        self.assertTrue(edges[0]['status'].startswith('INCOMPLETE'))
+        self.assertFalse(edges[0].get('permission_granted', False))
+
+    def test_existing_direct_safe_seed_control(self):
+        edges, _ = self.observed('DIRECT')
+        self.assertFalse(any(row['status'].startswith('INCOMPLETE') for row in edges))
+
+    def test_existing_run_graph_resolves_only_completed_declared_alias_metadata(self):
+        edges, target = self.observed()
+        self.assertEqual(len(edges), 1)
+        self.assertEqual(edges[0]['target'], target, 'STATIC04_SAFE_OBSERVED_ALIAS_GRAPH_REQUIRED')
+        self.assertEqual(edges[0]['status'], 'DECLARED_UNACCEPTED_DATA')
+        self.assertFalse(edges[0]['permission_granted'])
+        self.assertFalse(edges[0]['reference_qualification'])
+        self.assertFalse(edges[0]['current_context_created'])
+        self.assertFalse(self.c._actual_context(edges[0]))
+
+    def test_alias_zero_partial_foreign_receipt_and_malformed_refuse(self):
+        for status in ('MISSING', 'INCOMPLETE', 'UNACCEPTED_VALIDATOR_DATA', 'MALFORMED'):
+            with self.subTest(DATA_variant=status):
+                self.refused('ALIAS_BAD_' + status)
+
+    def test_target_zero_partial_foreign_receipt_and_malformed_refuse(self):
+        for status in ('MISSING', 'INCOMPLETE', 'UNACCEPTED_VALIDATOR_DATA', 'MALFORMED'):
+            with self.subTest(DATA_variant=status):
+                self.refused('TARGET_BAD_' + status)
+
+    def test_alias_ambiguity_refuses_partial_duplicate_in_both_orders(self):
+        for reverse in (False, True):
+            with self.subTest(DATA_variant='partial_first' if reverse else 'partial_last'):
+                self.refused('DUPLICATE_ALIAS', reverse)
+
+    def test_target_ambiguity_refuses_complete_and_partial_duplicates(self):
+        self.refused('DUPLICATE_TARGET')
+        for reverse in (False, True):
+            with self.subTest(DATA_variant='partial_first' if reverse else 'partial_last'):
+                self.refused('PARTIAL_DUPLICATE_TARGET', reverse)
+
+    def test_unlisted_alias_and_malformed_source_refuse_without_lookup(self):
+        for scenario in ('UNLISTED_ALIAS', 'MALFORMED_SOURCE'):
+            with self.subTest(DATA_variant=scenario):
+                self.refused(scenario)
+
+
 if __name__ == "__main__":
     unittest.main()

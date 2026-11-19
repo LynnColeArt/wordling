@@ -122,7 +122,7 @@ class StaticReaderStructuralTests(unittest.TestCase):
 
 
 
-STATIC03_CONSERVED_AST_PINS = [('elf_string_data', None, 'd829a5c3e103562330b3518cfad64ea799f081578e68719eb3b4bd1fcad16eb8'), ('check', '_StaticInventory', '92ed826fa3f27fe64bd3a15892020e4a3e3ad4f12ad786130511b26fd6978b00')]
+STATIC04_CONSERVED_AST_PINS = [('elf_string_table_offset', None, '764efeeb4879dcf29a594e68906906ba86acbfec6324b105d04d36270a194e28'), ('elf_string_data', None, 'd829a5c3e103562330b3518cfad64ea799f081578e68719eb3b4bd1fcad16eb8'), ('check', '_StaticInventory', '92ed826fa3f27fe64bd3a15892020e4a3e3ad4f12ad786130511b26fd6978b00')]
 
 
 class Static02PlanStructuralTests(unittest.TestCase):
@@ -130,17 +130,17 @@ class Static02PlanStructuralTests(unittest.TestCase):
     def plans(self):
         import json
         root = Path(__file__).absolute().parents[5]
-        old = json.loads((root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json').read_text())
-        new = json.loads((root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json').read_text())
+        old = json.loads((root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json').read_text())
+        new = json.loads((root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json').read_text())
         return old, new
 
-    def test_all_old_109_typed_items_retained_in_relative_order(self):
+    def test_all_old_117_typed_items_retained_in_relative_order(self):
         old, new = self.plans()
         def tuples(plan):
             return [(r['kind'], r['path']) for r in plan['fixed_item_order']]
         before, after = tuples(old), tuples(new)
-        self.assertEqual(len(before), 109)
-        self.assertEqual(len(after), 117)
+        self.assertEqual(len(before), 117)
+        self.assertEqual(len(after), 135)
         positions = [after.index(item) for item in before]
         self.assertEqual(positions, sorted(positions))
         self.assertEqual(len(after), len(set(after)))
@@ -162,7 +162,7 @@ class Static02PlanStructuralTests(unittest.TestCase):
     def test_window_string_decoder_and_operation_ceiling_source_bodies_conserved(self):
         # Exact AST SHA values below come from fixed bc83 source, not postimage.
         tree = source_tree('current_test_qualification.py')
-        for name, owner, wanted in STATIC03_CONSERVED_AST_PINS:
+        for name, owner, wanted in STATIC04_CONSERVED_AST_PINS:
             node = function(tree, name, owner)
             self.assertEqual(hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest(), wanted)
 
