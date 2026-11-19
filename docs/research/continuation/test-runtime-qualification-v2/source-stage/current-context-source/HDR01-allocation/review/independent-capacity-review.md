@@ -1,0 +1,68 @@
+# WP108 HDR01 exact source/writer/resource review
+
+Reviewer Renata; normal audit Op `01M7S9CDNR4Z7HSYF8JWGJ533C`, governance `9cc878b18c35b303`. Static named-source/data inspection only. No source import/evaluation/test, compiler/probe, public runtime read, new inventory, Git/CLI/lifecycle mutation or application launch. Op stays OPEN. Existing source769 is source-only; current finite-case edits are not reviewed here.
+
+## Disposition
+
+**ACCEPT the exact14-path retention allocation and the minimal canonical HDR01/REF01 routing design, for dormant source implementation only.** Proposal SHA `6611b279fcedaf7174b444aebac79d2dd95f952f548da41f5950285d26aec34a` (7482 bytes): eight new runtime paths plus six explicit allocation metadata paths, +19,292,160 reserved bytes; retention1229->1243, runtime197->205; conservative337,854,468 <536,870,912 bytes. No unassigned slots. Conditional OTHER<=2491files/1,928,265,728bytes; measure actual normal Op/task/event holdings before admission. Default17class ceilings/intrinsic4GiB10240/candidate1024/64logical16OS/1200s stay unchanged. This supersedes only the unfunded two-raw-file possibility; no old history/path is pruned or overwritten.
+
+**Operational/source-seed closure remains NOT ACCEPTED.** One consolidated prospective source/resource packet described below must be independently accepted before the FIRST genuine reference/tool capture or qualification clock. Do not run partial REF01 while known HDR/compiler prerequisites remain unresolved. Allocation/source-design acceptance is not approval of future implementation, test commands, expected inputs, live context, runtime receipt or WP108.
+
+## Exact canonical HDR01 map
+
+One genuine `_ReferenceOwner`, fixed label HDR01, current reference state, fixed source binding, same retained group owner, `_capture_command` and private `_RunCapture`/`_consume_tool_origins`. Admit the exact variant before creating pipes or allocating writers; all other reference tool labels/argv remain refused. No duck Preparation/new capture loop/alternate validator/supervisor.
+
+Logical argv is exactly `/usr/bin/cc -std=c11 -O2 -static -Wall -Wextra -Werror -E -dD -v -H /home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/harmless_fixture.c`. Frozen C bytes remain unchanged. Fixed reference cwd and env only: PATH=/usr/bin:/bin, HOME=reference/home, LANG=LC_ALL=C.UTF-8, PYTHONDONTWRITEBYTECODE=1. No inherited CPATH/C_INCLUDE_PATH/GCC_EXEC_PREFIX/COMPILER_PATH/specs/plugin/preload/path changes. Preserve exact logical alias/text/rights and resolved compiler pin. `-E` is preprocessing; it creates no new fixture executable and does not replace the two actual preparation compile stages.
+
+| New runtime path under reference/HDR01/ | Class | Reserved bytes |
+|---|---|---:|
+| command.json | pair | 65536 |
+| process.json | pair | 65536 |
+| stdout.raw | construction_raw | 262144 |
+| stderr.raw | construction_raw | 16384 |
+| trace.raw | construction_raw | 262144 |
+| stdout-summary.raw | construction_raw | 8192 |
+| origins.json | origin | 16777216 |
+| transient-data.json | transient | 1048576 |
+
+Runtime reserve is18,505,728bytes; six131072-byte metadata paths add786432, total19,292,160. Independently enforce stdout262144, stderr16384, trace262144 and shared live raw540672 *before retention*. Summary is separately generated <=8192 and must not duplicate full macro/header output. Generic supervisor channels stay<=32768. Any raw/record/summary/unknown-origin overflow or bad framing is a preserved failure, never truncation accepted as success or an automatic retry. Trace memory parsing retains existing16384records/256actors/32unfinished guards, not a larger transport bound.
+
+The existing preparation layout has flat `.command.json/.whole.json/.stdout/.stderr/.trace/.origins.json/.transient-data.json`; the proposed reference layout is nested. Currently `_consume_tool_origins` derives flat origin/transient names, and `_capture_command` registers flat trace paths. Select ONE exact source-owned HDR layout and carry its exact trace/origin/transient bindings in the private capture facts into that same consumer. Preserve ordinary Preparation paths/guards and ownership checks. Private facts remain actual-capture identity, never reconstructable JSON authority. Refuse wrong label/path/owner before effects.
+
+Keep the command deadline active through trace parsing/origin validation, not only until Popen EOF. Currently idle notice precedes semantic consumption; for HDR do not let it clear the earlier active deadline while parsing, hashing inputs or writing origins. All semantic/read/write work plus cleanup must fit its frozen nested reference allocation and immutable whole end. If the proposal chooses <=30s including2s cleanup, execute/validate by the earlier28s end and keep cleanup inside30; no renewed per-stage clock. Retained task's general limit remains30s+2s cleanup. Reference remains<=300s, whole<=1200s. Source-bound parser/read work is finite; parent watchdog/owner remains responsible for bounded cleanup.
+
+REF02 remains a truthful NONEXECUTING_SOURCE_CHECK. HDR01 is the one additional real tool parameter variant; count it once in the exact36logical/16OS proposal and count its tracer/driver/preprocessor descendants in the process map. There is no spare OS variant, free preclock compiler probe, or hidden replay.
+
+## REF01 exact no-clobber route accepted
+
+Stream the original valid-JSON probe stdout once to ALREADY FUNDED `reference/base-observation.json` with its origin262144 reservation. Existing REF01/stdout-summary.raw<=8192 receives only generated raw-pin/status summary; existing stderr.raw stays16384. Bounded-decode the same actual raw payload, require one complete valid observation, call `compare_observation`, and omit the later `budget.document(base-observation.json,...)` rewrite. Seal the exact original raw JSON bytes. A `.json` filename does not authorize double writing or normalizing output. No new writer is needed.
+
+Do not forward/print the full observation or compiler output into supervisor stdout. No extra full observation tree/raw copy is free: settle captured bytearray/returned bytes/decoder text/tree lifetimes explicitly. A single bounded bytearray converted to returned immutable bytes is still temporarily two buffers and must be included in the existing working allowance. The fixed reference owner currently uses output_cap24576; its exact REF01 and HDR caps must be selected by source, not by caller-supplied arbitrary caps. Use the one canonical engine.
+
+## Exact memory contract and finite native envelope
+
+The task's literal T352 bound is **“decoded/trace owned memory<=160MiB.”** Retained design `joint_memory.schedule` says the child expected decode is<=44MiB, the existing trace allocation formula already includes that expected charge, and **“Current earlier arena159MiB +parent1MiB <=160MiB.”** It separately says **“Native/process descendant peak/FD/census/source proof still needs exact source closure; RSSmeasure alone not upperbound or authority.”**
+
+Accordingly, this review does NOT invent aggregate native RSS/AS<=160MiB. My preliminary message suggesting the trace-formula slack was the only permissible native-memory allowance was an inference; it is corrected here. The160MiB contract covers the stated joint owned decode/trace accounting. A complete separately bounded native process/AS/FD/concurrency/source envelope is also required. It must be stated explicitly rather than claimed from AS/RSS or left unbounded; it is not automatically the same160MiB number.
+
+For trace bytes t=262144 and records n=16384, canonical `_trace_allocation_bound` computes:
+
+`t +2048*n +8*t +16*(t//3) +524288 +46137344 +8388608 +16777216 +1048576 =110,187,856 bytes`.
+
+It compares current child accounting with166,723,584bytes (159MiB), leaving56,535,728bytes *within that child accounting*. Parent allowance1MiB gives111,236,432bytes of this owned bound, below160MiB. This formula already includes the expected44MiB map and8MiB working allowance; never add a second expected map or retain source-builder/census decode into this phase. Raw540672 plus trace read/decode, origin/transient structures, return/summary buffers and header/macro interpretation must be explicitly placed within the existing terms, not assumed free.16MiB origin and1MiB transient are writer limits and formula terms, not permission to allocate extra complete JSON strings; canonical streaming JSON remains in use.
+
+The canonical current group child has inherited AS166723584/NOFILE32; `_capture_command` only sets per-file FSIZE. Thus strace/compiler descendants inherit per-process limits, not an aggregate limit. A smallest prospective HDR native-role graph is strace + compiler driver + one cc1 preprocessing worker, with no assembler/linker because-E; **that graph is a reviewable inference, not independently established fact in the named retained inputs**. If the exact accepted compiler/specs/argv proves at most those three concurrent native processes, their conservative inherited native AS envelope is3*166723584=500,170,752bytes, separately stated. Do not call that actual RSS or subtract it from160MiB. If additional wrappers/children are possible, include them and compute the finite simultaneous envelope instead. The parser's256actor table and supervisor's256-entry census are observation/refusal bounds, not proactive proof that only256 processes can ever be created. AS caps alone also prove neither child count nor input closure. Existing preparation pip/gcc trees need the same separately closed resource treatment; do not single out HDR with an invented new aggregate cap.
+
+Freeze owned FD roles/peaks (root channel/pidfd/control pipe, three raw files, trace pipe, stdout/stderr/Popen error pipes/selector and temporary input handles), inherited NOFILE32 and source-defined process/FD lifetimes. All same-group/native tasks remain under the original retained supervisor/subreaper/census/leader-last cleanup. No raw PID/hash/JSON owner, external process or alternate signaling authority is introduced.
+
+## One consolidated preclock source/resource closure obligation
+
+A single finite prospective packet must bind all the following using existing captured facts where sufficient, and declare any exact remaining fixed SOURCE reads before doing them. This is not a request for serial broad inventories or new architecture:
+
+1. **Five independent seed inputs and source identities.** Freeze exact expected-inputs.gz/source-binding/capacity/tool-selection/reference-roots bytes, all role projections and exact current four helper/source/Git/provider pins; independently accept them before live source acceptance. JSON closure booleans and poststartup hashes are evidence, never actor/source authority. Measure actual OTHER and preserve all1243 retained/reserved purposes.
+2. **Compiler/tracer/native role graph.** Exact logical/resolved cc alias chain and rights, tracer/compiler/cc1 byte pins, all required loaders/dependencies/mapped data, specs/config/search roots and fixed C/header inputs; source-owned process/concurrency/per-process-AS/FD/IO/work envelope including normal packaging descendants. Resolve or explicitly refuse unexpected successful exec/open before accepting evidence. Five native alias targets previously observed are SOURCE facts, not runtime acceptance. Do not run ldd on unreviewed input.
+3. **Conditional headers.** The four earlier tokens machine/ansi.h, sys/_types.h, gnu/stubs-32.h and gnu/stubs-x32.h remain conditional UNKNOWN from earlier SOURCE analysis, not automatic required failures or proof of absence. Bind the actual target/macros/search configuration prospectively. HDR's bounded -E/-dD/-v/-H outputs can witness active macro/header choices only after its executable/input/resource plan is closed; it cannot retroactively authorize an unreviewed input it already used. Unknown active required input or successful unclassified origin stops for independent review. No automatic follow/adoption of all external metadata links.
+4. **Normal startup.** Accept actual BASE/system site.py behavior, exact .pth root membership/bytes, sitecustomize/apport and opaque cache roles using retained SOURCE02/03 facts. SOURCE03 proves the569-byte matplotlib nspkg hook and regular mpl_toolkits directory metadata, not a complete namespace loader selection by itself. That hook calls PathFinder.find_spec/module_from_spec and adjusts __path__; use retained complete membership/loader facts if available, otherwise the exact missing namespace/loader fact stays UNKNOWN. No input execution, cache equivalence, candidate-runtime promotion or poststartup hash authentication follows from reading its source. System TOOL startup and BASE runtime roles remain distinct.
+5. **Transport/clock/expected cost.** Freeze this one HDR raw/summary/trace layout, REF01 single raw JSON writer, record/trace/decode/read/IO peaks and deadlines, semantic-consumer bindings and complete36/16 variant map; preserve source-refusal limits, owner cleanup and unknown/failure receipts. External terminfo/man/pkgconfig/libpython metadata targets may remain exact NONEXECUTED/UNKNOWN only with reviewed role/access refusal; lack of DT_NEEDED alone is not proof no dynamic access occurs.
+
+This is a precise remaining source acceptance obligation. Dormant implementation and its two already-funded final source replays can proceed only through their separately authorized final command/custody plan. None of this review claims compiler output/header closure, source-seed acceptance, genuine reference/current context, Preparation/TEST/P, qualification clock, historical188/original/Mac parity or WP/Mission completion.
