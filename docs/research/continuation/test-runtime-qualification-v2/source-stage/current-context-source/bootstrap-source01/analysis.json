@@ -1,0 +1,64 @@
+{
+  "schema": "wordling.wp108-bootstrap-source01-actual-analysis/v1",
+  "status": "FAILED_ADMINISTRATIVE_WRITER_PREFLIGHT_NO_INSPECTED_INPUTS",
+  "outer_command_exit": 2,
+  "process": {
+    "schema": "wordling.BOOTSTRAP_SOURCE01-admin-custody/v2",
+    "actual_exit": null,
+    "actual_waitstatus": null,
+    "error": "Traceback (most recent call last):\n  File \"/tmp/wordling-wp108-bootstrap-capture/capture.py.txt\", line 180, in main\n    if owner.st_uid!=os.geteuid()or stat.S_IMODE(owner.st_mode)&0o022:raise RuntimeError('WriterOwnerOrWritable')\n                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: WriterOwnerOrWritable\n",
+    "elapsed_seconds": 0.005901542957872152,
+    "stdout": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_size": 20,
+      "compressed_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "complete_gzip": true,
+      "partial": false
+    },
+    "stderr": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "partial": false
+    },
+    "unretained_suffix": null,
+    "wait4": null,
+    "writer_named_binding": true,
+    "preflight_read_bytes": 37880,
+    "reader_asset_read_cap": 1966080,
+    "total_read_cap": 2097152,
+    "qualified_tool": false,
+    "accepted_reference": false,
+    "current_context_created": false,
+    "qualification_clock_started": false,
+    "no_retry": true
+  },
+  "cause": {
+    "observed_namespace_uid": 1000,
+    "observed_namespace_gid": 1000,
+    "observed_namespace_mode": "0o775",
+    "actual_same_command_admin_uid_euid_gid_egid": [
+      1000,
+      1000,
+      1000,
+      1000
+    ],
+    "predicate": "owner uid must equal euid AND namespace mode has no022 bits",
+    "diagnosis": "Observed0775 group-write bit alone fails unchanged WriterOwnerOrWritable. Initial OS-identity-mismatch speculation was incorrect.",
+    "process_identity_observation": "Subsequent bounded administrative id and exactenv /usr/bin/python3-I-B os.getuid/geteuid/getgid/getegid diagnostic, not a claim embedded in original process receipt."
+  },
+  "inspected_input_reader_launched": false,
+  "worker_wait_status": null,
+  "actual_input_read_bytes": 0,
+  "preflight_local_source_packet_bytes": 37880,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "raw_evidence_complete": true,
+  "reference_accepted": false,
+  "qualified_tool": false,
+  "current_context_created": false,
+  "Preparation_started": false,
+  "TEST_P_started": false,
+  "qualification_clock_started": false,
+  "retry_authorized": false,
+  "preservation": "All exactsource/packet/action/raw/process failure records remain. A distinct separatelyreviewed/funded SOURCE action must use a new namespace; no overwrite, no automatic retry or guard weakening."
+}
