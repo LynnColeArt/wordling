@@ -16,13 +16,16 @@ formats. No JSON, Markdown, ZIP, or proprietary Wordling wrapper replaces them.
 
 Status: a runnable Linux terminal editor implements bounded native editing,
 formatting, tables, macros, merge, printing, and recovery workflows. Full
-WordPerfect 5.1 parity remains open. Windows and macOS builds are currently
-blocked by the Linux-only storage implementation.
+WordPerfect 5.1 parity remains open. [Native prerelease builds](docs/testing/native-prerelease.md)
+are available for Windows and macOS. Windows supports save-overwrite and original
+backups, and defaults to PowerShell for Open Shell. Windows directory-entry
+durability across power loss remains unqualified. Native console tests cover
+PowerShell 7 and Windows PowerShell 5.1; physical terminal acceptance is separate.
 
 The [current command audit](docs/research/mission-1-command-audit.md) records
 verified, partial, and unimplemented workflows. The
-[November 17 recovery and prerelease report](docs/reports/infra-recovery-2026-11-17.md)
-records the synchronized source, fresh validation, and platform blockers.
+[November 18 PowerShell and overwrite readiness report](docs/reports/windows-powershell-prerelease-2026-11-18.md)
+records the verified native candidate, passing checks and remaining qualification.
 
 [Historical conformance evidence](docs/conformance/v1/index.md) is a frozen WP31
 checkpoint, not a verdict on the current editor. Its source guards deliberately

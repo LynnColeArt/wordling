@@ -1,11 +1,11 @@
+//go:build linux || darwin || windows
+
 package storage
 
 import (
 	"errors"
 	"os"
 	"strings"
-
-	"golang.org/x/sys/unix"
 )
 
 func splitDOSFile(path string) (string, string) {
@@ -46,24 +46,9 @@ func (s *EntrySelection) Transfer(path string, move bool) error {
 	}
 	if move {
 		if cap == source {
-			return source.ops.Rename(s.entry.view.Name, actual, unix.RENAME_NOREPLACE)
+			return source.ops.Rename(s.entry.view.Name, actual, renameNoReplace)
 		}
-		// Both directory descriptors are pinned by the workspace lock.
-		from, err := source.dir.SyscallConn()
-		if err != nil {
-			return err
-		}
-		to, err := cap.dir.SyscallConn()
-		if err != nil {
-			return err
-		}
-		var renameErr, controlErr error
-		err = from.Control(func(src uintptr) {
-			controlErr = to.Control(func(dst uintptr) {
-				renameErr = unix.Renameat2(int(src), s.entry.view.Name, int(dst), actual, unix.RENAME_NOREPLACE)
-			})
-		})
-		return errors.Join(err, controlErr, renameErr)
+		return platformRename(source.dir, s.entry.view.Name, cap.dir, actual, renameNoReplace)
 	}
 	snap, err := source.readStable(s.entry.view.Name)
 	if err != nil {

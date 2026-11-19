@@ -1,3 +1,5 @@
+//go:build linux || darwin || windows
+
 package storage
 
 import (
@@ -8,10 +10,8 @@ import (
 	"os"
 	"strings"
 	"sync/atomic"
-	"syscall"
 
 	"github.com/lynncoleart/wordling/internal/wp51"
-	"golang.org/x/sys/unix"
 )
 
 // OriginalBackup controls only the original-document backup, not timed recovery.
@@ -238,6 +238,8 @@ type saveStep struct {
 	oldPin         file
 	remove         bool
 	applied        bool
+	uncertain      bool
+	residues       []string
 }
 
 func (s *saveStep) verify(name string, expected snapshot) error {
@@ -259,7 +261,7 @@ func (s *saveStep) apply() error {
 	if s.remove {
 		// Empty staging reservation has already been removed; NOREPLACE prevents
 		// clobbering a concurrent entry at this private recovery name.
-		if err := s.cap.ops.Rename(s.target.name, s.staged.name, unix.RENAME_NOREPLACE); err != nil {
+		if err := s.cap.ops.Rename(s.target.name, s.staged.name, renameNoReplace); err != nil {
 			return err
 		}
 		s.applied = true
@@ -269,7 +271,7 @@ func (s *saveStep) apply() error {
 		return err
 	}
 	if s.target.exists {
-		if err := s.cap.ops.Rename(s.staged.name, s.target.name, unix.RENAME_EXCHANGE); err != nil {
+		if err := platformReplaceStep(s, false); err != nil {
 			return err
 		}
 	} else {
@@ -287,6 +289,9 @@ func (s *saveStep) apply() error {
 	return nil
 }
 func (s *saveStep) undo() error {
+	if s.uncertain {
+		return errors.New("replacement namespace requires inspection")
+	}
 	if !s.applied {
 		return nil
 	}
@@ -295,7 +300,7 @@ func (s *saveStep) undo() error {
 			return err
 		}
 		// Never overwrite a new backup supplied by another writer.
-		if err := s.cap.ops.Rename(s.staged.name, s.target.name, unix.RENAME_NOREPLACE); err != nil {
+		if err := s.cap.ops.Rename(s.staged.name, s.target.name, renameNoReplace); err != nil {
 			return err
 		}
 	} else {
@@ -306,7 +311,7 @@ func (s *saveStep) undo() error {
 			if err := s.verify(s.staged.name, s.old); err != nil {
 				return err
 			}
-			if err := s.cap.ops.Rename(s.staged.name, s.target.name, unix.RENAME_EXCHANGE); err != nil {
+			if err := platformReplaceStep(s, true); err != nil {
 				return err
 			}
 		} else if err := s.cap.ops.Remove(s.target.name); err != nil {
@@ -324,6 +329,9 @@ func (s *saveStep) undo() error {
 	return nil
 }
 func (s *saveStep) cleanup() error {
+	if s.uncertain {
+		return errors.New("replacement residues retained for inspection")
+	}
 	// If applied, the private name holds the old destination; otherwise the new
 	// staged file. In either case cleanup refuses substituted or modified entries.
 	expected := s.stagedSnapshot
@@ -342,12 +350,15 @@ func (s *saveStep) close() error {
 	var errs []error
 	if s.staged.file != nil {
 		errs = append(errs, s.staged.file.Close())
+		s.staged.file = nil
 	}
 	if s.staged.pin != nil {
 		errs = append(errs, s.staged.pin.Close())
+		s.staged.pin = nil
 	}
 	if s.oldPin != nil {
 		errs = append(errs, s.oldPin.Close())
+		s.oldPin = nil
 	}
 	return errors.Join(errs...)
 }
@@ -355,7 +366,7 @@ func (cap *openedDirectory) prepareStep(dst *Destination, old snapshot, data []b
 	s := &saveStep{cap: cap, target: dst, old: old, remove: remove}
 	if dst.exists {
 		var err error
-		s.oldPin, err = cap.ops.OpenFile(dst.name, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
+		s.oldPin, err = cap.ops.OpenFile(dst.name, os.O_RDONLY|noFollow|nonBlock, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -437,6 +448,7 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 			residues = append(residues, underlying.Candidate)
 		}
 		for _, s := range steps {
+			residues = append(residues, s.residues...)
 			if _, e := cap.ops.Lstat(s.staged.name); e == nil {
 				residues = append(residues, s.staged.name)
 			}
@@ -470,7 +482,7 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 	if err = cap.ops.SyncDirectory(); err != nil {
 		return fail(err)
 	}
-	// After this durable namespace checkpoint, cleanup failures cannot safely be
+	// After this platform publication checkpoint, cleanup failures cannot safely be
 	// called refusal. Keep recovery residues and report the committed uncertainty.
 	for _, s := range steps {
 		if err = s.cleanup(); err != nil {
@@ -479,6 +491,14 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 	}
 	if err = cap.ops.SyncDirectory(); err != nil {
 		return result, &Failure{Kind: PublicationUncertain, Stage: "save cleanup durability", Name: r.target.name, DestinationMayExist: true, Cause: err}
+	}
+	// NTFS may commit link-related change timestamps on the final handle close.
+	// Capture the next source observation only after our publication pins close;
+	// otherwise an immediate Save As falsely rejects our own successful save.
+	for _, s := range steps {
+		if err = s.close(); err != nil {
+			return result, &Failure{Kind: CleanupFailed, Stage: "save pin close", Name: r.target.name, DestinationMayExist: true, Cause: err}
+		}
 	}
 	now, err := cap.readStable(r.target.name)
 	if err != nil || !sameMoved(now, main.stagedSnapshot) {

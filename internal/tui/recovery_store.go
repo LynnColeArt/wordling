@@ -11,8 +11,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-
-	"golang.org/x/sys/unix"
 )
 
 type recoveryRecord struct {
@@ -77,10 +75,12 @@ func openRecovery(workspace string) (*recoveryStore, []recoveryRecord, error) {
 		if err != nil {
 			continue
 		}
-		file, err := os.OpenFile(filepath.Join(path, "documents.json"), os.O_RDONLY|unix.O_NOFOLLOW|unix.O_NONBLOCK, 0)
+		file, err := openRecoveryFile(filepath.Join(path, "documents.json"), os.O_RDONLY, 0)
 		if errors.Is(err, os.ErrNotExist) {
-			_ = os.RemoveAll(path)
-			_ = lock.Close()
+			closed, _ := retireRecoveryDirectory(path, lock)
+			if !closed {
+				_ = lock.Close()
+			}
 			continue
 		}
 		var batch recoveryBatch
@@ -120,18 +120,6 @@ func openRecovery(workspace string) (*recoveryStore, []recoveryRecord, error) {
 	return store, records, errors.Join(issues...)
 }
 
-func lockRecovery(dir string) (*os.File, error) {
-	f, err := os.OpenFile(filepath.Join(dir, "lock"), os.O_CREATE|os.O_RDWR|unix.O_NOFOLLOW, 0600)
-	if err != nil {
-		return nil, err
-	}
-	if err = unix.Flock(int(f.Fd()), unix.LOCK_EX|unix.LOCK_NB); err != nil {
-		_ = f.Close()
-		return nil, err
-	}
-	return f, nil
-}
-
 func (s *recoveryStore) write(records []recoveryRecord) error {
 	f, err := os.CreateTemp(s.dir, "snapshot-")
 	if err != nil {
@@ -149,11 +137,7 @@ func (s *recoveryStore) write(records []recoveryRecord) error {
 	if err = os.Rename(f.Name(), filepath.Join(s.dir, "documents.json")); err != nil {
 		return err
 	}
-	dir, err := os.Open(s.dir)
-	if err != nil {
-		return err
-	}
-	return errors.Join(dir.Sync(), dir.Close())
+	return syncRecoveryDirectory(s.dir)
 }
 
 func (s *recoveryStore) resolve() error {
@@ -161,27 +145,35 @@ func (s *recoveryStore) resolve() error {
 		s.beforeCleanup()
 	}
 	for len(s.old) > 0 {
-		old := s.old[0]
-		if err := os.RemoveAll(old.dir); err != nil {
+		old := &s.old[0]
+		if old.lock == nil {
+			return errors.New("recovery cleanup needs inspection")
+		}
+		closed, err := retireRecoveryDirectory(old.dir, old.lock)
+		if closed {
+			old.lock = nil
+		}
+		if err != nil {
 			return err
 		}
-		_ = old.lock.Close()
 		s.old = s.old[1:]
 	}
-	parent, err := os.Open(filepath.Dir(s.dir))
-	if err != nil {
-		return err
-	}
-	return errors.Join(parent.Sync(), parent.Close())
+	return syncRecoveryDirectory(filepath.Dir(s.dir))
 }
 
 func (s *recoveryStore) close(clean bool) error {
 	var err error
-	if clean {
-		err = os.RemoveAll(s.dir)
-	}
 	for _, old := range s.old {
-		_ = old.lock.Close()
+		if old.lock != nil {
+			err = errors.Join(err, old.lock.Close())
+		}
+	}
+	if clean {
+		closed, cleanupErr := retireRecoveryDirectory(s.dir, s.lock)
+		if !closed {
+			cleanupErr = errors.Join(cleanupErr, s.lock.Close())
+		}
+		return errors.Join(err, cleanupErr)
 	}
 	return errors.Join(err, s.lock.Close())
 }
