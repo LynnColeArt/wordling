@@ -1,0 +1,25 @@
+test_large_logical_table_fetches_only_referenced_string_window (__main__.Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window) ... ERROR
+
+======================================================================
+ERROR: test_large_logical_table_fetches_only_referenced_string_window (__main__.Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 743, in test_large_logical_table_fetches_only_referenced_string_window
+    result, reads, inv, diagnostic = self.parse_sparse()
+                                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 738, in parse_sparse
+    result = inv.elf(99, '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12', size, diagnostic)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py", line 455, in elf
+    window = self.pread(fd, name, window_size, position + value, diagnostic)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py", line 332, in pread
+    self.charge(name, count, metadata=True)
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py", line 317, in charge
+    raise GlobalStop('StaticReadChunkBound')
+current_test_qualification.GlobalStop: StaticReadChunkBound
+
+----------------------------------------------------------------------
+Ran 1 test in 0.012s
+
+FAILED (errors=1)

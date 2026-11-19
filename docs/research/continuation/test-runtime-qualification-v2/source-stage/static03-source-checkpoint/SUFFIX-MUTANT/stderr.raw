@@ -1,0 +1,35 @@
+test_suffix_window_stops_at_logical_table_end (__main__.Static03StringTableDataTests.test_suffix_window_stops_at_logical_table_end) ... FAIL
+
+======================================================================
+FAIL: test_suffix_window_stops_at_logical_table_end (__main__.Static03StringTableDataTests.test_suffix_window_stops_at_logical_table_end)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 753, in test_suffix_window_stops_at_logical_table_end
+    result, reads, _, _ = self.parse_sparse(relative=1198997, raw_string=b'a\0xx')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 738, in parse_sparse
+    result = inv.elf(99, '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12', size, diagnostic)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py", line 455, in elf
+    window = self.pread(fd, name, window_size, position + value, diagnostic)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py", line 336, in pread
+    raw = os.pread(fd, count, offset)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1199, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 723, in pread
+    self.assertEqual(count, min(4096, table_size - relative))
+AssertionError: 4096 != 4
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (failures=1)

@@ -1,0 +1,1062 @@
+{
+  "schema": "wordling.wp108-STATIC03-real-source-mutant-pairs/v1",
+  "execution_head": "7dd3a1128f539e1f3c23670881fe0e18ee1671c2",
+  "source_inputs": {
+    "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+      "size": 31068,
+      "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+      "size": 251281,
+      "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+    },
+    "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 44823,
+      "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13026,
+      "sha256": "53f12d42acbcc8d747c9a8c082f0f2257b7686dea06ca287b4fe8711dc1c09de"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_tool_selection.json": {
+      "size": 86493,
+      "sha256": "635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json": {
+      "size": 18094,
+      "sha256": "58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+      "size": 23390,
+      "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+      "size": 24976,
+      "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+    }
+  },
+  "commands": [
+    {
+      "id": "VA-GAP-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "VA-GAP",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "elif row['VA_start'] != VA_cursor:\n            state = 'VA_GAP'",
+          "elif row['VA_start'] != VA_cursor:\n            file_cursor += row['VA_start'] - VA_cursor\n            VA_cursor = row['VA_start']"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/VA-GAP.py.txt",
+        "size": 31134,
+        "sha256": "2732f277f291fd16b51dbb67e22975c686a1e3413f199930538abd9694535d35"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "VA-GAP-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "VA-GAP",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "elif row['VA_start'] != VA_cursor:\n            state = 'VA_GAP'",
+          "elif row['VA_start'] != VA_cursor:\n            file_cursor += row['VA_start'] - VA_cursor\n            VA_cursor = row['VA_start']"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/VA-GAP.py.txt",
+        "size": 31134,
+        "sha256": "2732f277f291fd16b51dbb67e22975c686a1e3413f199930538abd9694535d35"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31134,
+          "sha256": "2732f277f291fd16b51dbb67e22975c686a1e3413f199930538abd9694535d35"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "OVERLAP-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "OVERLAP",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "if row['VA_start'] < VA_cursor:\n            state = 'MULTIPLE'",
+          "if row['VA_start'] < VA_cursor:\n            continue"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/OVERLAP.py.txt",
+        "size": 31058,
+        "sha256": "b20c1d7fed6268825b963c6a35ffbfb667802acb5f3e039dee3ff8af113413e4"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "OVERLAP-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "OVERLAP",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "if row['VA_start'] < VA_cursor:\n            state = 'MULTIPLE'",
+          "if row['VA_start'] < VA_cursor:\n            continue"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/OVERLAP.py.txt",
+        "size": 31058,
+        "sha256": "b20c1d7fed6268825b963c6a35ffbfb667802acb5f3e039dee3ff8af113413e4"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31058,
+          "sha256": "b20c1d7fed6268825b963c6a35ffbfb667802acb5f3e039dee3ff8af113413e4"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "BIAS-FILE-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "BIAS-FILE",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "elif row['file_offset'] != file_cursor or row['bias'] != bias:",
+          "elif False:"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/BIAS-FILE.py.txt",
+        "size": 31017,
+        "sha256": "7ec75134b0c22c1dab2fbf8c9fb017b8d895c7ef60c2c7db39156a607febd0fd"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "BIAS-FILE-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "BIAS-FILE",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "elif row['file_offset'] != file_cursor or row['bias'] != bias:",
+          "elif False:"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/BIAS-FILE.py.txt",
+        "size": 31017,
+        "sha256": "7ec75134b0c22c1dab2fbf8c9fb017b8d895c7ef60c2c7db39156a607febd0fd"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31017,
+          "sha256": "7ec75134b0c22c1dab2fbf8c9fb017b8d895c7ef60c2c7db39156a607febd0fd"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "MEMSZ-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "MEMSZ",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "stop = min(end, row['address'] + row['size'])",
+          "stop = min(end, row['address'] + row.get('memory', row['size']))"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/MEMSZ.py.txt",
+        "size": 31087,
+        "sha256": "4e8cf42b6637c52e591d24199b1214fc9d214480094869af70ed6693016bfaf8"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "MEMSZ-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "MEMSZ",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "stop = min(end, row['address'] + row['size'])",
+          "stop = min(end, row['address'] + row.get('memory', row['size']))"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/MEMSZ.py.txt",
+        "size": 31087,
+        "sha256": "4e8cf42b6637c52e591d24199b1214fc9d214480094869af70ed6693016bfaf8"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31087,
+          "sha256": "4e8cf42b6637c52e591d24199b1214fc9d214480094869af70ed6693016bfaf8"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "EARLY-FIRST-MATCH-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "EARLY-FIRST-MATCH",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "VA_cursor = row['VA_end']\n    if VA_cursor",
+          "VA_cursor = row['VA_end']\n        if VA_cursor == end:\n            break\n    if VA_cursor"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/EARLY-FIRST-MATCH.py.txt",
+        "size": 31115,
+        "sha256": "0abc4d1f82c4a17710c1877495de0857d14f744df26de8c7795d22ee3da61439"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "EARLY-FIRST-MATCH-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "EARLY-FIRST-MATCH",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "VA_cursor = row['VA_end']\n    if VA_cursor",
+          "VA_cursor = row['VA_end']\n        if VA_cursor == end:\n            break\n    if VA_cursor"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/EARLY-FIRST-MATCH.py.txt",
+        "size": 31115,
+        "sha256": "0abc4d1f82c4a17710c1877495de0857d14f744df26de8c7795d22ee3da61439"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31115,
+          "sha256": "0abc4d1f82c4a17710c1877495de0857d14f744df26de8c7795d22ee3da61439"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "WINDOW-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "WINDOW",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "window_size = min(4096, singles[10] - value)",
+          "window_size = min(8192, singles[10] - value)"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/WINDOW.py.txt",
+        "size": 31068,
+        "sha256": "eaf3337927a287471ed53f8b605838eba91199a01beeea2d167e9880343e3e6d"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "WINDOW-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "WINDOW",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "window_size = min(4096, singles[10] - value)",
+          "window_size = min(8192, singles[10] - value)"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/WINDOW.py.txt",
+        "size": 31068,
+        "sha256": "eaf3337927a287471ed53f8b605838eba91199a01beeea2d167e9880343e3e6d"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "eaf3337927a287471ed53f8b605838eba91199a01beeea2d167e9880343e3e6d"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "SUFFIX-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_suffix_window_stops_at_logical_table_end",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "SUFFIX",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "window_size = min(4096, singles[10] - value)",
+          "window_size = 4096"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/SUFFIX.py.txt",
+        "size": 31042,
+        "sha256": "d11237a341e6fd4ee6eb747f83bb4cecaf624ca6d0f4f59e8343ecdddfb4ea30"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "SUFFIX-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_suffix_window_stops_at_logical_table_end",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "SUFFIX",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "window_size = min(4096, singles[10] - value)",
+          "window_size = 4096"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/SUFFIX.py.txt",
+        "size": 31042,
+        "sha256": "d11237a341e6fd4ee6eb747f83bb4cecaf624ca6d0f4f59e8343ecdddfb4ea30"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31042,
+          "sha256": "d11237a341e6fd4ee6eb747f83bb4cecaf624ca6d0f4f59e8343ecdddfb4ea30"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "WHOLE-TABLE-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "WHOLE-TABLE",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "window_size = min(4096, singles[10] - value)",
+          "window_size = singles[10]"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/WHOLE-TABLE.py.txt",
+        "size": 31049,
+        "sha256": "3481aa889f6a4c00d07d7cfd750bc01690f176ddd4d12b1ed7293ba118590b6a"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "WHOLE-TABLE-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_large_logical_table_fetches_only_referenced_string_window",
+        "-v"
+      ],
+      "expected": "CANONICAL_READ_CHUNK_REFUSAL",
+      "family": "WHOLE-TABLE",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "window_size = min(4096, singles[10] - value)",
+          "window_size = singles[10]"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/WHOLE-TABLE.py.txt",
+        "size": 31049,
+        "sha256": "3481aa889f6a4c00d07d7cfd750bc01690f176ddd4d12b1ed7293ba118590b6a"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31049,
+          "sha256": "3481aa889f6a4c00d07d7cfd750bc01690f176ddd4d12b1ed7293ba118590b6a"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "READ-BEFORE-MAPPING-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "READ-BEFORE-MAPPING",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          "position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)",
+          "self.pread(fd, name, 1, 0, diagnostic)\n                    position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/READ-BEFORE-MAPPING.py.txt",
+        "size": 31127,
+        "sha256": "d253146c5b718706fb689c639845f8f25d700ae2e414abccfbd7f8343d7c3c6d"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "READ-BEFORE-MAPPING-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "READ-BEFORE-MAPPING",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          "position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)",
+          "self.pread(fd, name, 1, 0, diagnostic)\n                    position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/READ-BEFORE-MAPPING.py.txt",
+        "size": 31127,
+        "sha256": "d253146c5b718706fb689c639845f8f25d700ae2e414abccfbd7f8343d7c3c6d"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31127,
+          "sha256": "d253146c5b718706fb689c639845f8f25d700ae2e414abccfbd7f8343d7c3c6d"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "UINT64-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "UINT64",
+      "phase": "CONTROL",
+      "edits": [
+        [
+          " or size > 2**64 - address",
+          ""
+        ],
+        [
+          "or row['size'] > 2**64 - row['address'] or row['size'] > 2**64 - row['offset']",
+          "or False"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/UINT64.py.txt",
+        "size": 30972,
+        "sha256": "e108ccc47b8c6eb8c220bd5f057f4478aa9b29df6f7ade78fc9e826615f5ee2b"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 31068,
+          "sha256": "346a759712544a89693c091d44dfed72f98f7e1b1b3c6da15d818dfb0639b6a1"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    },
+    {
+      "id": "UINT64-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static03StringTableDataTests.test_union_rejects_each_gap_bias_overlap_memsz_and_u64_wrap_variant",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "UINT64",
+      "phase": "MUTANT",
+      "edits": [
+        [
+          " or size > 2**64 - address",
+          ""
+        ],
+        [
+          "or row['size'] > 2**64 - row['address'] or row['size'] > 2**64 - row['offset']",
+          "or False"
+        ]
+      ],
+      "postimage": {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static03-source-checkpoint/mutant-postimages/UINT64.py.txt",
+        "size": 30972,
+        "sha256": "e108ccc47b8c6eb8c220bd5f057f4478aa9b29df6f7ade78fc9e826615f5ee2b"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 30972,
+          "sha256": "e108ccc47b8c6eb8c220bd5f057f4478aa9b29df6f7ade78fc9e826615f5ee2b"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 44823,
+          "sha256": "2ad7f50ac24c76717e7663a7f6b4c69d763208ed3a6a4b00e5a38cdcdf849782"
+        },
+        "/tmp/wordling-wp108-test-prep/static03-mutant-fixture/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json": {
+          "size": 24976,
+          "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+        }
+      }
+    }
+  ],
+  "command_count": 20,
+  "whole_child_seconds_max": 640,
+  "scratch_root": "/tmp/wordling-wp108-test-prep/static03-mutant-fixture",
+  "same_path_controls_before_mutants": true,
+  "scope": "One fresh source-only fixture, not a Preparation/live owner/context; exact original resets between DATA variants only. No public lookup/staticmain/role/campaign clock.",
+  "whole_table_note": "Oversized whole logical read is killed by the deterministic canonical StaticReadChunkBound before OS pread; classify that explicit source guard separately from assertion kills/setup/resource exhaustion and never as initial RED."
+}

@@ -16,8 +16,8 @@ import struct
 import sys
 import time
 
-_PLAN_SHA = '28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b'
-_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json'
+_PLAN_SHA = '95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3'
+_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json'
 _DIAGNOSTIC_NAMES = frozenset((
     '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12',
     '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1'))
@@ -133,14 +133,63 @@ def elf_string_data(raw, offset):
     return value.decode('ascii')
 
 
-def elf_string_table_offset(programs, address, size):
-    if type(address) is not int or type(size) is not int or not 0 < size <= 65536:
+def elf_string_table_offset(programs, address, size, *, diagnostic=None):
+    """Prove one contiguous file interval for the WHOLE logical VA table.
+
+    This is the single canonical mapping decision. Its diagnostic is DATA,
+    never a second predicate or authority. Memory-only bytes cannot contribute.
+    """
+    if (type(address) is not int or type(size) is not int or not 0 <= address < 2**64
+            or not 0 < size <= 67108864 or size > 2**64 - address):
+        _diagnostic_update(diagnostic, mapping=dict(state='NOT_EVALUATED_STRING_BOUND', count=None, candidates=[]))
         raise Incomplete('ELFStringTableBound')
-    matches = [r['offset'] + address - r['address'] for r in programs
-        if r['kind'] == 1 and r['address'] <= address and address + size <= r['address'] + r['size']]
-    if len(matches) != 1:
+    if type(programs) is not list or not 1 <= len(programs) <= 64:
+        raise Incomplete('ELFStringTableProgramBound')
+    end = address + size
+    relevant = []
+    for index, row in enumerate(programs):
+        if type(row) is not dict or type(row.get('kind')) is not int:
+            raise Incomplete('ELFStringTableProgramBound')
+        if row['kind'] != 1:
+            continue
+        if (any(type(row.get(k)) is not int or not 0 <= row[k] < 2**64
+                for k in ('address', 'offset', 'size'))
+                or row['size'] > 2**64 - row['address'] or row['size'] > 2**64 - row['offset']):
+            raise Incomplete('ELFStringTableSegmentBound')
+        start = max(address, row['address'])
+        stop = min(end, row['address'] + row['size'])
+        if start < stop:
+            relevant.append(dict(program_index=index, VA_start=start, VA_end=stop,
+                file_offset=row['offset'] + start - row['address'],
+                bias=row['address'] - row['offset']))
+    relevant.sort(key=lambda row: (row['VA_start'], row['VA_end'], row['program_index']))
+    if not relevant:
+        _diagnostic_update(diagnostic, mapping=dict(state='ZERO', count=0, candidates=[]))
         raise Incomplete('ELFStringTableMappingAmbiguous')
-    return matches[0]
+    first = relevant[0]['file_offset']
+    bias = relevant[0]['bias']
+    VA_cursor, file_cursor = address, first
+    for row in relevant:
+        # Inspect EVERY intersection, even after apparent complete coverage.
+        # A full first match must not hide a later partial/identical overlap.
+        state = None
+        if row['VA_start'] < VA_cursor:
+            state = 'MULTIPLE'
+        elif row['VA_start'] != VA_cursor:
+            state = 'VA_GAP'
+        elif row['file_offset'] != file_cursor or row['bias'] != bias:
+            state = 'FILE_DISCONTIGUOUS'
+        if state is not None:
+            _diagnostic_update(diagnostic, mapping=dict(state=state, count=len(relevant), candidates=relevant))
+            raise Incomplete('ELFStringTableMappingAmbiguous')
+        file_cursor += row['VA_end'] - row['VA_start']
+        VA_cursor = row['VA_end']
+    if VA_cursor != end or file_cursor != first + size:
+        _diagnostic_update(diagnostic, mapping=dict(state='VA_GAP', count=len(relevant), candidates=relevant))
+        raise Incomplete('ELFStringTableMappingAmbiguous')
+    _diagnostic_update(diagnostic, mapping=dict(state='CONTIGUOUS_FILE_BACKED', count=len(relevant),
+        candidates=relevant, file_offset=first, logical_size=size, whole_range_proved=True))
+    return first
 
 
 def alias_target_data(prefix, text, remaining, names):
@@ -159,9 +208,9 @@ def static_plan_layout_data(plan):
             ('directory', 'declared_metadata_only_directories'), ('ELF_seed', 'declared_ELF_seed_files'),
             ('loader_data', 'declared_nonexecuted_loader_data_files'))
     expected = [dict(kind=kind, path=path) for kind, key in keys for path in plan[key]]
-    # Both lower DATA grammars are unaccepted. The actual action still reads
+    # Historical/current lower DATA grammars are unaccepted. The action reads
     # only the one source-pinned active plan; a DATA id cannot raise any cap.
-    count = {'STATIC01': 76, 'STATIC02': 109}.get(plan.get('id'))
+    count = {'STATIC01': 76, 'STATIC02': 109, 'STATIC03': 117}.get(plan.get('id'))
     if count is None or len(expected) != count or plan['fixed_item_order'] != expected:
         raise GlobalStop('StaticPlanRosterConservation')
     return expected
@@ -393,27 +442,18 @@ class _StaticInventory:
                     if 5 not in singles or 10 not in singles:
                         raise Incomplete('ELFDynamicStringTableMissing')
                     _diagnostic_update(diagnostic, phase='string_table_mapping')
-                    if diagnostic is not None:
-                        # Report-only interval arithmetic, never a mapping
-                        # decision: the unchanged canonical function below is
-                        # ALWAYS called and remains the sole acceptance gate.
-                        candidates = []
-                        if 0 < singles[10] <= 65536:
-                            for index, segment in enumerate(programs):
-                                if (segment['kind'] == 1 and segment['address'] <= singles[5]
-                                        and singles[5] + singles[10] <= segment['address'] + segment['size']):
-                                    candidates.append(dict(program_index=index,
-                                        file_offset=segment['offset'] + singles[5] - segment['address']))
-                            state = 'ZERO' if not candidates else 'ONE' if len(candidates) == 1 else 'MULTIPLE'
-                            mapping = dict(state=state, count=len(candidates), candidates=candidates)
-                        else:
-                            mapping = dict(state='NOT_EVALUATED_STRING_BOUND', count=None, candidates=[])
-                        _diagnostic_update(diagnostic, mapping=mapping)
-                    position = elf_string_table_offset(programs, singles[5], singles[10])
-                    _diagnostic_update(diagnostic, phase='string_table_read')
-                    table = self.pread(fd, name, singles[10], position, diagnostic)
+                    position = elf_string_table_offset(programs, singles[5], singles[10], diagnostic=diagnostic)
+                    # Whole logical coverage and actual frozen-file bounds
+                    # precede every referenced window. Never copy the table.
+                    if position < 0 or position > size or singles[10] > size - position:
+                        raise Incomplete('ELFStringTableFileBound')
                     for tag, value in strings:
-                        text = elf_string_data(table, value)
+                        if type(value) is not int or not 0 <= value < singles[10]:
+                            raise Incomplete('ELFStringOffset')
+                        window_size = min(4096, singles[10] - value)
+                        _diagnostic_update(diagnostic, phase='string_window_read')
+                        window = self.pread(fd, name, window_size, position + value, diagnostic)
+                        text = elf_string_data(window, 0)
                         if tag == 1:
                             result['needed'].append(text)
                         else:
