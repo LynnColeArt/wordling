@@ -1034,6 +1034,33 @@ class SourceCensusDataTests(unittest.TestCase):
         positive = self.c.census_header_data(b'#include <sys/socket.h>\n#include "local.h"\n')
         self.assertEqual(positive['tokens'], ['sys/socket.h', 'local.h'])
         self.assertFalse(positive['unresolved'])
+        self.assertEqual(positive['includes'], [dict(token='sys/socket.h', kind='angle'),
+            dict(token='local.h', kind='quoted')])
+        left = self.c._census_header_candidates_data(
+            dict(token='config.h', kind='quoted', parent='/DATA/one'), ['/DATA/system'])
+        right = self.c._census_header_candidates_data(
+            dict(token='config.h', kind='quoted', parent='/DATA/two'), ['/DATA/system'])
+        angle = self.c._census_header_candidates_data(
+            dict(token='config.h', kind='angle', parent=None), ['/DATA/system'])
+        self.assertEqual(left['candidates'], ['/DATA/one/config.h', '/DATA/system/config.h'])
+        self.assertEqual(right['candidates'], ['/DATA/two/config.h', '/DATA/system/config.h'])
+        self.assertEqual(angle['candidates'], ['/DATA/system/config.h'])
+        self.assertNotEqual(left['identity'], right['identity'])
+        self.assertNotEqual(left['identity'], angle['identity'])
+        # Reuse the existing synthetic descriptor fixture for a stable empty
+        # header. Presence and scoped-name cleanup cannot depend on byte growth.
+        inv, rows, stack, name = self.fixture()
+        with stack:
+            self.c.os.fstat(71).st_size = 0
+            prior_names, prior_dirs = set(inv.names), set(inv.directories)
+            state = self.c._CensusState(inv)
+            includes, present = self.c._census_file_fact(state, name + '/member.bin', header=True)
+        self.assertTrue(present)
+        self.assertEqual(includes, [])
+        self.assertEqual(state.file_bytes, 0)
+        self.assertEqual(state.memory, 0)
+        self.assertEqual(inv.names, prior_names)
+        self.assertEqual(inv.directories, prior_dirs)
         for raw in (b'#include HEADER\n', b'#include "../escape.h"\n', b'#include <' + b'x' * 4097 + b'>\n'):
             self.assertTrue(self.c.census_header_data(raw)['unresolved'])
 

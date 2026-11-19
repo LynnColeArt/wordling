@@ -750,7 +750,7 @@ def census_package_data(distribution, basenames):
 def census_header_data(raw):
     if type(raw) is not bytes or len(raw) > 1048576:
         raise Incomplete('CensusHeaderBound')
-    tokens, unresolved = [], False
+    tokens, includes, unresolved = [], [], False
     start = 0
     while start < len(raw):
         stop = raw.find(b'\n', start)
@@ -779,8 +779,10 @@ def census_header_data(raw):
             continue
         if len(tokens) >= 4096:
             raise Incomplete('CensusHeaderTokenBound')
-        tokens.append(token.decode('ascii'))
-    return dict(tokens=tokens, unresolved=unresolved, permission_granted=False)
+        text = token.decode('ascii')
+        tokens.append(text)
+        includes.append(dict(token=text, kind='angle' if tail[:1] == b'<' else 'quoted'))
+    return dict(tokens=tokens, includes=includes, unresolved=unresolved, permission_granted=False)
 
 
 def _census_scan_directory(state, fd):
@@ -1184,16 +1186,82 @@ def _load_census_plan():
 
 
 
-def _census_declare(inventory, name, directory=False):
+def _census_declare(state, name, directory=False):
+    """Scoped source path premise; lease BEFORE making ancestor strings/sets."""
     if (type(name) is not str or not name.isascii() or not name.startswith('/')
-            or len(name) > 512 or '..' in Path(name).parts or len(Path(name).parts) > 65):
+            or len(name) > 512 or '..' in name.split('/') or name.count('/') > 64):
         raise Incomplete('CensusDeclaredPath')
-    for parent in Path(name).parents:
-        inventory.names.add(str(parent))
-        inventory.directories.add(str(parent))
-    inventory.names.add(name)
-    if directory:
-        inventory.directories.add(name)
+    lease = (name.count('/') + 1) * (1024 + 8 * len(name))
+    state.lease(lease)
+    inv = state.inventory
+    names, directories = [], []
+    try:
+        for parent in Path(name).parents:
+            text = str(parent)
+            if text not in inv.names:
+                inv.names.add(text)
+                names.append(text)
+            if text not in inv.directories:
+                inv.directories.add(text)
+                directories.append(text)
+        if name not in inv.names:
+            inv.names.add(name)
+            names.append(name)
+        if directory and name not in inv.directories:
+            inv.directories.add(name)
+            directories.append(name)
+        return names, directories, lease
+    except BaseException:
+        for text in directories:
+            inv.directories.discard(text)
+        for text in names:
+            inv.names.discard(text)
+        state.release(lease)
+        raise
+
+
+def _census_restore_declaration(state, declaration):
+    names, directories, lease = declaration
+    for text in directories:
+        state.inventory.directories.discard(text)
+    for text in names:
+        state.inventory.names.discard(text)
+    state.release(lease)
+
+
+def _census_include_size(include):
+    return 512 + 4 * (len(include['token']) + len(include['parent'] or ''))
+
+
+def _census_header_candidates_data(include, roots):
+    """Exact declared candidates and context identity, without filesystem I/O."""
+    if (type(include) is not dict or set(include) != {'token', 'kind', 'parent'}
+            or include['kind'] not in ('angle', 'quoted')
+            or type(include['token']) is not str or not include['token'].isascii()
+            or not 0 < len(include['token']) <= 512
+            or include['token'].startswith('/') or '\0' in include['token']
+            or any(p in ('', '.', '..') for p in include['token'].split('/'))
+            or type(roots) is not list or not 0 < len(roots) <= 4):
+        raise Incomplete('CensusHeaderContext')
+    parent = include['parent']
+    if parent is not None and (type(parent) is not str or not parent.isascii()
+            or not parent.startswith('/') or len(parent) > 512 or '..' in parent.split('/')):
+        raise Incomplete('CensusHeaderContext')
+    if include['kind'] == 'quoted' and parent is None:
+        raise Incomplete('CensusQuotedHeaderParentRequired')
+    if any(type(r) is not str or not r.isascii() or not r.startswith('/')
+            or len(r) > 512 or '..' in r.split('/') for r in roots):
+        raise Incomplete('CensusHeaderRoots')
+    origin = parent if include['kind'] == 'quoted' else None
+    search = ([origin] if origin is not None else []) + roots
+    candidates = []
+    for root in search:
+        path = root.rstrip('/') + '/' + include['token']
+        if len(path) > 512:
+            raise Incomplete('CensusHeaderPathBound')
+        if path not in candidates:
+            candidates.append(path)
+    return dict(identity=(include['kind'], origin, include['token']), candidates=candidates)
 
 
 def _census_header_lease(state, count):
@@ -1206,12 +1274,12 @@ def _census_header_lease(state, count):
 def _census_file_fact(state, name, header=False):
     """One explicitly declared file read; no include/root is found by a walk."""
     inv = state.inventory
-    _census_declare(inv, name)
-    state.member()
+    declaration = _census_declare(state, name)
     opened = None
     tokens = []
     transferred = False
     try:
+        state.member()
         before, opened, resolved, aliases = inv.path_info(name, open_file=True)
         if resolved != name or aliases:
             raise Incomplete('CensusFileAliasNeedsExplicitClosure')
@@ -1244,20 +1312,24 @@ def _census_file_fact(state, name, header=False):
                         state.work()
                         parsed = census_header_data(line)
                         unresolved |= parsed['unresolved']
-                        for token in parsed['tokens']:
+                        for include in parsed['includes']:
                             if len(tokens) >= 4096:
                                 raise Incomplete('CensusHeaderTokenBound')
-                            _census_header_lease(state, 256 + 4 * len(token))
-                            tokens.append(token)
+                            value = dict(include, parent=posixpath.dirname(name) if include['kind'] == 'quoted' else None)
+                            _census_header_lease(state, _census_include_size(value))
+                            tokens.append(value)
                 finally:
                     del raw, lines, line, parsed
                     state.release(262144)
             if carry:
                 parsed = census_header_data(carry)
                 unresolved |= parsed['unresolved']
-                for token in parsed['tokens']:
-                    _census_header_lease(state, 256 + 4 * len(token))
-                    tokens.append(token)
+                for include in parsed['includes']:
+                    if len(tokens) >= 4096:
+                        raise Incomplete('CensusHeaderTokenBound')
+                    value = dict(include, parent=posixpath.dirname(name) if include['kind'] == 'quoted' else None)
+                    _census_header_lease(state, _census_include_size(value))
+                    tokens.append(value)
             current, _, current_path, _ = inv.path_info(name)
             if _stamp(before) != _stamp(os.fstat(opened)) or _stamp(before) != _stamp(current) or current_path != name:
                 raise Incomplete('CensusHeaderSnapshotChanged')
@@ -1266,26 +1338,28 @@ def _census_file_fact(state, name, header=False):
         state.incomplete |= unresolved
         state.emit(row)
         transferred = True
-        return tokens
+        return tokens, True
     except (Incomplete, OSError) as error:
         state.incomplete = True
         state.emit(dict(path=name, status='INCOMPLETE', reason=str(error)[:512]))
-        return []
+        return [], False
     finally:
         if not transferred:
             for token in tokens:
-                state.release(256 + 4 * len(token))
-                state.header_queue_bytes -= 256 + 4 * len(token)
+                state.release(_census_include_size(token))
+                state.header_queue_bytes -= _census_include_size(token)
         if opened is not None:
             os.close(opened)
+        _census_restore_declaration(state, declaration)
 
 
 def _census_packages(state, plan):
     inv = state.inventory
     parent = plan['package_parent']
-    _census_declare(inv, parent, directory=True)
+    declaration = _census_declare(state, parent, directory=True)
     fd = None
     lease = 0
+    names = []
     try:
         before, fd, resolved, aliases = inv.path_info(parent, open_directory=True)
         if resolved != parent or aliases:
@@ -1307,73 +1381,87 @@ def _census_packages(state, plan):
                     or _stamp(before) != _stamp(current) or current_path != parent):
                 raise Incomplete('CensusPackageParentChanged')
         finally:
+            del again
             state.release_names(again_lease)
     except (Incomplete, OSError) as error:
         state.incomplete = True
         state.emit(dict(path=parent, status='INCOMPLETE', reason=str(error)[:512]))
         selected = set(plan['exact_package_candidates'])
     finally:
+        del names
         state.release_names(lease)
         if fd is not None:
             os.close(fd)
+        _census_restore_declaration(state, declaration)
     for name in sorted(selected):
-        _census_declare(inv, name, directory=True)
-        if name not in state.roots:
+        declaration = _census_declare(state, name, directory=True)
+        new_root = name not in state.roots
+        if new_root:
             state.roots.append(name)
         try:
             state.emit(state.root(dict(kind='census_root', path=name)))
         except (Incomplete, OSError) as error:
             state.incomplete = True
             state.emit(dict(path=name, status='INCOMPLETE', reason=str(error)[:512]))
+        finally:
+            if new_root:
+                state.roots.remove(name)
+            _census_restore_declaration(state, declaration)
 
 
 def _census_headers(state, plan):
     roots = plan['header_search_hypotheses']
-    queue = list(plan['direct_header_tokens'])
-    seen_tokens, seen_paths = set(), set()
+    queue = []
+    seen_scopes, seen_paths = set(), {}
     held = 0
+    selection = include = includes = identity = name = value = None
     try:
-        for token in queue:
-            count = 256 + 4 * len(token)
+        for token in plan['direct_header_tokens']:
+            include = dict(token=token, kind='angle', parent=None)
+            count = _census_include_size(include)
             _census_header_lease(state, count)
             held += count
+            queue.append(include)
         index = 0
         while index < len(queue):
             state.work()
-            token = queue[index]
+            include = queue[index]
             index += 1
-            if token in seen_tokens:
+            selection = _census_header_candidates_data(include, roots)
+            identity = selection['identity']
+            if identity in seen_scopes:
                 continue
-            seen_tokens.add(token)
+            seen_scopes.add(identity)
             found = 0
-            for root in roots:
-                name = root + '/' + token
+            for name in selection['candidates']:
                 if name in seen_paths:
+                    found += seen_paths[name]
                     continue
                 if len(seen_paths) >= 4096:
                     raise Incomplete('CensusHeaderFileCount')
                 count = 256 + 4 * len(name)
                 _census_header_lease(state, count)
                 held += count
-                seen_paths.add(name)
-                # Every exact candidate is attempted and preserved. Source input
-                # discovery never chooses a compiler search order by first-match.
-                before_records = state.file_bytes
-                tokens = _census_file_fact(state, name, header=True)
-                found += state.file_bytes != before_records
-                for value in tokens:
-                    # file_fact already leased these independent source tokens.
-                    count = 256 + 4 * len(value)
-                    held += count
+                # Context-preserving candidates are all reported; neither parent
+                # preference nor multiple fixed roots silently chooses authority.
+                includes, present = _census_file_fact(state, name, header=True)
+                seen_paths[name] = present
+                found += seen_paths[name]
+                for value in includes:
+                    # file_fact already leased the token/kind/origin parent.
+                    held += _census_include_size(value)
                     queue.append(value)
             if found != 1:
                 state.incomplete = True
-                state.emit(dict(kind='header_search', token=token, matches=found,
+                state.emit(dict(kind='header_search', token=include['token'],
+                    include_kind=include['kind'], parent=include['parent'], matches=found,
                     status='INCOMPLETE_HEADER_SEARCH_ORDER_OR_MEMBERSHIP'))
     except Incomplete as error:
         state.incomplete = True
         state.emit(dict(kind='header_closure', status='INCOMPLETE', reason=str(error)[:512]))
     finally:
+        # No declaration or header-queue borrow survives this SOURCE stage.
+        del queue, seen_scopes, seen_paths, selection, include, includes, identity, name, value
         state.release(held)
         state.header_queue_bytes -= held
         if state.header_queue_bytes != 0:
@@ -1416,11 +1504,13 @@ def closure_source_census():
     try:
         native_entries = old['fixed_item_order'] + [dict(kind='ELF_seed', path=n) for n in plan['new_exact_ELF_seeds']]
         for entry in native_entries:
-            _census_declare(inv, entry['path'], directory=entry['kind'] in ('ancestor', 'directory'))
-            state.member()
-            state.lease(2097152)
+            declaration = _census_declare(state, entry['path'], directory=entry['kind'] in ('ancestor', 'directory'))
             row = None
+            frame_held = False
             try:
+                state.member()
+                state.lease(2097152)
+                frame_held = True
                 try:
                     row = inv.item(entry)
                 except (Incomplete, OSError) as error:
@@ -1429,7 +1519,9 @@ def closure_source_census():
                 state.emit(row)
             finally:
                 del row
-                state.release(2097152)
+                if frame_held:
+                    state.release(2097152)
+                _census_restore_declaration(state, declaration)
         for name in roots:
             # Closed-tree descendants are admitted only from a held, stable,
             # declared directory scan, never from an ambient search/role.

@@ -1,0 +1,321 @@
+"""Fixed SOURCE_CENSUS01 custody launcher. SOURCE REVIEW ONLY until ROOT invokes it.
+
+This never creates an accepted reference/context or calls the operational path.
+ROOT must verify this source hash and the independent source verdict externally.
+"""
+import hashlib
+import gzip
+import json
+import os
+from pathlib import Path
+import selectors
+import signal
+import stat
+import subprocess
+import sys
+import time
+import traceback
+
+ROOT = Path('/home/lynn/projects/wordling')
+DEST = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/SOURCE_CENSUS01'
+SOURCE = ROOT / 'internal/document/evidence/reference_controller/tests/current_test_qualification.py'
+PLAN = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/reader-plan.json'
+R4 = ROOT / 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json'
+EXPECTED = {'/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py': {'size': 76314, 'sha256': 'daf7ebef006960b512d94360188122e0294bf9b715fecf9bdde2f22e2580e4c5', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/reader-plan.json': {'size': 25585, 'sha256': '36c8a705b53e6f08bc2fa52f47dea9bed731de1b7f34400ec0f079c7d24cf4c0', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json': {'size': 28339, 'sha256': 'c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json': {'size': 2001, 'sha256': '028a8ae6ee750dbe914cb2974991d9b27b3acab6cb4df76d6ef437afc890d90c', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py': {'size': 251281, 'sha256': 'f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/controller_deployment.py': {'size': 26023, 'sha256': '9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py': {'size': 53501, 'sha256': '742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py': {'size': 67011, 'sha256': '4aacb0c4800225bc5638049e2f82518428fb97863080a4397d4a0e642e062c87', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py': {'size': 14851, 'sha256': '6c665b7cd539f8dc64f10632be86e437440b67a2f8265585e7a8b62af9684e82', 'mode': 436, 'uid': 1000, 'gid': 1000}, '/usr/bin/timeout': {'size': 39880, 'sha256': '12690a043dfd555a6c14ccc1564f5649c18f1762c0d6ff66729948130898ec52', 'mode': 493, 'uid': 0, 'gid': 0}, '/usr/bin/prlimit': {'size': 27536, 'sha256': '17064f67e650d6152a6902b013aab496b54c87587c8eea6f5023aafee6154069', 'mode': 493, 'uid': 0, 'gid': 0}, '/usr/bin/python3.12': {'size': 8020928, 'sha256': 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f', 'mode': 493, 'uid': 0, 'gid': 0}}
+ARGV = ['/usr/bin/timeout', '--signal=TERM', '--kill-after=2s', '300s', '/usr/bin/prlimit', '--as=167772160', '--nofile=32', '--nproc=0', '--fsize=8388608', '--', '/usr/bin/python3', '-I', '-B', '/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py', '--closure-source-census']
+ENV = dict(PATH='/usr/bin:/bin', HOME='/home/lynn', LANG='C.UTF-8', LC_ALL='C.UTF-8')
+CAPS = {'capture.py.txt':131072, 'command.json':65536, 'preflight.json':65536, 'stdout.raw.gz':1572864, 'stderr.raw':16384, 'process.json':65536}
+TOTAL_WRITER_CAP = 1916928  # plus separately ROOT-copied packet.json<=65536 =1982464
+RAW_CAPS = dict(stdout=8388608, stderr=16384)
+
+
+def stamp(s):
+    return (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+
+
+def facts(s):
+    return dict(mode=stat.S_IMODE(s.st_mode), uid=s.st_uid, gid=s.st_gid,
+        dev=s.st_dev, ino=s.st_ino, size=s.st_size, mtime_ns=s.st_mtime_ns, ctime_ns=s.st_ctime_ns)
+
+
+def directory(path):
+    if not path.is_absolute() or '..' in path.parts:
+        raise RuntimeError('FixedPathInvariant')
+    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        for part in path.parts[1:]:
+            old = os.stat(part, dir_fd=fd, follow_symlinks=False)
+            if not stat.S_ISDIR(old.st_mode):
+                raise RuntimeError('ParentType:' + str(path))
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=fd)
+            if stamp(old) != stamp(os.fstat(child)):
+                os.close(child)
+                raise RuntimeError('ParentChanged:' + str(path))
+            os.close(fd)
+            fd = child
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def main():
+    if sys.argv[1:]:
+        raise RuntimeError('NoParametersOrRosterVariants')
+    begin = time.monotonic()
+    deadline = begin + 300
+    read_requests = 0
+    dfd = None
+    pid = None
+    p = None
+    status = usage = None
+    error = None
+    partial = dict(stdout=False, stderr=False)
+    totals = dict(stdout=0, stderr=0)
+    digests = {k: hashlib.sha256() for k in totals}
+    preflight = []
+    handles = {}
+    sel = selectors.DefaultSelector()
+    write_total = 0
+    compressor = None
+    compressed_size = 0
+    compressed_digest = hashlib.sha256()
+    compressed_complete = False
+
+    def check():
+        if time.monotonic() >= deadline:
+            raise RuntimeError('SOURCE_CENSUS01WholeThreeHundredSecondDeadline')
+
+    def regular(path, expected=None, keep=False):
+        nonlocal read_requests
+        check()
+        parent = directory(path.parent)
+        fd = None
+        try:
+            before = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(before.st_mode) or before.st_size > (8388608 if expected else 32768):
+                raise RuntimeError('PreflightRegularBound:' + str(path))
+            fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+            if stamp(before) != stamp(os.fstat(fd)):
+                raise RuntimeError('PreflightOpenChanged:' + str(path))
+            h = hashlib.sha256()
+            retained = bytearray()
+            remaining = before.st_size
+            while remaining:
+                check()
+                count = min(65536, remaining)
+                if read_requests + count > 9437184:
+                    raise RuntimeError('PreflightReadRequestBound')
+                read_requests += count
+                data = os.read(fd, count)
+                if len(data) != count:
+                    raise RuntimeError('PreflightShortRead:' + str(path))
+                h.update(data)
+                remaining -= len(data)
+                if keep:
+                    retained.extend(data)
+            if stamp(before) != stamp(os.fstat(fd)) or stamp(before) != stamp(os.stat(path.name, dir_fd=parent, follow_symlinks=False)):
+                raise RuntimeError('PreflightChanged:' + str(path))
+            result = dict(path=str(path), **facts(before), sha256=h.hexdigest())
+            preflight.append(result)
+            if expected and any(result[k] != v for k, v in expected.items()):
+                raise RuntimeError('PreflightPinMismatch:' + str(path))
+            return bytes(retained) if keep else result
+        finally:
+            if fd is not None:
+                os.close(fd)
+            os.close(parent)
+
+    def write(name, data):
+        nonlocal write_total
+        if name not in CAPS or len(data) > CAPS[name] or write_total + len(data) > TOTAL_WRITER_CAP:
+            raise RuntimeError('WriterByteBound')
+        fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=dfd)
+        try:
+            offset = 0
+            while offset < len(data):
+                amount = os.write(fd, data[offset:])
+                if amount <= 0:
+                    raise RuntimeError('WriterShortWrite')
+                offset += amount
+            os.fsync(fd)
+            write_total += len(data)
+        finally:
+            os.close(fd)
+
+    def document(name, value):
+        write(name, (json.dumps(value, indent=2, ensure_ascii=True) + '\n').encode('ascii'))
+
+    class CompressedSink:
+        def write(self, data):
+            nonlocal compressed_size, write_total
+            if (compressed_size + len(data) > CAPS['stdout.raw.gz']
+                    or write_total + len(data) > TOTAL_WRITER_CAP):
+                partial['stdout'] = True
+                raise RuntimeError('CompressedSourceCustodyBound')
+            offset = 0
+            while offset < len(data):
+                n = os.write(handles['stdout'], data[offset:])
+                if n <= 0:
+                    raise RuntimeError('CompressedSourceShortWrite')
+                compressed_digest.update(data[offset:offset+n])
+                compressed_size += n
+                write_total += n
+                offset += n
+            return len(data)
+        def flush(self):
+            pass
+
+    try:
+        # Exactly this new writer namespace, held by no-follow parent descriptors.
+        parent = directory(DEST.parent)
+        try:
+            os.mkdir(DEST.name, 0o700, dir_fd=parent)  # existing namespace => stop; no retry
+            dfd = os.open(DEST.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+        finally:
+            os.close(parent)
+        own = regular(Path(__file__).absolute(), keep=True)
+        write('capture.py.txt', own)
+        document('command.json', dict(argv=ARGV, cwd=str(ROOT), env=ENV,
+            source_checkpoint='FIXED_READER_SHA256_daf7ebef006960b512d94360188122e0294bf9b715fecf9bdde2f22e2580e4c5; ROOT records tracked commit separately', launcher_sha256=hashlib.sha256(own).hexdigest(),
+            status='ROOT_DELIBERATE_ONE_SOURCE_CENSUS01_ACTION_ONLY', campaign_clock=False, automatic_followon=0))
+        for name, expected in EXPECTED.items():
+            regular(Path(name), expected)
+        # R4 records resolved-file rights; root-owned 0777 symlink rights are an
+        # additional proposed guard, not a historical R4 observation.
+        parent = directory(Path('/usr/bin'))
+        try:
+            before = os.stat('python3', dir_fd=parent, follow_symlinks=False)
+            link = os.readlink('python3', dir_fd=parent)
+            after = os.stat('python3', dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISLNK(before.st_mode) or link != 'python3.12' or stamp(before) != stamp(after) or stat.S_IMODE(before.st_mode) != 0o777 or before.st_uid != 0 or before.st_gid != 0:
+                raise RuntimeError('PythonLogicalSymlinkIdentity')
+            preflight.append(dict(path='/usr/bin/python3', link_text=link, **facts(before)))
+        finally:
+            os.close(parent)
+        document('preflight.json', dict(status='PRE_EFFECT_FIXED_PINS_MATCH', rows=preflight, byte_read_requests=read_requests,
+            caveat='Path pin checks do not establish atomic descriptor execution or accepted runtime/reference closure.'))
+        check()
+        for stream in totals:
+            fd = os.open('stdout.raw.gz' if stream == 'stdout' else 'stderr.raw', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=dfd)
+            handles[stream] = fd
+        compressor = gzip.GzipFile(filename='', mode='wb', fileobj=CompressedSink(), mtime=0)
+        # This isolated group contains ONLY the SOURCE_CENSUS01 timeout/read-only child;
+        # it is never the public CLI/P supervisor and contains no P/TEST actor.
+        p = subprocess.Popen(ARGV, cwd=ROOT, env=ENV, stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        pid = p.pid
+        sel.register(p.stdout, selectors.EVENT_READ, 'stdout')
+        sel.register(p.stderr, selectors.EVENT_READ, 'stderr')
+        while sel.get_map() or status is None:
+            check()
+            for key, _ in sel.select(0.02):
+                stream = key.data
+                available = RAW_CAPS[stream] - totals[stream]
+                data = os.read(key.fileobj.fileno(), min(65536, available + 1))
+                if not data:
+                    sel.unregister(key.fileobj)
+                    key.fileobj.close()
+                    continue
+                kept = data[:available]
+                if kept:
+                    if stream == 'stdout':
+                        compressor.write(kept)
+                    else:
+                        offset = 0
+                        while offset < len(kept):
+                            n = os.write(handles[stream], kept[offset:])
+                            if n <= 0:
+                                raise RuntimeError('RawWriterShortWrite')
+                            offset += n
+                            write_total += n
+                    digests[stream].update(kept)
+                    totals[stream] += len(kept)
+                if len(kept) != len(data):
+                    partial[stream] = True
+                    raise RuntimeError('SeparateRawOutputBound:' + stream)
+            if status is None:
+                got, observed, observed_usage = os.wait4(pid, os.WNOHANG)
+                if got:
+                    status, usage = observed, observed_usage
+                    p.returncode = os.waitstatus_to_exitcode(status)
+        compressor.close()
+        compressor = None
+        compressed_complete = True
+        for name, expected in EXPECTED.items():
+            if name.startswith(str(ROOT) + '/'):
+                regular(Path(name), expected)
+    except BaseException as failure:
+        error = ''.join(traceback.format_exception(failure))[:8192]
+        if p is not None and status is None:
+            # Fixed session group created by this launcher; never a campaign/P group.
+            try:
+                os.killpg(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            end = min(deadline + 2, time.monotonic() + 2)
+            while time.monotonic() < end:
+                # Observe without reaping: keep this exact group leader PID
+                # occupied until the final group signal, avoiding PID reuse.
+                observed = os.waitid(os.P_PID, pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                if observed is not None:
+                    break
+                time.sleep(0.01)
+            # Group identity remains held by the unreaped direct child PID.
+            try:
+                os.killpg(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            if status is None:
+                _, status, usage = os.wait4(pid, 0)
+                p.returncode = os.waitstatus_to_exitcode(status)
+        if p is not None:
+            for stream in totals:
+                partial[stream] = True  # undrained suffix unknown even if reaped
+    finally:
+        sel.close()
+        if compressor is not None:
+            try:
+                compressor.close()
+                compressed_complete = not partial['stdout']
+            except BaseException as close_error:
+                partial['stdout'] = True
+                compressed_complete = False
+                if error is None:
+                    error = str(close_error)[:8192]
+        for stream, fd in handles.items():
+            os.fsync(fd)
+            os.close(fd)
+        if p is not None:
+            for stream in (p.stdout, p.stderr):
+                if stream is not None and not stream.closed:
+                    stream.close()
+        if dfd is not None:
+            # No output is parsed/promoted by the launcher; ROOT inspects raw bytes.
+            receipt = dict(schema='wordling.SOURCE_CENSUS01-custody-receipt/v1',
+                disposition='UNACCEPTED_STATIC_DATA_CUSTODY_ONLY', actual_exit=None if p is None else p.returncode,
+                elapsed_seconds=time.monotonic() - begin, error=error, preflight_rows=preflight,
+                preflight_read_requests=read_requests, streams={k: dict(created=k in handles, size=totals[k], sha256=digests[k].hexdigest(),
+                    partial_prefix=partial[k], unretained_suffix='UNKNOWN' if partial[k] else None) for k in totals},
+                compressed_stdout=dict(path='stdout.raw.gz', size=compressed_size, sha256=compressed_digest.hexdigest(), complete_gzip=compressed_complete, raw_identity_scope='Actual streamed prefix; exact restoration only when complete_gzip and no stdoutpartial; no automatic decode/acceptance'),
+                writer_total_bytes=write_total, separate_raw_caps=RAW_CAPS,
+                wait4=None if usage is None else dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,
+                    maxrss_kib=usage.ru_maxrss, minor_faults=usage.ru_minflt, major_faults=usage.ru_majflt,
+                    inblock=usage.ru_inblock, oublock=usage.ru_oublock, voluntary_context_switches=usage.ru_nvcsw,
+                    involuntary_context_switches=usage.ru_nivcsw),
+                memory_scope='wait4 timeout command and reaped descendants, not a joint-memory/reference qualification proof',
+                child_report_status='UNKNOWN_ROOT_MUST_INSPECT_COMPLETE_RAW_JSON',
+                accepted_reference=False, context_created=False, operational_actions=0,
+                campaign_clock_started=False, automatic_followon=0, retry=False)
+            try:
+                document('process.json', receipt)
+                os.fsync(dfd)
+            finally:
+                os.close(dfd)
+    if error:
+        raise SystemExit(2)
+    raise SystemExit(0 if p.returncode in (0, 2) else 3)
+
+
+if __name__ == '__main__':
+    main()

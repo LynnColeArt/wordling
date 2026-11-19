@@ -1,0 +1,94 @@
+{
+  "schema": "wordling.wp108-source-census-R1-fullgroups/v1",
+  "execution_base_commit": "74e1fee3b9bdbf0cb6309c65dce33f4c0b41b607",
+  "source_inputs": {
+    "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+      "size": 76314,
+      "sha256": "daf7ebef006960b512d94360188122e0294bf9b715fecf9bdde2f22e2580e4c5"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 67011,
+      "sha256": "4aacb0c4800225bc5638049e2f82518428fb97863080a4397d4a0e642e062c87"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 14851,
+      "sha256": "6c665b7cd539f8dc64f10632be86e437440b67a2f8265585e7a8b62af9684e82"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+      "size": 251281,
+      "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+    },
+    "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json": {
+      "size": 28339,
+      "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+    }
+  },
+  "commands": [
+    {
+      "id": "CENSUS-FULL-DATA",
+      "phase": "POST_SOURCE_ONLY",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 0,
+      "classification": "PASS_SOURCE_CENSUS_POST",
+      "expected_cause": "OK"
+    },
+    {
+      "id": "CENSUS-FULL-AST",
+      "phase": "POST_SOURCE_ONLY",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 0,
+      "classification": "PASS_SOURCE_CENSUS_POST",
+      "expected_cause": "OK"
+    }
+  ],
+  "methods": 83,
+  "old_causal_evidence": "Exactold5casource/Git5c149a+4oldpostimages/rawpairs remain historicalactualsourceguards; notnewfullmodulemutantpostimages. Guard/test/call-chainASTconservation inchange-and-reuse-audit.json."
+}
