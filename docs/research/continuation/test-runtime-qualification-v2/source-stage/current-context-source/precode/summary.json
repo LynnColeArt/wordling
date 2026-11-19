@@ -1,0 +1,182 @@
+{
+  "schema": "wordling.wp108-current-precode-observation/v1",
+  "status": "OBSERVED_GENUINE_SEMANTIC_RED_BEFORE_SOURCE",
+  "execution_base_commit": "41ef0655794bc48f24fd7622048c3a33d158b9c5",
+  "setup_failure": {
+    "actual_outer_exit": 1,
+    "test_child_launched": false,
+    "child_case_attempt_count": 0,
+    "raw_traceback": "Traceback (most recent call last):\n  File \"/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/precode/capture-source-DATA.py.txt\", line 167, in <module>\n    main()\n  File \"/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/precode/capture-source-DATA.py.txt\", line 47, in main\n    assert pin(ROOT / path) == wanted, ('SOURCE_PIN_CHANGED', path)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ('SOURCE_PIN_CHANGED', 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md')\n",
+    "traceback_sha256": "2080ca332d6d484c9f88fcb5a0c28baaa177f545479334f40028a5453ee92d24",
+    "original_capture_source_sha256": "5fb0c2bd83c9c49711ac9a47d90afa55d33416d3c32904d229e77c8a0ba05761",
+    "original_capture_source": "\"\"\"One shared, bounded source/DATA custody writer. Never census/public/qualification action.\"\"\"\nfrom pathlib import Path\nimport hashlib\nimport gzip\nimport json\nimport os\nimport selectors\nimport subprocess\nimport sys\nimport time\nimport traceback\n\nROOT = Path('/home/lynn/projects/wordling')\nDESIGN = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/design'\nOUT = DESIGN.parent / 'precode'\nALLOWED = {'commands-fixtures-variants.json': '5f52c627273274a4643244c9f928f1c6d05f04de9dcc8511a1208169f0af9a19'}\nENV = dict(PATH='/usr/bin:/bin', HOME='/home/lynn', LANG='C.UTF-8', LC_ALL='C.UTF-8')\n\n\ndef pin(path):\n    raw = Path(path).read_bytes()\n    return dict(size=len(raw), sha256=hashlib.sha256(raw).hexdigest())\n\n\ndef main():\n    assert len(sys.argv) == 3\n    name, case_id = sys.argv[1:]\n    assert name in ALLOWED\n    raw = (DESIGN / name).read_bytes()\n    assert hashlib.sha256(raw).hexdigest() == ALLOWED[name]\n    manifest = json.loads(raw)\n    row = next(r for r in manifest['commands'] if r['id'] == case_id)\n    assert case_id in ('CURRENT-POSITIVE', 'CURRENT-RED')\n    expected_head = '41ef0655794bc48f24fd7622048c3a33d158b9c5'\n    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()\n    assert head == expected_head\n    before = {p['path']: {k:p[k] for k in ('size','sha256')}\n        for p in json.loads((DESIGN/'source-writers-TDD-design.json').read_bytes())['source_read_pins']}\n    for path, wanted in manifest['test_postimages'].items():\n        before[path] = wanted\n    before[str((DESIGN/name).relative_to(ROOT))] = pin(DESIGN/name)\n    assert before['internal/document/evidence/reference_controller/tests/runtime_qualification.py']['sha256'] == 'f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802'\n    if case_id == 'CURRENT-RED':\n        assert json.loads((OUT/'POSITIVE/process.json').read_bytes())['classification'] == 'OBSERVED_CURRENT_RECORD_CONSUMER_POSITIVE'\n\n    for path, wanted in before.items():\n        assert pin(ROOT / path) == wanted, ('SOURCE_PIN_CHANGED', path)\n    artifact = ROOT / 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json'\n    launchers = json.loads(artifact.read_bytes())\n    for item in launchers['rows']:\n        observed = pin(item['resolved'])\n        assert observed['size'] == item['size'] and observed['sha256'] == item['sha256']\n        logical = Path(item['logical'])\n        assert logical.is_symlink() == item['logical_is_symlink']\n        assert (os.readlink(logical) if logical.is_symlink() else None) == item['link_text']\n        rights = Path(item['resolved']).stat()\n        assert dict(mode=rights.st_mode & 0o7777, uid=rights.st_uid, gid=rights.st_gid) == {k:item[k] for k in ('mode','uid','gid')}\n    OUT.mkdir(exist_ok=True)\n    directory = OUT / case_id.removeprefix('CURRENT-')\n    directory.mkdir(exist_ok=False)  # all actual receipts are write-once\n    raw_handles = {stream: (directory / (stream + '.raw.gz')).open('xb') for stream in ('stdout', 'stderr')}\n    handles = {stream: gzip.GzipFile(filename='', mode='wb', fileobj=handle, mtime=0) for stream, handle in raw_handles.items()}\n    hashes = {stream: hashlib.sha256() for stream in handles}\n    sizes = {stream: 0 for stream in handles}\n    total = 0\n    caps = dict(stdout=262144, stderr=16384)\n    partial = False\n    error = None\n    status = usage = None\n    process = None\n    start = time.monotonic()\n    selector = selectors.DefaultSelector()\n    try:\n        process = subprocess.Popen(row['argv'], cwd=ROOT, env=ENV, stdin=subprocess.DEVNULL,\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n        selector.register(process.stdout, selectors.EVENT_READ, 'stdout')\n        selector.register(process.stderr, selectors.EVENT_READ, 'stderr')\n        while selector.get_map() or status is None:\n            if time.monotonic() - start > 32:\n                raise RuntimeError('DATA_OUTER_WATCHDOG')\n            for key, _ in selector.select(0.01):\n                value = os.read(key.fileobj.fileno(), min(4096, caps[key.data] - sizes[key.data] + 1))\n                if not value:\n                    selector.unregister(key.fileobj)\n                    key.fileobj.close()\n                    continue\n                kept = value[:caps[key.data] - sizes[key.data]]\n                handles[key.data].write(kept)\n                hashes[key.data].update(kept)\n                sizes[key.data] += len(kept)\n                total += len(kept)\n                if len(kept) != len(value):\n                    partial = True\n                    raise RuntimeError('DATA_RAW_STREAM_CAP:'+key.data)\n            if status is None:\n                got, observed, observed_usage = os.wait4(process.pid, os.WNOHANG)\n                if got:\n                    status, usage = observed, observed_usage\n                    process.returncode = os.waitstatus_to_exitcode(status)\n    except BaseException as failure:\n        error = ''.join(traceback.format_exception(failure))[:8192]\n        partial = True\n        if process is not None and status is None:\n            process.terminate()\n            end = min(start + 32, time.monotonic() + 2)\n            while time.monotonic() < end:\n                got, observed, observed_usage = os.wait4(process.pid, os.WNOHANG)\n                if got:\n                    status, usage = observed, observed_usage\n                    process.returncode = os.waitstatus_to_exitcode(status)\n                    break\n                time.sleep(0.01)\n            if status is None:\n                process.kill()\n                _, status, usage = os.wait4(process.pid, 0)\n                process.returncode = os.waitstatus_to_exitcode(status)\n    finally:\n        selector.close()\n        for handle in handles.values():\n            handle.close()\n        for handle in raw_handles.values():\n            handle.close()\n        if process is not None:\n            for stream in (process.stdout, process.stderr):\n                if stream is not None and not stream.closed:\n                    stream.close()\n    after = {path: pin(ROOT / path) for path in before}\n    stderr = gzip.decompress((directory / 'stderr.raw.gz').read_bytes())\n    for stream in handles:\n        restored = gzip.decompress((directory / (stream + '.raw.gz')).read_bytes())\n        assert len(restored) == sizes[stream] and hashlib.sha256(restored).hexdigest() == hashes[stream].hexdigest(), 'GZIP_CUSTODY_IDENTITY'\n    common = error is None and not partial and before == after and b'Ran ' in stderr\n    code = None if process is None else process.returncode\n    classification = 'UNEXPECTED_FAILURE_PRESERVED'\n    if common and case_id == 'CURRENT-POSITIVE' and code == 0 and b'\\nOK\\n' in stderr and b'ERROR:' not in stderr:\n        classification = 'OBSERVED_CURRENT_RECORD_CONSUMER_POSITIVE'\n    elif common and case_id == 'CURRENT-RED' and code == 1 and b'FAIL:' in stderr and b'ERROR:' not in stderr and b'test_existing_record_consumer_rejects_runtime_alias_without_captured_target' in stderr and b'RuntimeError not raised' in stderr and b'AssertionError' in stderr:\n        classification = 'OBSERVED_GENUINE_CURRENT_RUNTIME_ALIAS_TARGET_RED'\n\n    value = dict(schema='wordling.wp108-current-context-precode-DATA-receipt/v1', case_id=case_id,\n        argv=row['argv'], cwd=str(ROOT), env=ENV, manifest=dict(path=name, sha256=ALLOWED[name]),\n        capture_source=dict(path=str(Path(__file__).absolute()), **pin(__file__)),\n        execution_base_commit=head, execution_base_provenance='Actual gitrevparse checked against explicit ROOT clean writer handoff; source working bytes pinned here',\n        input_before=before, input_after=after, source_inputs_equal=before == after,\n        actual_exit=code, error=error, partial_prefix=partial, unretained_suffix='UNKNOWN' if partial else None,\n        streams={k: dict(raw_size=sizes[k], raw_sha256=hashes[k].hexdigest(), gzip_path=k+'.raw.gz', gzip_pin=pin(directory/(k+'.raw.gz')), exact_roundtrip=True) for k in handles},\n        raw_separate_caps=caps, elapsed_seconds=time.monotonic() - start,\n        wait4=None if usage is None else dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,\n            maxrss_kib=usage.ru_maxrss, minor_faults=usage.ru_minflt, major_faults=usage.ru_majflt,\n            inblock=usage.ru_inblock, oublock=usage.ru_oublock, voluntary_context_switches=usage.ru_nvcsw,\n            involuntary_context_switches=usage.ru_nivcsw),\n        usage_scope='Actual timeout child and reaped descendants; not a joint-memory/reference proof',\n        classification=classification, expected=dict(exit=row['expected_exit']), operational_actions=0, public_lookup=False,\n        CURRENT_QUALIFICATION=False, accepted_reference_or_context=False, campaign_clock=False, automatic_followon=0)\n    encoded = (json.dumps(value, indent=2) + '\\n').encode('ascii')\n    assert len(encoded) <= 32768, 'DATA_PROCESS_METADATA_CAP'\n    with (directory / 'process.json').open('xb') as handle:\n        handle.write(encoded)\n    print(json.dumps(dict(case_id=case_id, actual_exit=code, classification=classification,\n        elapsed_seconds=value['elapsed_seconds'], resource_maxrss_kib=None if usage is None else usage.ru_maxrss,\n        streams=value['streams'])), flush=True)\n    if classification == 'UNEXPECTED_FAILURE_PRESERVED':\n        raise SystemExit(2)\n\n\nif __name__ == '__main__':\n    main()\n",
+    "classification": "SETUP_PIN_STALENESS_NOT_RED",
+    "permission": "ROOT explicit metadata-only reconciliation fromimmutable41efGitblob, no baserefresh/helper/taskedit/guardrelaxation."
+  },
+  "capture_metadata_delta": "--- initial-capture\n+++ metadata-reconciled-capture\n@@ -43,6 +43,14 @@\n     if case_id == 'CURRENT-RED':\n         assert json.loads((OUT/'POSITIVE/process.json').read_bytes())['classification'] == 'OBSERVED_CURRENT_RECORD_CONSUMER_POSITIVE'\n \n+    task_path = 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md'\n+    planning_task_pin = before[task_path]\n+    task_blob = subprocess.check_output(['git','show',expected_head + ':' + task_path], cwd=ROOT)\n+    task_execution_pin = dict(size=len(task_blob), sha256=hashlib.sha256(task_blob).hexdigest())\n+    before[task_path] = task_execution_pin\n+    metadata_reconciliation = dict(path=task_path, planning_pin=planning_task_pin,\n+        execution_pin=task_execution_pin, execution_commit=expected_head,\n+        reason='Explicit ROOT authorization: retention/source03 task metadata amended after6e0 source planning. No code/provider/input authority change; exact granted Gitblob, not observed candidate.')\n     for path, wanted in before.items():\n         assert pin(ROOT / path) == wanted, ('SOURCE_PIN_CHANGED', path)\n     artifact = ROOT / 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json'\n@@ -142,6 +150,7 @@\n         capture_source=dict(path=str(Path(__file__).absolute()), **pin(__file__)),\n         execution_base_commit=head, execution_base_provenance='Actual gitrevparse checked against explicit ROOT clean writer handoff; source working bytes pinned here',\n         input_before=before, input_after=after, source_inputs_equal=before == after,\n+        metadata_reconciliation=metadata_reconciliation,\n         actual_exit=code, error=error, partial_prefix=partial, unretained_suffix='UNKNOWN' if partial else None,\n         streams={k: dict(raw_size=sizes[k], raw_sha256=hashes[k].hexdigest(), gzip_path=k+'.raw.gz', gzip_pin=pin(directory/(k+'.raw.gz')), exact_roundtrip=True) for k in handles},\n         raw_separate_caps=caps, elapsed_seconds=time.monotonic() - start,\n",
+  "reconciled_capture_sha256": "8342acf44063f4f2ffe3931cf4550b1e08cf01b85b043c9a3423b778870f5d0f",
+  "task_execution_pin": {
+    "size": 25071,
+    "sha256": "176aad7374ae45c16219828670df1af9eacf2f18122e5f27c0990c4d3f599d42"
+  },
+  "test_results": [
+    {
+      "case_id": "CURRENT-POSITIVE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "CurrentReferenceRoleDataTests.test_existing_record_consumer_positive_control"
+      ],
+      "actual_exit": 0,
+      "classification": "OBSERVED_CURRENT_RECORD_CONSUMER_POSITIVE",
+      "elapsed_seconds": 0.151733304024674,
+      "wait4": {
+        "user_seconds": 0.109959,
+        "system_seconds": 0.029234,
+        "maxrss_kib": 48872,
+        "minor_faults": 10312,
+        "major_faults": 0,
+        "inblock": 0,
+        "oublock": 0,
+        "voluntary_context_switches": 3,
+        "involuntary_context_switches": 3
+      },
+      "streams": {
+        "stdout": {
+          "raw_size": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_path": "stdout.raw.gz",
+          "gzip_pin": {
+            "size": 20,
+            "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+          },
+          "exact_roundtrip": true
+        },
+        "stderr": {
+          "raw_size": 98,
+          "raw_sha256": "7736d71002a53937d2389943fc06802041d1905f7ac3600e8dddd8242664e150",
+          "gzip_path": "stderr.raw.gz",
+          "gzip_pin": {
+            "size": 51,
+            "sha256": "226ec167eb2f8245c85a621c00a01e8137f2bc4df1e06f5ff21e892b62a9e9b6"
+          },
+          "exact_roundtrip": true
+        }
+      },
+      "source_inputs_equal": true,
+      "metadata_reconciliation": {
+        "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md",
+        "planning_pin": {
+          "size": 21601,
+          "sha256": "ecde07a797907c825e2345de8026c14cfa85f60c54183fb56b9e2e85adf7201d"
+        },
+        "execution_pin": {
+          "size": 25071,
+          "sha256": "176aad7374ae45c16219828670df1af9eacf2f18122e5f27c0990c4d3f599d42"
+        },
+        "execution_commit": "41ef0655794bc48f24fd7622048c3a33d158b9c5",
+        "reason": "Explicit ROOT authorization: retention/source03 task metadata amended after6e0 source planning. No code/provider/input authority change; exact granted Gitblob, not observed candidate."
+      }
+    },
+    {
+      "case_id": "CURRENT-RED",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "CurrentReferenceRoleDataTests.test_existing_record_consumer_rejects_runtime_alias_without_captured_target"
+      ],
+      "actual_exit": 1,
+      "classification": "OBSERVED_GENUINE_CURRENT_RUNTIME_ALIAS_TARGET_RED",
+      "elapsed_seconds": 0.15436257200781256,
+      "wait4": {
+        "user_seconds": 0.11593099999999999,
+        "system_seconds": 0.022966999999999998,
+        "maxrss_kib": 48724,
+        "minor_faults": 10294,
+        "major_faults": 0,
+        "inblock": 0,
+        "oublock": 0,
+        "voluntary_context_switches": 3,
+        "involuntary_context_switches": 1
+      },
+      "streams": {
+        "stdout": {
+          "raw_size": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_path": "stdout.raw.gz",
+          "gzip_pin": {
+            "size": 20,
+            "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+          },
+          "exact_roundtrip": true
+        },
+        "stderr": {
+          "raw_size": 828,
+          "raw_sha256": "662b1bf8634fc559c230613ed90786cf2d415cee1062bf9c526bd3c2a13c3f2a",
+          "gzip_path": "stderr.raw.gz",
+          "gzip_pin": {
+            "size": 352,
+            "sha256": "2c07354ad1315751f607abf07ae11961b4fbb7df141bb1f77d713664c41bafc3"
+          },
+          "exact_roundtrip": true
+        }
+      },
+      "source_inputs_equal": true,
+      "metadata_reconciliation": {
+        "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md",
+        "planning_pin": {
+          "size": 21601,
+          "sha256": "ecde07a797907c825e2345de8026c14cfa85f60c54183fb56b9e2e85adf7201d"
+        },
+        "execution_pin": {
+          "size": 25071,
+          "sha256": "176aad7374ae45c16219828670df1af9eacf2f18122e5f27c0990c4d3f599d42"
+        },
+        "execution_commit": "41ef0655794bc48f24fd7622048c3a33d158b9c5",
+        "reason": "Explicit ROOT authorization: retention/source03 task metadata amended after6e0 source planning. No code/provider/input authority change; exact granted Gitblob, not observed candidate."
+      }
+    }
+  ],
+  "qualification_clock_started": false,
+  "context_created": false,
+  "actual_test_child_launches": 2,
+  "capture_outer_attempts": 3,
+  "causal_reason": "Actual existing canonical check_selection_records accepted digest-consistent RUNTIME_ALIAS frame whose exact matching absolute endpoint was absent from expected.files. assertRaisesRegex(CurrentRuntimeAliasTarget) failed RuntimeError not raised,1FAIL0ERROR. No missingAPI/forgedcontext/Preparation or resourceerror.",
+  "reviewed_test_pins": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 70541,
+      "sha256": "a0f63c3bc175818379f4c42b690d2bd9e1f8e68dd089022d9f61738d7ed444cc"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 16685,
+      "sha256": "1b0f9e5215937d0d8ff781a654235f2ac444968375ce26e1a0d6af17b023fa3b"
+    }
+  },
+  "source_helpers_unchanged": true,
+  "ROOT_causal_review": "Not written by implementer; reservedROOTfile remainsuncreated.",
+  "source_or_qualified_actions": 0
+}

@@ -199,5 +199,35 @@ class SourceCensusStructuralTests(unittest.TestCase):
         self.assertNotIn('CurrentContext(', ast.unparse(node))
 
 
+
+
+class CurrentGenuineContextStructuralTests(unittest.TestCase):
+    def test_role_frame_check_is_part_of_one_canonical_consumer(self):
+        node = function(source_tree('runtime_qualification.py'), '_current_selection_data')
+        calls = [n for n in ast.walk(node) if isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Name) and n.func.id == '_current_role_frames_data']
+        self.assertEqual(len(calls), 1)
+        role = function(source_tree('runtime_qualification.py'), '_current_role_frames_data')
+        forbidden = {'open', 'read', 'read_bytes', 'stat', 'resolve', 'Popen', 'fork'}
+        self.assertEqual([n.func.attr for n in ast.walk(role) if isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Attribute) and n.func.attr in forbidden], [])
+
+    def test_current_preflight_keeps_v1_default_body(self):
+        node = function(source_tree('runtime_qualification.py'), 'preflight_inputs', 'Preparation')
+        self.assertIsInstance(node.body[0], ast.If)
+        self.assertIn('current_test', ast.unparse(node.body[0]))
+        self.assertEqual(hashlib.sha256(ast.dump(ast.Module(body=node.body[1:], type_ignores=[]),
+            include_attributes=False).encode()).hexdigest(), 'cb8fbe16e61079ab0e6ccec7821c3fb91b03ad059a2bacd36c975580378d7002')
+
+    def test_public_constructor_stays_blocked_and_prep_clock_is_separate(self):
+        tree = source_tree('current_test_qualification.py')
+        node = function(tree, '__new__', '_CurrentContext')
+        self.assertTrue(any(isinstance(n, ast.Raise) for n in ast.walk(node)))
+        producer = function(tree, '_produce_current_context')
+        self.assertIn('_require_live_root_boundary', ast.unparse(producer))
+        self.assertIn('whole_end', ast.unparse(producer))
+        self.assertIn('preparation_origin', ast.unparse(producer))
+
+
 if __name__ == "__main__":
     unittest.main()

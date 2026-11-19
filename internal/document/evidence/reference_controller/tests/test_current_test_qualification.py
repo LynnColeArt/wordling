@@ -1164,5 +1164,73 @@ class SourceCensusDataTests(unittest.TestCase):
                 getattr(self.c, name)()
 
 
+
+
+class CurrentReferenceRoleDataTests(unittest.TestCase):
+    """Actual canonical record consumer DATA; no live context is fabricated."""
+    @classmethod
+    def setUpClass(cls):
+        cls.q = canonical_helper()
+
+    def data(self, target='/DATA/runtime/python', role='RUNTIME_ALIAS', resolution='CAPTURED_SINGLE_HOP'):
+        e, s = v2_unaccepted_data()
+        e['links']['/DATA/runtime/alias'] = dict(target=target, resolved=target,
+            rights=dict(mode=0o777, uid=1000, gid=1000), role=role, resolution=resolution)
+        s['roles_sha256'] = digest(roles_projection(e))
+        return e, s
+
+    def test_existing_record_consumer_positive_control(self):
+        e, s = v2_unaccepted_data()
+        result = self.q.check_selection_records(e, s)
+        self.assertEqual(result['disposition'], 'UNACCEPTED_VALIDATOR_DATA')
+        self.assertEqual(result['provider_records'], 8)
+
+    def test_existing_record_consumer_rejects_runtime_alias_without_captured_target(self):
+        e, s = self.data('/DATA/UNKNOWN_TARGET')
+        # Digest consistency is currently accepted; missing target is the
+        # semantic gap, before any allocation and without missing APIs.
+        with self.assertRaisesRegex(RuntimeError, '^CurrentRuntimeAliasTarget$'):
+            self.q.check_selection_records(e, s)
+
+    def test_captured_runtime_alias_is_still_only_unaccepted_DATA(self):
+        e, s = self.data()
+        self.assertEqual(self.q.check_selection_records(e, s)['disposition'],
+            'UNACCEPTED_VALIDATOR_DATA')
+        with mock.patch.object(self.q.Path, 'read_bytes', side_effect=AssertionError('ROLE_DATA_READ')):
+            with self.assertRaisesRegex(RuntimeError, '^CurrentTestAcceptedContextRequired$'):
+                self.q.verify_tool_selection(e)
+
+    def test_external_metadata_alias_never_grows_runtime(self):
+        e, s = self.data('/DATA/UNKNOWN_TARGET', 'NONEXECUTED_METADATA', 'LEXICAL_ONLY_NO_FOLLOW')
+        before = copy.deepcopy(e['runtime_elf'])
+        self.assertEqual(self.q.check_selection_records(e, s)['disposition'], 'UNACCEPTED_VALIDATOR_DATA')
+        self.assertEqual(e['runtime_elf'], before)
+
+    def test_malformed_alias_rights_refused_by_existing_consumer(self):
+        for key, value in (('mode', True), ('uid', '1000')):
+            e, s = self.data()
+            e['links']['/DATA/runtime/alias']['rights'][key] = value
+            s['roles_sha256'] = digest(roles_projection(e))
+            with self.assertRaisesRegex(RuntimeError, '^CurrentReferenceAliasSchema$'):
+                self.q.check_selection_records(e, s)
+
+    def test_TOOL_endpoint_cannot_be_relabelled_runtime_alias(self):
+        e, s = self.data('/DATA/tool/python')
+        with self.assertRaisesRegex(RuntimeError, '^CurrentRuntimeAliasRole$'):
+            self.q.check_selection_records(e, s)
+
+    def test_runtime_alias_requires_captured_not_lexical_resolution(self):
+        e, s = self.data(resolution='LEXICAL_ONLY_NO_FOLLOW')
+        with self.assertRaisesRegex(RuntimeError, '^CurrentRuntimeAliasResolution$'):
+            self.q.check_selection_records(e, s)
+
+    def test_raw_role_receipt_cannot_allocate_preparation(self):
+        e, s = self.data()
+        receipt = self.q.check_selection_records(e, s)
+        with mock.patch.object(self.q.os, 'umask', side_effect=AssertionError('PRE_ADMISSION_EFFECT')):
+            with self.assertRaisesRegex(RuntimeError, '^CurrentTestIdentity$'):
+                self.q.Preparation('/DATA/final', '/DATA/evidence', e, current_test=receipt)
+
+
 if __name__ == "__main__":
     unittest.main()
