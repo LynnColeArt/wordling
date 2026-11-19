@@ -1,0 +1,12 @@
+--- evaluate.go
++++ missing-as-empty/evaluate.go
+@@ -46,7 +46,8 @@
+ 	if q.conditional {
+ 		v, a, e := access(2, true)
+ 		if e != nil {
+-			return Result{}, e
++			v, _ = data.Field(recordOrdinal, 1)
++			a = field
+ 		}
+ 		blank, e := v.ExplicitlyEmpty()
+ 		if e != nil {

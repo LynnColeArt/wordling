@@ -1,0 +1,92 @@
+package main
+
+import (
+	"bytes"
+	n "github.com/lynncoleart/wordling/internal/merge/native"
+	"os"
+	"testing"
+)
+
+func TestPublicOwnedBoundary(t *testing.T) {
+	raw, e := os.ReadFile("fixture.wp5")
+	if e != nil {
+		t.Fatal(e)
+	}
+	got, e := inspect(raw, n.Secondary, n.DefaultLimits())
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, key := range []string{"exact_export", "ownership_isolated", "zero_span_refused", "cross_source_span_refused", "admit_refused"} {
+		if got[key] != true {
+			t.Fatal(key)
+		}
+	}
+	im, _ := n.Parse(raw, n.DefaultLimits())
+	v, _ := im.View(n.Secondary)
+	i, _ := v.Inspect()
+	s := i.Records[0].Fields[0].Content
+	b, _ := v.Bytes(s)
+	b[0] ^= 1
+	i.Records[0].Fields[0] = n.Field{}
+	again, _ := v.Bytes(s)
+	if bytes.Equal(b, again) {
+		t.Fatal("mutable span bytes")
+	}
+	a, _ := v.Inspect()
+	if a.Records[0].Fields[0].Content == (n.Span{}) {
+		t.Fatal("mutable nested inspection")
+	}
+	foreign, _ := n.Parse(raw, n.DefaultLimits())
+	fv, _ := foreign.View(n.Secondary)
+	fi, _ := fv.Inspect()
+	if owned(v, fi.Tokens[0].Raw) != nil {
+		t.Fatal("helper accepted foreign span")
+	}
+	*v = n.View{}
+	if _, ok := v.Bytes(s); ok {
+		t.Fatal("zero view accepted")
+	}
+	limits := n.DefaultLimits()
+	limits.Findings = 1
+	got, e = inspect(raw, n.Secondary, limits)
+	if e != nil || got["findings_capped"] != true || got["supported"] != false {
+		t.Fatalf("cap: %v %v", got, e)
+	}
+}
+func TestInvalidBoundaries(t *testing.T) {
+	for _, raw := range [][]byte{nil, {}, []byte("not native"), make([]byte, n.MaxBytes+1)} {
+		if _, e := inspect(raw, n.Secondary, n.DefaultLimits()); e == nil {
+			t.Fatal("accepted invalid")
+		}
+	}
+	raw, _ := os.ReadFile("fixture.wp5")
+	for _, role := range []n.Role{0, 4} {
+		if _, e := inspect(raw, role, n.DefaultLimits()); e == nil {
+			t.Fatal("role")
+		}
+	}
+}
+
+func TestConcurrentIndependentInspections(t *testing.T) {
+	raw, e := os.ReadFile("fixture.wp5")
+	if e != nil {
+		t.Fatal(e)
+	}
+	done := make(chan error, 8)
+	for j := 0; j < 8; j++ {
+		go func() {
+			for k := 0; k < 8; k++ {
+				if _, e := inspect(raw, n.Secondary, n.DefaultLimits()); e != nil {
+					done <- e
+					return
+				}
+			}
+			done <- nil
+		}()
+	}
+	for j := 0; j < 8; j++ {
+		if e := <-done; e != nil {
+			t.Fatal(e)
+		}
+	}
+}

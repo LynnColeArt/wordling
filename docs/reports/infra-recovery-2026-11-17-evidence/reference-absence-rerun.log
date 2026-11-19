@@ -1,0 +1,26 @@
+test_expected_absence_positive (test_derivation.DerivationTests.test_expected_absence_positive) ... ERROR
+
+======================================================================
+ERROR: test_expected_absence_positive (test_derivation.DerivationTests.test_expected_absence_positive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/tests/reference/stopped-readonly-derivation/test_derivation.py", line 82, in test_expected_absence_positive
+    s=self.stopped();batch=s.derive_readonly((self.input,),self.spec(outputs=(st.OutputSpec('result',8192),st.OutputSpec('absent',0,False))))
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/tests/reference/stopped-readonly-derivation/test_derivation.py", line 37, in stopped
+    self.process=p;self.exit=p.finish();self.snapshot=s.snapshot(self.working);self.working=self.snapshot.successor
+                             ^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 336, in finish
+    return self._owner._finish(self,timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 644, in _finish
+    v=self._rpc('finish',dict(process=self._ref(process,ProcessLease),timeout=timeout))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 505, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: MeasurementUnknown
+
+----------------------------------------------------------------------
+Ran 1 test in 0.672s
+
+FAILED (errors=1)

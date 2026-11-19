@@ -1,0 +1,55 @@
+{
+  "samples": 31,
+  "warmup_separately_retained": 3,
+  "pty_fresh_processes": 12,
+  "clock": "Go time.Now/time.Since monotonic; Python perf_counter_ns monotonic",
+  "quantiles": "nearest-rank, all retained values including outliers; accepted/refused distributions separated",
+  "profile": "operator-selected local-flat absolute temp directory, actual local filesystem metadata below",
+  "sizes_bytes": [
+    4096,
+    65536,
+    1048576,
+    16777216,
+    16777217
+  ],
+  "scaling_recipe": "original plain prefix through body offset324, replace body with ASCII x to exact total size; synthetic outer-framing only, no original capacity assertion",
+  "cpu_affinity": [
+    11
+  ],
+  "GOMAXPROCS": "1",
+  "host_context": "WP23 QEMU original suite and other coding/tests may run concurrently; no idle/quiet/isolated host claim",
+  "boundaries": {
+    "native_parse": "wp51.Parse(memory), includes copy/outer framing; not editor latency",
+    "rooted_read_native_parse": "Directory.Read SOURCE warm local page cache; includes filesystem+copy+native parser",
+    "document_construction": "document.Parse(memory), including native parse and token/gap indexing; refusal retained",
+    "all_token_traversal": "Token for each accepted token, including raw token copies and sum invariant",
+    "no_edit_export": "Document.Export fresh exact copy; byte equality checked outside timer",
+    "runtime_open_close": "tui.Open actual local directory and blank Session, then Runtime.Close",
+    "composition_open_retrieve_close": "fresh Runtime, model protocol events+actual read Cmd/completion+Close, not startup executable",
+    "reducer_reveal_event": "actual loaded Session.Reduce Reveal, no IO intent",
+    "model_update_reveal": "actual Model.Update AltF3, no View",
+    "model_view_100x25": "actual Model.View after100x25 resize; content creation+clipping, no terminal delivery",
+    "composition_newname_publication": "actual F10/text/Enter, Observe+Save Cmd completions, including native file publication; exact bytes audited outside timer",
+    "PTY": "actual cmd/wordling process; synthetic PTY byte write start to observed cue bytes at master fd; includes runtime/parser/frame scheduler/OS+Python select overhead, excludes physical keys/display paint"
+  },
+  "memory": "per-fixture Go child proc VmRSS before/after forced GC is harness resident footprint (multiple retained layers), ru_maxrss whole-child highwater includes setup and measurement; actual app separate PTY blank/loaded/published VmRSS and wait4 peak. Alloc deltas runtime.MemStats around callback, not peak heap/RSS. No forced GC inside timed callback. Warmups raw. Input acquisition/setup outside per-phase timers.",
+  "cache": "first process labelled first observed, later OS-warm; no drop_caches, no true cold-cache claim; build before measurements warms filesystem",
+  "build_variants": [
+    [
+      "go",
+      "build",
+      "-o",
+      "BINARY",
+      "./cmd/wordling"
+    ],
+    [
+      "go",
+      "build",
+      "-ldflags=-s -w",
+      "-o",
+      "BINARY",
+      "./cmd/wordling"
+    ]
+  ],
+  "thresholds": "none accepted; proposals after observation only"
+}

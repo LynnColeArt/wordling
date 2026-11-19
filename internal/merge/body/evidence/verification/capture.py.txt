@@ -1,0 +1,15 @@
+import pathlib,subprocess,json,hashlib,gzip,stat
+root=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-y'); out=pathlib.Path('/tmp/wordling-WP72-implementation-preflight')
+def git(*a): return subprocess.check_output(['git',*a],cwd=root)
+rows=[]
+for line in git('ls-files','-s','-z').split(b'\0'):
+ if not line: continue
+ meta,p=line.split(b'\t'); mode,oid,stage=meta.decode().split(); p=p.decode(); f=root/p; s=f.lstat(); data=f.read_bytes() if stat.S_ISREG(s.st_mode) else f.readlink().as_posix().encode()
+ rows.append([p,mode,oid,stat.S_IMODE(s.st_mode),len(data),hashlib.sha256(data).hexdigest()])
+raw=json.dumps(rows,separators=(',',':')).encode(); (out/'protected-before.json.gz').write_bytes(gzip.compress(raw,mtime=0))
+pins=json.loads(pathlib.Path('/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/next-increment-72-task-proposal/source-pins.json').read_text()); verified=[]
+for p in pins['verified_Git_pins']:
+ data=git('show',p['commit']+':'+p['path']); assert len(data)==p['bytes'] and hashlib.sha256(data).hexdigest()==p['sha256']; assert git('rev-parse',p['commit']+':'+p['path']).decode().strip()==p['git_blob']; assert (root/p['path']).read_bytes()==data; verified.append(p)
+assert not (root/'internal/merge/body').exists()
+(out/'source-verification.json').write_text(json.dumps({'head':git('rev-parse','HEAD').decode().strip(),'protected_count':len(rows),'protected_json_bytes':len(raw),'protected_gzip_bytes':(out/'protected-before.json.gz').stat().st_size,'protected_sha256':hashlib.sha256(raw).hexdigest(),'pins':verified,'namespace_absent':True},indent=2))
+print(len(rows),len(raw),(out/'protected-before.json.gz').stat().st_size)

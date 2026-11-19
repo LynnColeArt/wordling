@@ -1,0 +1,33 @@
+test_actual_checked_endpoint_bytes (test_envelope.EnvelopeTests.test_actual_checked_endpoint_bytes) ... ERROR
+
+======================================================================
+ERROR: test_actual_checked_endpoint_bytes (test_envelope.EnvelopeTests.test_actual_checked_endpoint_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 491, in _rpc
+    response=self._transport(dict(generation=self._generation,sequence=self._sequence,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 440, in _transport
+    raise engine.Failure('EnvelopeDeadline')
+wordling_reference_startup_v1.engine.Failure: EnvelopeDeadline
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/tests/reference/one-leaf-envelope/test_envelope.py", line 174, in test_actual_checked_endpoint_bytes
+    channel=p.open_endpoint('peer');channel.exchange(b'ping',b'ok',1)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 344, in exchange
+    return self._owner._exchange(self,request,expected_reply,timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 627, in _exchange
+    v=self._rpc('exchange',dict(channel=self._ref(channel,CheckedChannel),request=request.hex(),
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/lifetime.py", line 518, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial)) from error
+wordling_reference_startup_v1.lifetime.StartupFailure: EnvelopeDeadline
+
+----------------------------------------------------------------------
+Ran 1 test in 5.197s
+
+FAILED (errors=1)

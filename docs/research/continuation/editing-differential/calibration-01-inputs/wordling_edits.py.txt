@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+"""WP29 actual executable/native differential. Oracle disabled without frozen grant.
+
+Only this owned driver/test evidence changes. Actual product and original helpers
+are immutable inputs; native expectations are validators, never product emitters.
+"""
+import argparse
+from datetime import datetime,timezone
+import errno,fcntl,hashlib,json,os,pty,select,shutil,signal,struct,subprocess,sys,time
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[2]
+PRIMARY=Path('/home/lynn/projects/wordling')
+OUT=ROOT/'docs/research/continuation/editing-differential'
+APPROVED=ROOT/'docs/research/continuation/native-edits'
+sys.path[:0]=[str(ROOT/'tests/compatibility/editing'),str(APPROVED)]
+from terminal import Screen,TerminalFailure
+import native_edits as n
+import candidate_mode as cm
+
+WP28='8916f81f0ea5dd3ff1daafb26ec239b399df7a98'
+BASE='docs/research/continuation/native-edits/runs/'
+FORTY='docs/research/continuation/code-pair-history/runs/'
+BOLD='41c30cc34243c40cc444'
+KEYS={'retrieve':b'\x1b[21;2~','save':b'\x1b[21~','f1':b'\x1bOP','f7':b'\x1b[18~','reveal':b'\x1b[13;3~','block':b'\x1b[14;3~','right':b'\x1b[C','left':b'\x1b[D','delete':b'\x1b[3~','backspace':b'\x7f','insert':b'\x1b[2~','enter':b'\r','escape':b'\x1b','home':b'\x1b[1~','up':b'\x1b[A'}
+class Failure(ValueError):
+    def __init__(self,code,detail):self.code=code;super().__init__(code+': '+detail)
+def need(ok,code,detail):
+    if not ok:raise Failure(code,detail)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def identity(path):
+    p=Path(path);raw=p.read_bytes();return {'size':len(raw),'sha256':sha(raw)}
+def write(path,value):
+    p=Path(path);p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(value,indent=2)+'\n')
+def stamp():return datetime.now(timezone.utc).isoformat()
+def paths_go():return sorted([*ROOT.glob('internal/**/*.go'),*(ROOT/'cmd/wordling').glob('*.go'),ROOT/'go.mod',ROOT/'go.sum'])
+def go_closure():
+    raw=subprocess.check_output(['go','list','-deps','-json','./cmd/wordling'],cwd=ROOT,text=True);dec=json.JSONDecoder();rows=[]
+    while raw.strip():
+        v,end=dec.raw_decode(raw.lstrip());raw=raw.lstrip()[end:]
+        if v['ImportPath'].startswith('github.com/lynncoleart/wordling/'):
+            directory=Path(v['Dir']);need(directory.is_relative_to(ROOT),'ForeignGoSource',str(directory))
+            rows.append({'import':v['ImportPath'],'relative_directory':str(directory.relative_to(ROOT)),'go_files':{f:identity(directory/f)for f in v['GoFiles']}})
+    return rows
+
+def pins():
+    expected=json.loads((ROOT/'docs/research/continuation/editable-session/pty-final-02/inputs.json').read_text())['working_source_inputs']
+    actual={str(p.relative_to(ROOT)):identity(p)for p in paths_go()}
+    need(set(actual)==set(expected),'GoInventoryDrift',str({'added':sorted(set(actual)-set(expected)),'removed':sorted(set(expected)-set(actual))}))
+    need(actual==expected,'GoSourceDrift','Actual Go/module bytes differ from approved28')
+    subprocess.run(['git','merge-base','--is-ancestor',WP28,'HEAD'],cwd=ROOT,check=True)
+    closure=go_closure();old=json.loads((ROOT/'docs/research/continuation/editable-session/actual-build-package-inputs.json').read_text())
+    oldroot=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h')
+    want=[]
+    for row in old:
+        d=Path(row['directory']);need(d.is_relative_to(oldroot),'BadApprovedPath',str(d));relative=str(d.relative_to(oldroot))
+        want.append({'import':row['import'],'relative_directory':relative,'go_files':{f:identity(ROOT/relative/f)for f in row['go_files']}})
+        need(all(identity(ROOT/relative/f)['sha256']==h for f,h in row['go_files'].items()),'ApprovedClosureDrift',relative)
+    need(closure==want,'CompileClosureDrift','Added/removed/changed actual compiled local Go file or package')
+    gomod=subprocess.check_output(['go','env','GOMOD'],cwd=ROOT,text=True).strip();need(gomod==str(ROOT/'go.mod'),'WrongGOMOD',gomod)
+    scripts=[Path(__file__),ROOT/'tests/compatibility/editing/terminal.py',*sorted((ROOT/'scripts/reference').glob('*.py')),*sorted(APPROVED.glob('*.py')),*sorted(APPROVED.glob('*.json')),APPROVED/'reader_probe.go.txt']
+    return {'actual_checkout':str(ROOT),'actual_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'GOMOD':gomod,'GOFLAGS':subprocess.check_output(['go','env','GOFLAGS'],cwd=ROOT,text=True).strip(),'GOWORK':subprocess.check_output(['go','env','GOWORK'],cwd=ROOT,text=True).strip(),'go_version':subprocess.check_output(['go','version'],text=True).strip(),'go_binary':identity(shutil.which('go')),'product_inputs':actual,'compiled_local_packages':closure,'helper_sources':{str(p.relative_to(ROOT)):identity(p)for p in sorted(set(scripts))},'profile':identity(ROOT/'docs/research/reference-environment/environment.json'),'physical_qualified':False,'vcs_note':'Automatic Go build stamp may identify primary parent; actual cwd/GOMOD/package paths/file hashes above are the compiled-source authority, not that stamp.'}
+
+def key(name,expect=None,label=None):return {'key':name,'label':label or name,'expect':expect or {}}
+def text(value,expect=None,label=None):return {'text':value,'label':label or 'type '+value,'expect':expect or {}}
+def browse(previous):return [key('f1',{'mode':'HistoryPreview'}),*[text('2',{'mode':'HistoryPreview'})for _ in range(previous)],key('f1',{'mode':'Editing'})]
+def seed(reveal,target):
+    return ([key('reveal')]if reveal else[])+[key('delete')]+browse(3)+[key('right')for _ in range(target)]
+def block(width):return [key('block'),*[key('right')for _ in range(width)],key('backspace',{'mode':'DeleteQuestion','cue':'Delete Block? No (Yes)'}),text('y',{'mode':'Editing'})]
+
+def recipes(word_source=None):
+    rows=[
+      {'id':'no-edit-two-pair','cases':['CMD51-048'],'source':BASE+'wp23-b-history-follow-repair-restore-r1/N0001.WP5','reference':BASE+'wp23-b-history-follow-repair-restore-r1/P0004.PRN','body':'41c30cc3c40cc4c30cc3584243c40cc444','gap':0,'no_edit':True,'steps':[key('reveal'),key('reveal')]},
+      {'id':'ascii-modes','cases':['CMD51-046'],'source':BASE+'wp23-a-modes-r1/N0000.WP5','reference':BASE+'wp23-a-modes-r1/P0005.PRN','body':'61585963','gap':3,'steps':[key('right'),key('insert',{'typeover':True}),text('X'),key('insert',{'typeover':False}),text('Y')]},
+      {'id':'typeover-before-code','cases':['CMD51-047'],'source':BASE+'wp23-a-boundaries-r1/N0000.WP5','reference':BASE+'wp23-a-boundaries-r1/P0028.PRN','body':'4158c30cc34243c40cc444','gap':2,'steps':[key('right'),key('insert',{'typeover':True}),text('X'),key('insert',{'typeover':False})]},
+      {'id':'normal-paired-delete','cases':['CMD51-200'],'source':FORTY+'wp40-direct-normal-delete-on-r1/N0000.WP5','reference':BASE+'wp23-b-deletions-r1/P0004.PRN','body':'41424344','gap':1,'steps':seed(False,1)+[key('delete',{'mode':'DeleteQuestion','cue':'Delete [BOLD]? No (Yes)'}),text('y',{'mode':'Editing','history_count':None})]},
+      {'id':'reveal-paired-backspace','cases':['CMD51-201'],'source':FORTY+'wp40-direct-reveal-backspace-off-r1/N0000.WP5','reference':BASE+'wp23-b-deletions-r1/P0004.PRN','body':'41424344','gap':3,'steps':seed(True,5)+[key('backspace',{'mode':'Editing','history_count':None})]},
+      {'id':'opening-repair','cases':['CMD51-202'],'source':BASE+'wp23-a-blocks-r1/N0000.WP5','reference':BASE+'wp23-a-blocks-r1/P0004.PRN','body':BOLD,'gap':2,'steps':[key('reveal'),key('right')]+block(1)},
+      {'id':'closing-repair','cases':['CMD51-203'],'source':FORTY+'wp40-closing-block-repair-yes-r1/N0000.WP5','reference':BASE+'wp23-a-blocks-r1/P0028.PRN','body':BOLD,'gap':5,'steps':seed(True,4)+block(1)},
+      {'id':'attributed-restore','cases':['CMD51-204'],'source':BASE+'wp23-a-blocks-r1/N0048.WP5','reference':BASE+'wp23-a-blocks-r1/P0004.PRN','body':BOLD,'gap':5,'steps':[key('reveal'),key('right')]+block(4)+[key('f1',{'mode':'HistoryPreview'}),text('1',{'mode':'Editing','history_qualified':False})]},
+      {'id':'plain-seeded-restore','cases':['CMD51-200'],'local_scope':'Approved40 seeded plain S restoration; CMD200 applies to preceding pair deletion only, not invented three-entry CMD043 closure.','source':FORTY+'wp40-direct-normal-delete-on-r1/N0000.WP5','reference':FORTY+'wp40-direct-normal-delete-on-r1/P0004.PRN','body':'415358424344','gap':3,'steps':seed(False,1)+[key('delete'),text('y')]+browse(3)+[key('f1'),text('1')]+browse(3)+[text('X',{'history_qualified':False})]},
+    ]
+    steps=[]
+    for i,word in enumerate(['ONE','TWO','THREE']):
+        steps += [key('delete')for _ in word]
+        if i<2:steps.append(key('right'))
+    steps+=browse(2)+[key('right')]+[key('delete')for _ in 'FOUR']+browse(3)+[key('f1'),text('2'),text('2'),text('1')]
+    rows.append({'id':'three-entry-eviction','cases':['CMD51-043','CMD51-211'],'source':word_source,'reference_control':'history-eviction','body':'20202054574f','gap':6,'steps':steps,'local_scope':'Three-entry preview/cancel before fourth group, fourth eviction and first Restore TWO; two original controls required for exact recipe/complete +Z stream. No later retention query.'})
+    return rows
+
+class App:
+    def __init__(self,binary,folder,source):
+        self.binary=Path(binary);self.folder=Path(folder);need(not self.folder.exists(),'FreshAppPath',str(folder));self.folder.mkdir(parents=True);self.files=self.folder/'files';self.files.mkdir();self.source=Path(source).read_bytes();(self.files/'ORIGIN').write_bytes(self.source)
+        self.master,self.slave=pty.openpty();fcntl.ioctl(self.slave,termios_TIOCSWINSZ(),struct.pack('HHHH',32,140,0,0))
+        import termios
+        self.before=termios.tcgetattr(self.slave);self.screen=Screen(140,32);self.wire=bytearray();self.events=[];self.frames=[];self.stderr=b''
+        argv=[str(self.binary),'-root',str(self.files.resolve()),'-profile','local-flat'];env=dict(os.environ,TERM='xterm-256color',LANG='C.UTF-8');self.argv=argv
+        self.proc=subprocess.Popen(argv,stdin=self.slave,stdout=self.slave,stderr=subprocess.PIPE,env=env);self.pid_identity=proc_identity(self.proc.pid)
+        try:self.collect(.5);self.capture('startup');self.send_raw(b'\x1b[?31u','synthetic enhancement response (unqualified physical delivery)')
+        except Exception as e:self.close(e);raise
+    def collect(self,seconds=.12):
+        end=time.monotonic()+seconds
+        while time.monotonic()<end:
+            if select.select([self.master],[],[],.01)[0]:
+                try:raw=os.read(self.master,65536)
+                except OSError as error:
+                    if error.errno==errno.EIO:return
+                    raise
+                if not raw:return
+                self.wire.extend(raw);need(len(self.wire)<=4*1024*1024,'AppWireBudget','4MiB diagnostic wire limit');self.screen.feed(raw)
+    def capture(self,label):
+        frame=self.screen.snapshot();state=self.screen.state();item={'label':label,'state':state,'screen':frame,'wire_bytes_through':len(self.wire)};self.frames.append(item);return item
+    def send_raw(self,raw,label,expect=None):
+        os.write(self.master,raw);self.events.append({'label':label,'hex':raw.hex()});deadline=time.monotonic()+5;last=None
+        while time.monotonic()<deadline:
+            self.collect()
+            try:item=self.capture(label)
+            except TerminalFailure as e:last=e;continue
+            expected=expect or {};state=item['state'];whole='\n'.join(item['screen']['rows'])
+            if all((v in whole if k=='cue'else state.get(k)==v)for k,v in expected.items()):return item
+            last=Failure('AppStateMismatch',str({'expected':expected,'actual':state}))
+        raise last or Failure('AppDeadline',label)
+    def step(self,step):
+        raw=KEYS[step['key']]if 'key'in step else step['text'].encode('ascii');return self.send_raw(raw,step['label'],step.get('expect'))
+    def retrieve(self):
+        self.step(key('retrieve',{'mode':'RetrieveName'}));self.step(text('ORIGIN'));self.step(key('enter',{'mode':'Editing','name':'ORIGIN','gap':0,'dirty':False}))
+    def save(self,name,gap):
+        self.step(key('save',{'mode':'SaveName'}));self.step(text(name,{'cue':'Document to be saved: '+name}));self.step(key('enter',{'mode':'Editing','name':name,'gap':gap,'save':'NewNamePublished','dirty':False}));need((self.files/name).exists(),'MissingAppNative',name);return (self.files/name).read_bytes()
+    def finish(self):
+        self.step(key('f7',{'mode':'ExitSaveQuestion'}));self.step(key('f1',{'mode':'Editing'}));self.step(key('f7',{'mode':'ExitSaveQuestion'}));self.step(text('n',{'mode':'ExitQuestion'}))
+        os.write(self.master,b'y');self.events.append({'label':'Yes actual original exit','hex':'79'});self.proc.wait(timeout=8);self.collect(.1);self.stderr=self.proc.stderr.read();need(self.proc.returncode==0,'AppExit',self.stderr.decode(errors='replace'))
+        import termios
+        need(termios.tcgetattr(self.slave)==self.before,'TermiosNotRestored','actual equality assertion')
+    def close(self,error=None):
+        if self.proc.poll()is None:
+            need(proc_identity(self.proc.pid)==self.pid_identity,'AppPIDReused','Do not signal another process');self.proc.terminate()
+            try:self.proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:self.proc.kill();self.proc.wait(timeout=5)
+        if not self.stderr:self.stderr=self.proc.stderr.read()
+        (self.folder/'wire-output.bin').write_bytes(self.wire);(self.folder/'stderr.txt').write_bytes(self.stderr);write(self.folder/'injected.json',self.events);write(self.folder/'frames.json',self.frames)
+        write(self.folder/'process.json',{'argv':self.argv,'binary':identity(self.binary),'pid':self.proc.pid,'pid_identity':self.pid_identity,'returncode':self.proc.returncode,'error':None if error is None else str(error),'before_source':{'size':len(self.source),'sha256':sha(self.source)},'physical_qualified':False,'scope':'actual executable with synthetic Linux PTY; semantic displayed gap and terminal cursor are distinct'})
+        self.proc.stderr.close();os.close(self.master);os.close(self.slave)
+def termios_TIOCSWINSZ():
+    import termios
+    return termios.TIOCSWINSZ
+
+def proc_identity(pid):
+    p=Path('/proc')/str(pid);stat=(p/'stat').read_text();suffix=stat.rsplit(') ',1)[1].split();return {'pid':pid,'start_ticks':int(suffix[19]),'argv_hex':(p/'cmdline').read_bytes().hex()}
+
+def prefix_check(source,candidate,no_edit=False):
+    if no_edit:need(candidate==source,'NoEditMismatch','whole source bytes changed');return {'whole_no_edit_exact':True}
+    a,b=n.inspect(source,True),n.inspect(candidate,True);old=int.from_bytes(source[4:8],'little');new=int.from_bytes(candidate[4:8],'little');need(old==new,'BodyOffsetChanged','prefix address must stay')
+    p6=next(p for p in a['packets']if p['type']==6)['offset'];diff=[i for i,(x,y)in enumerate(zip(source[:old],candidate[:new]))if x!=y]
+    need(all(i==p6 and source[i]in[0,8]and candidate[i]==8 for i in diff),'UnrelatedPrefixChanged',str(diff))
+    return {'input_prefix_bytes':old,'output_prefix_bytes':new,'indexed_packet6':p6,'prefix_diff_offsets':diff,'all_other_prefix_bytes_exact':True}
+
+def run_app(binary,folder,recipe,marker=True):
+    app=None;error=None
+    try:
+        folder=Path(folder);need(not folder.exists(),'FreshAppPath',str(folder))
+        # Per-run executing producer/decoder is archived before the real child.
+        frozen=folder.parent/(folder.name+'-inputs');need(not frozen.exists(),'FreshInputArchive',str(frozen));frozen.mkdir(parents=True)
+        for name,path in [('wordling_edits.py.txt',Path(__file__)),('terminal.py.txt',ROOT/'tests/compatibility/editing/terminal.py')]:shutil.copyfile(path,frozen/name)
+        write(frozen/'invocation.json',{'argv':sys.argv,'function':'run_app','binary':identity(binary),'recipe':recipe,'source':identity(ROOT/recipe['source']if not Path(recipe['source']).is_absolute()else recipe['source']),'product':pins()})
+        app=App(binary,folder,ROOT/recipe['source']if not Path(recipe['source']).is_absolute()else recipe['source']);app.retrieve()
+        for step in recipe['steps']:app.step(step)
+        final=app.capture('before real SaveAs');need(final['state']['gap']==recipe['gap'],'AppGap',recipe['id'])
+        candidate=app.save('CANDIDA',recipe['gap']);inspection=n.inspect(candidate,True);need(inspection['body_hex']==recipe['body'],'AppBodyMismatch',recipe['id']);prefix=prefix_check(app.source,candidate,recipe.get('no_edit',False))
+        marker_result=None
+        if marker:
+            app.step(text('~'));witness=app.save('MARKER',recipe['gap']+1);tokens=n.body_tokens(bytes.fromhex(recipe['body']));offset=tokens[recipe['gap']]['body_offset']if recipe['gap']<len(tokens)else len(bytes.fromhex(recipe['body']));body=bytes.fromhex(recipe['body']);want=(body[:offset]+b'~'+body[offset:]).hex();need(n.inspect(witness,True)['body_hex']==want,'NativeCursorMarker','Native marker does not corroborate declared gap');marker_result={'expected_body_hex':want,'native':identity(app.files/'MARKER'),'scope':'later actual-app native cursor witness only; not an additional original-interop candidate'}
+        app.finish();need((app.files/'ORIGIN').read_bytes()==app.source,'SourceModified','actual app changed loaded source');need((app.files/'CANDIDA').read_bytes()==candidate,'CandidateChanged','later marker changed first publication')
+        result={'id':recipe['id'],'outcome':'app-emitted','candidate':identity(app.files/'CANDIDA'),'body_hex':recipe['body'],'declared_final_gap':recipe['gap'],'prefix':prefix,'marker':marker_result,'source':identity(app.files/'ORIGIN'),'termios_restored_assertion':True};write(Path(folder)/'result.json',result);return result
+    except Exception as e:error=e;raise
+    finally:
+        if app:app.close(error)

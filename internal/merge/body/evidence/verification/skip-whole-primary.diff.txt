@@ -1,0 +1,11 @@
+--- compile.go
++++ skip-whole-primary/compile.go
+@@ -208,7 +208,7 @@
+ 			e = c.cmd(native.FieldCommand, 1, -1)
+ 		}
+ 	} else {
+-		e = fail("UnsupportedForm")
++		return Plan{p}, nil
+ 	}
+ 	if e != nil {
+ 		return Plan{}, e

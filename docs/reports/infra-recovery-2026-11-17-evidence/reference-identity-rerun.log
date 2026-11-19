@@ -1,0 +1,33 @@
+test_hook_receives_copied_identity_facts (test_transport.AdditionalOSTests.test_hook_receives_copied_identity_facts) ... ERROR
+
+======================================================================
+ERROR: test_hook_receives_copied_identity_facts (test_transport.AdditionalOSTests.test_hook_receives_copied_identity_facts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/engine.py", line 491, in run
+    result = self._supervise(command, invocation, readiness, after_identity)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/engine.py", line 659, in _supervise
+    raise Failure(fault, result)
+wordling_reference_startup_v1.engine.Failure: unknown-identity
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/tests/reference/startup-seam/test_transport.py", line 395, in test_hook_receives_copied_identity_facts
+    result=attempt.run(command,after_identity=observer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/__init__.py", line 45, in run
+    return self._kernel.run(command, before_spawn=before_spawn, readiness=readiness,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/engine.py", line 334, in call
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/scripts/reference/startup_family/engine.py", line 494, in run
+    raise self._fail(error) from error
+wordling_reference_startup_v1.engine.Failure: unknown-identity
+
+----------------------------------------------------------------------
+Ran 1 test in 0.786s
+
+FAILED (errors=1)

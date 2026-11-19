@@ -1,0 +1,240 @@
+{
+  "work_package": "WP30",
+  "cycle": 1,
+  "review_status": "implementation corrected; independent rereview pending",
+  "base_source": "afe4280bfacb9ca289fa1253c93c157b16fa31b6",
+  "review_findings_commit": "95b3d88af6d13e40c59947f67015f6a8fc82c244",
+  "findings_addressed": [
+    "I1 executable/build/run join",
+    "I2 exact immutable JSON types"
+  ],
+  "source_blobs": [
+    {
+      "path": "scripts/conformance/v1/conformance.py",
+      "size": 32318,
+      "sha256": "4f2da68aab1e4da9cfee68b3c739b530f3e47892568ff8e0f11f303595626451"
+    },
+    {
+      "path": "tests/conformance/v1/test_cli.py",
+      "size": 23971,
+      "sha256": "2a33cbe2bf23b07d24a444154e354311a79d26bbcfb09da22c511664d838829d"
+    },
+    {
+      "path": "tests/conformance/v1/run_mutations.py",
+      "size": 4828,
+      "sha256": "2346485c6424a17cf8186924b3929f9162518269756f92044e8810df8475db47"
+    },
+    {
+      "path": "tests/conformance/v1/replay_cycle1.py",
+      "size": 4706,
+      "sha256": "0b05021e8ee85222f098f5cedc348cfc5734302771e86c47b8b531c71ab35c71"
+    },
+    {
+      "path": "docs/conformance/v1/schema.json",
+      "size": 5796,
+      "sha256": "219d735aaed94cbb74b32fd6f73f3f39b1894edb314a601e2e04862bfe35717d"
+    },
+    {
+      "path": "docs/conformance/v1/registry.json",
+      "size": 801836,
+      "sha256": "49181cf4f90c02b0ace600236083a9957c669c74f98751198141ef4ff058d17f"
+    },
+    {
+      "path": "docs/conformance/v1/index.md",
+      "size": 5297,
+      "sha256": "4dc6eb0e422e4d119a7f8ab410f263bc0db2608084f2a296ee2d4e1ad335442c"
+    },
+    {
+      "path": "docs/conformance/v1/README.md",
+      "size": 10834,
+      "sha256": "20a7396eeb2ae16087abc7ecdaa641f3192da66f95af7b4bf776bdb8a107ce2d"
+    },
+    {
+      "path": "docs/conformance/v1/verification/README.md",
+      "size": 3301,
+      "sha256": "20615f2d64e77222c38cb546f17d2c69e825be70fdbdd201afab3828830bd4a6"
+    },
+    {
+      "path": "docs/conformance/v1/verification/cycle-1/README.md",
+      "size": 4847,
+      "sha256": "332936e328ee48744cbd4e8ae99db737420a7ef693ea3a6bd7147fd6392aaab9"
+    },
+    {
+      "path": "docs/decisions/0004-conformance-evidence-layers.md",
+      "size": 5053,
+      "sha256": "9b50f356163f59a9384e67d32eb64d96154e528ddc7e2e28cec78c3533ff19c3"
+    },
+    {
+      "path": "README.md",
+      "size": 3767,
+      "sha256": "6c7622b675f01e9a818f79d963ed6f4bec7daf610bb19d48778a151bab2db60e"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/conformance/v1",
+        "-v"
+      ],
+      "exit_code": 0,
+      "tests": 15,
+      "log": "public-cli-tests.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/review_checks.py",
+        "--junitxml=docs/conformance/v1/verification/cycle-1/project-checks.xml"
+      ],
+      "exit_code": 0,
+      "checks": 7,
+      "skips": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "tests/conformance/v1/run_mutations.py",
+        "--output",
+        "docs/conformance/v1/verification/cycle-1/mutation-final"
+      ],
+      "exit_code": 0,
+      "compiling_behavioral_mutants_killed": 4
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/conformance/v1/conformance.py",
+        "check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/conformance/v1/conformance.py",
+        "tests/conformance/v1/test_cli.py",
+        "tests/conformance/v1/run_mutations.py",
+        "tests/conformance/v1/replay_cycle1.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "exact_external_replays": {
+    "old_cli_sha256": "4e6f178881970ca60d3f3f2afa5846b41bc1a0b942c3a6a0603f1a8f0138ee7e",
+    "fixed_cli_sha256": "4f2da68aab1e4da9cfee68b3c739b530f3e47892568ff8e0f11f303595626451",
+    "all4_proposed_input_hashes_equal_before_after": true,
+    "old_results": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "fixed_results": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "qualifier": "Old unbound positive control is intentionally rejected; new build-bound valid and alternate-build controls pass in public suite."
+  },
+  "initial_raw_logs_unchanged_from_afe4280": true,
+  "default_registry_index_unchanged_from_afe4280": true,
+  "unowned_tracked_source_unchanged": true,
+  "source_refs": [
+    {
+      "commit": "18d6afe95ffcd676fc3f9e964dcad884c9a8c289",
+      "path": "docs/research/command-scenarios.json",
+      "sha256": "8161fe7e5f032aa459c8f33a149a00f6e7263cd153f613533d297eeca9ec8d4a"
+    },
+    {
+      "commit": "18d6afe95ffcd676fc3f9e964dcad884c9a8c289",
+      "path": "docs/research/feature-inventory.json",
+      "sha256": "633cad8fbcc3e59a13bf0003566bfdb2f9925c26a5899a54a989a65da91138d5"
+    },
+    {
+      "commit": "db3ea8e4f45211c8517c24d3944e5b3e843dc54d",
+      "path": "kitty-specs/wp51-parity-01M64CVY/spec.md",
+      "sha256": "4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7"
+    },
+    {
+      "commit": "027f1e49a0dbd9cfb1429af0d7a92a6bb5403eb2",
+      "path": "docs/compatibility.md",
+      "sha256": "98014cd41863f1d38186b45391408455f9410fd35ab88ff1f75bfc03c8a5f27a"
+    },
+    {
+      "commit": "91c6bd605fe797be4c6f824dd5916460af49e3e3",
+      "path": "docs/research/sources.json",
+      "sha256": "850df4eccc4e4bb17d53aa8c59ab2aa417522a46063d628fd8c8a076d6de9fba"
+    },
+    {
+      "commit": "027f1e49a0dbd9cfb1429af0d7a92a6bb5403eb2",
+      "path": "docs/research/reference-baseline.json",
+      "sha256": "6ba2f6bd8fa77e4b309b1a81203705c060285707ab07ec6f3432dfa194075ba5"
+    },
+    {
+      "commit": "d7b94b1ffde842498422b38e0acc85e2ba794dcd",
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+      "sha256": "0a095521e8f378351b12c64c0b326c141946f653c9dfce1fec801110e60e8118"
+    },
+    {
+      "commit": "aa61527948b065c1cb7a4a9a08f0de346544b2c5",
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+      "sha256": "39f982db595d35b754075b4d94c76bfd70659c61e3f24f454374c66c8c0fc0bd"
+    },
+    {
+      "commit": "7e73d92a756f1e6676234ae736690824e2efa249",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP13-original-session-probes/review-cycle-2.md",
+      "sha256": "13c7d19fee80fb05a26f400293600fde232ec47e6ff2444f9efc87973b7c9167"
+    },
+    {
+      "commit": "bce35742d03823aad8815317764efdb18cc73858",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP20-resource-readiness/review-cycle-1.md",
+      "sha256": "37dc1bea12364d3ccf47bbfaef56deb361b009b08c159bff6591cd014abb332e"
+    },
+    {
+      "commit": "2aa9bb75e464e1290c639070a934707b84e3536c",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP21-coverage-leaves/review-cycle-1.md",
+      "sha256": "1e5e48e9e521109c89a3a748e9223bc750d7db52363608e5a859d52c15180348"
+    },
+    {
+      "commit": "15cc3c9be27495fa3a4ebece23a7d3a4be046d2e",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP18-bubbletea-session/review-cycle-2.md",
+      "sha256": "0a969e741e57552a944cf18380db39882e7ac063c706e19b4265f854b40ad5ca"
+    },
+    {
+      "commit": "027f1e49a0dbd9cfb1429af0d7a92a6bb5403eb2",
+      "path": "docs/research/reference-environment/environment.json",
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2"
+    },
+    {
+      "commit": "027f1e49a0dbd9cfb1429af0d7a92a6bb5403eb2",
+      "path": "docs/research/reference-environment/resource-profile.json",
+      "sha256": "e9498fb1833fac66509b792dacd5ccf3915f26f2a24ff1f0f8cbe72d7aa9645b"
+    }
+  ],
+  "current_counts": {
+    "historical_cases": 244,
+    "groups": 91,
+    "obligations": 38,
+    "positive_product_evidence": 0
+  },
+  "vm_executed": false,
+  "native_formats_changed": false,
+  "matrix_or_other_wp_mutated": false,
+  "parent_or_mission_closure_claimed": false
+}

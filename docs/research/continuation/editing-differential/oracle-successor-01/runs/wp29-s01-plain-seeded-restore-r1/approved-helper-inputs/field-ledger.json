@@ -1,0 +1,1034 @@
+{
+  "revision": "WP23-qualification-2-pending-independent-review",
+  "status": "conditional, no production writer authority before independent WP23 approval",
+  "source_fixture": {
+    "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5",
+    "sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d"
+  },
+  "sources": {
+    "prefix": "SDK51 WP3\u201318/PDF16\u201331",
+    "attributes": "SDK51 WP24\u201325/PDF37\u201338",
+    "font_pool_AFC": "SDK51 WP103\u2013105/PDF116\u2013118"
+  },
+  "field_coverage": [
+    {
+      "owner": "header",
+      "offset": 0,
+      "width": 4,
+      "name": "signature",
+      "representation": "bytes",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "ff575043",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "ff575043"
+    },
+    {
+      "owner": "header",
+      "offset": 4,
+      "width": 4,
+      "name": "body start",
+      "representation": "u32le",
+      "units": "bytes",
+      "references": "absolute byte offset into own file",
+      "admitted_value_hex": "44010000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "44010000"
+    },
+    {
+      "owner": "header",
+      "offset": 8,
+      "width": 1,
+      "name": "product",
+      "representation": "u8",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "01",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "01"
+    },
+    {
+      "owner": "header",
+      "offset": 9,
+      "width": 1,
+      "name": "file type",
+      "representation": "u8",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "0a",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0a"
+    },
+    {
+      "owner": "header",
+      "offset": 10,
+      "width": 1,
+      "name": "stored major",
+      "representation": "u8",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "00",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "00"
+    },
+    {
+      "owner": "header",
+      "offset": 11,
+      "width": 1,
+      "name": "stored minor",
+      "representation": "u8",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "01",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "01"
+    },
+    {
+      "owner": "header",
+      "offset": 12,
+      "width": 2,
+      "name": "encryption key",
+      "representation": "u16le",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "header",
+      "offset": 14,
+      "width": 2,
+      "name": "reserved",
+      "representation": "u16le",
+      "units": "identity",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-7",
+      "offset": 0,
+      "width": 14,
+      "name": "font name string pool",
+      "representation": "NUL-terminated ASCII",
+      "units": "name",
+      "references": "target of packet15+18",
+      "admitted_value_hex": "436f757269657220313063706900",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "436f757269657220313063706900"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 0,
+      "width": 2,
+      "name": "font instance ID",
+      "representation": "u16le",
+      "units": "resource identifier",
+      "references": "PRS font definition",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 2,
+      "width": 2,
+      "name": "proportional-spacing cache ID",
+      "representation": "u16le",
+      "units": "FFFF none",
+      "references": "resource cache; no PS table admitted",
+      "admitted_value_hex": "ffff",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "ffff"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 4,
+      "width": 2,
+      "name": "top shoulder height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "8900",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "8900"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 6,
+      "width": 2,
+      "name": "bottom shoulder height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "3f00",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "3f00"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 8,
+      "width": 2,
+      "name": "printed character width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "7800",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "7800"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 10,
+      "width": 2,
+      "name": "optimal space width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "7800",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "7800"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 12,
+      "width": 2,
+      "name": "normal space width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "7800",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "7800"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 14,
+      "width": 2,
+      "name": "horizontal motion units",
+      "representation": "u16le",
+      "units": "resource units",
+      "references": "none",
+      "admitted_value_hex": "0a00",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0a00"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 16,
+      "width": 2,
+      "name": "horizontal fractional numerator",
+      "representation": "u16le",
+      "units": "resource ratio numerator",
+      "references": "none",
+      "admitted_value_hex": "0100",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0100"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 18,
+      "width": 2,
+      "name": "font string pool offset",
+      "representation": "u16le",
+      "units": "packet-relative bytes",
+      "references": "packet7 NUL string start",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 20,
+      "width": 1,
+      "name": "font flags",
+      "representation": "u8 flags",
+      "units": "bitset; bit meanings unexpanded here",
+      "references": "none",
+      "admitted_value_hex": "00",
+      "mutation_policy": "only observed zero; refuse any changed value",
+      "source_observed_hex": "00"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 21,
+      "width": 2,
+      "name": "descriptor match hash",
+      "representation": "u16le",
+      "units": "resource hash",
+      "references": "font descriptor and D1/01 font-change matching; D1 body refused",
+      "admitted_value_hex": "e724",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "e724"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 23,
+      "width": 2,
+      "name": "descriptor: cell height",
+      "representation": "u16le",
+      "units": "1/3600 inch",
+      "references": "none",
+      "admitted_value_hex": "f401",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "f401"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 25,
+      "width": 2,
+      "name": "descriptor: optimal width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "7800",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "7800"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 27,
+      "width": 2,
+      "name": "descriptor: cap height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "fe15",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "fe15"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 29,
+      "width": 2,
+      "name": "descriptor: x height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "3610",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "3610"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 31,
+      "width": 2,
+      "name": "descriptor: descender height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "5807",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "5807"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 33,
+      "width": 2,
+      "name": "descriptor: italic adjustment",
+      "representation": "i16le",
+      "units": "PSU signed",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 35,
+      "width": 3,
+      "name": "descriptor: typeface descriptor",
+      "representation": "u24le bitset",
+      "units": "traits; high bit reserved0",
+      "references": "none",
+      "admitted_value_hex": "000411",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "000411"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 38,
+      "width": 1,
+      "name": "descriptor: 5.0 typeface flags",
+      "representation": "u8 bitset",
+      "units": "traits/weight",
+      "references": "none",
+      "admitted_value_hex": "40",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "40"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 39,
+      "width": 1,
+      "name": "descriptor: typeface-name hash",
+      "representation": "u8",
+      "units": "resource hash",
+      "references": "none",
+      "admitted_value_hex": "c9",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "c9"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 40,
+      "width": 1,
+      "name": "descriptor: display-resource quality",
+      "representation": "u8",
+      "units": "DRS-only quality enum",
+      "references": "none",
+      "admitted_value_hex": "00",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "00"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 41,
+      "width": 2,
+      "name": "descriptor: font-name hash",
+      "representation": "u16le",
+      "units": "resource hash",
+      "references": "none",
+      "admitted_value_hex": "9338",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "9338"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 43,
+      "width": 4,
+      "name": "descriptor: character-set completeness",
+      "representation": "2xu16le bitsets",
+      "units": "two planes, bit n indexes WP character set",
+      "references": "none",
+      "admitted_value_hex": "01000100",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "01000100"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 47,
+      "width": 2,
+      "name": "descriptor: 5.1 point size",
+      "representation": "u16le",
+      "units": "1/3600 inch",
+      "references": "none",
+      "admitted_value_hex": "5802",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "5802"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 49,
+      "width": 1,
+      "name": "descriptor: 5.1 typeface flags",
+      "representation": "u8 bitset",
+      "units": "traits/PS/weight",
+      "references": "none",
+      "admitted_value_hex": "40",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "40"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 50,
+      "width": 16,
+      "name": "attribute AFC",
+      "representation": "array u8",
+      "units": "one byte per code/charset/orientation index",
+      "references": "packet15 record index *86, FF no chain, FE target unavailable",
+      "admitted_value_hex": "fffffffffffffffffffffffffffffffe",
+      "mutation_policy": "freeze pinned arrays; Bold slot12 must FF; no other attributes/C0/forms admitted",
+      "source_observed_hex": "fffffffffffffffffffffffffffffffe"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 66,
+      "width": 16,
+      "name": "character-set AFC",
+      "representation": "array u8",
+      "units": "one byte per code/charset/orientation index",
+      "references": "packet15 record index *86, FF no chain, FE target unavailable",
+      "admitted_value_hex": "ffffffffffffffffffffffffffffffff",
+      "mutation_policy": "freeze pinned arrays; Bold slot12 must FF; no other attributes/C0/forms admitted",
+      "source_observed_hex": "ffffffffffffffffffffffffffffffff"
+    },
+    {
+      "owner": "packet-15",
+      "offset": 82,
+      "width": 4,
+      "name": "orientation AFC",
+      "representation": "array u8",
+      "units": "one byte per code/charset/orientation index",
+      "references": "packet15 record index *86, FF no chain, FE target unavailable",
+      "admitted_value_hex": "ffffffff",
+      "mutation_policy": "freeze pinned arrays; Bold slot12 must FF; no other attributes/C0/forms admitted",
+      "source_observed_hex": "ffffffff"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 0,
+      "width": 37,
+      "name": "printer long name",
+      "representation": "NUL string padded",
+      "units": "name",
+      "references": "pinned PRS resource; no body pointer",
+      "admitted_value_hex": "5374616e64617264205072696e746572000000000000000000000000000000000000000000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "5374616e64617264205072696e746572000000000000000000000000000000000000000000"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 37,
+      "width": 13,
+      "name": "PRS filename",
+      "representation": "NUL string",
+      "units": "resource name",
+      "references": "pinned PRS resource; no body pointer",
+      "admitted_value_hex": "5354414e5052494e2e50525300",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "5354414e5052494e2e50525300"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 50,
+      "width": 2,
+      "name": "initial font descriptor: cell height",
+      "representation": "u16le",
+      "units": "1/3600 inch",
+      "references": "none",
+      "admitted_value_hex": "db01",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "db01"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 52,
+      "width": 2,
+      "name": "initial font descriptor: optimal width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "7800",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "7800"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 54,
+      "width": 2,
+      "name": "initial font descriptor: cap height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "141e",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "141e"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 56,
+      "width": 2,
+      "name": "initial font descriptor: x height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "0c17",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "0c17"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 58,
+      "width": 2,
+      "name": "initial font descriptor: descender height",
+      "representation": "u16le",
+      "units": "PSU",
+      "references": "none",
+      "admitted_value_hex": "8c0a",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "8c0a"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 60,
+      "width": 2,
+      "name": "initial font descriptor: italic adjustment",
+      "representation": "i16le",
+      "units": "PSU signed",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 62,
+      "width": 3,
+      "name": "initial font descriptor: typeface descriptor",
+      "representation": "u24le bitset",
+      "units": "traits; high bit reserved0",
+      "references": "none",
+      "admitted_value_hex": "000411",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "000411"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 65,
+      "width": 1,
+      "name": "initial font descriptor: 5.0 typeface flags",
+      "representation": "u8 bitset",
+      "units": "traits/weight",
+      "references": "none",
+      "admitted_value_hex": "40",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "40"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 66,
+      "width": 1,
+      "name": "initial font descriptor: typeface-name hash",
+      "representation": "u8",
+      "units": "resource hash",
+      "references": "none",
+      "admitted_value_hex": "c9",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "c9"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 67,
+      "width": 1,
+      "name": "initial font descriptor: display-resource quality",
+      "representation": "u8",
+      "units": "DRS-only quality enum",
+      "references": "none",
+      "admitted_value_hex": "00",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "00"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 68,
+      "width": 2,
+      "name": "initial font descriptor: font-name hash",
+      "representation": "u16le",
+      "units": "resource hash",
+      "references": "none",
+      "admitted_value_hex": "87cf",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "87cf"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 70,
+      "width": 4,
+      "name": "initial font descriptor: character-set completeness",
+      "representation": "2xu16le bitsets",
+      "units": "two planes, bit n indexes WP character set",
+      "references": "none",
+      "admitted_value_hex": "01000100",
+      "mutation_policy": "preserve exact input bytes",
+      "source_observed_hex": "01000100"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 74,
+      "width": 2,
+      "name": "minimum top",
+      "representation": "u16le",
+      "units": "resource margin",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 76,
+      "width": 2,
+      "name": "minimum bottom",
+      "representation": "u16le",
+      "units": "resource margin",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 78,
+      "width": 2,
+      "name": "minimum left",
+      "representation": "u16le",
+      "units": "resource margin",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 80,
+      "width": 2,
+      "name": "minimum right",
+      "representation": "u16le",
+      "units": "resource margin",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 82,
+      "width": 1,
+      "name": "printer flags",
+      "representation": "u8 bitset",
+      "units": "selection/init/hzone/orientations",
+      "references": "none",
+      "admitted_value_hex": "18",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "18"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 83,
+      "width": 2,
+      "name": "PRS date",
+      "representation": "u16le packed",
+      "units": "DOS day5/month4/year7+1980",
+      "references": "none",
+      "admitted_value_hex": "6918",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "6918"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 85,
+      "width": 2,
+      "name": "PRS time",
+      "representation": "u16le packed",
+      "units": "DOS sec/2,min6,hour5",
+      "references": "none",
+      "admitted_value_hex": "8a60",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "8a60"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 87,
+      "width": 2,
+      "name": "current font point size",
+      "representation": "u16le",
+      "units": "1/3600 inch",
+      "references": "none",
+      "admitted_value_hex": "5802",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "5802"
+    },
+    {
+      "owner": "packet-12",
+      "offset": 89,
+      "width": 1,
+      "name": "current typeface flags",
+      "representation": "u8 bitset",
+      "units": "traits/weight",
+      "references": "none",
+      "admitted_value_hex": "40",
+      "mutation_policy": "preserve exact source bytes",
+      "source_observed_hex": "40"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 0,
+      "width": 1,
+      "name": "document flags",
+      "representation": "u8 bits",
+      "units": "bit3 must-format; all other bits zero in admitted slice",
+      "references": "none",
+      "admitted_value_hex": "00",
+      "mutation_policy": "no-edit exact; on supported body change set bit3 only; never clear other source bytes",
+      "source_observed_hex": "00"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 1,
+      "width": 1,
+      "name": "quality nibbles",
+      "representation": "u8",
+      "units": "low text / high graphics;0none1draft2medium3high",
+      "references": "none",
+      "admitted_value_hex": "23",
+      "mutation_policy": "preserve",
+      "source_observed_hex": "23"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 2,
+      "width": 2,
+      "name": "redline character",
+      "representation": "u16le",
+      "units": "character setting",
+      "references": "none",
+      "admitted_value_hex": "7c00",
+      "mutation_policy": "preserve",
+      "source_observed_hex": "7c00"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 4,
+      "width": 2,
+      "name": "screen character width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "7800",
+      "mutation_policy": "preserve",
+      "source_observed_hex": "7800"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 6,
+      "width": 2,
+      "name": "binding width",
+      "representation": "u16le",
+      "units": "WPU",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 8,
+      "width": 1,
+      "name": "printer-select counter for equation hash",
+      "representation": "u8",
+      "units": "opaque original counter value",
+      "references": "none",
+      "admitted_value_hex": "01",
+      "mutation_policy": "preserve source exactly; printing/selection witnesses are not a body-edit update rule",
+      "source_observed_hex": "01"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 9,
+      "width": 1,
+      "name": "reserved",
+      "representation": "u8",
+      "units": "zero",
+      "references": "none",
+      "admitted_value_hex": "00",
+      "mutation_policy": "zero only",
+      "source_observed_hex": "00"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 10,
+      "width": 2,
+      "name": "display pitch",
+      "representation": "u16le",
+      "units": "documentary0100=100%; observed0 not given invented physical meaning",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve observed0",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 12,
+      "width": 2,
+      "name": "screen resolution",
+      "representation": "u16le",
+      "units": "resource/display setting",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "preserve observed0",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-6",
+      "offset": 14,
+      "width": 2,
+      "name": "reserved",
+      "representation": "u16le",
+      "units": "zero",
+      "references": "none",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "zero only",
+      "source_observed_hex": "0000"
+    },
+    {
+      "owner": "packet-8",
+      "offset": 0,
+      "width": 2,
+      "name": "graphics count",
+      "representation": "u16le",
+      "units": "zero only",
+      "references": "count*4 size table and graphics extents; count0 owns exactly2 bytes ending at B",
+      "admitted_value_hex": "0000",
+      "mutation_policy": "zero only; refuse any nonzero count or unexplained tail",
+      "source_observed_hex": "0000"
+    }
+  ],
+  "index_header_fields": [
+    {
+      "offset": 0,
+      "width": 2,
+      "type": "u16le",
+      "meaning": "FFFB special header"
+    },
+    {
+      "offset": 2,
+      "width": 2,
+      "type": "u16le",
+      "meaning": "5 entries including header"
+    },
+    {
+      "offset": 4,
+      "width": 2,
+      "type": "u16le",
+      "meaning": "50 bytes, entries*10 checked"
+    },
+    {
+      "offset": 6,
+      "width": 4,
+      "type": "u32le",
+      "meaning": "absolute next index or0"
+    }
+  ],
+  "general_index_fields": [
+    {
+      "offset": 0,
+      "width": 2,
+      "type": "u16le",
+      "meaning": "packet type or0 terminator; FFFF deleted refused for mutation"
+    },
+    {
+      "offset": 2,
+      "width": 4,
+      "type": "u32le",
+      "meaning": "packet length; no body length"
+    },
+    {
+      "offset": 6,
+      "width": 4,
+      "type": "u32le",
+      "meaning": "absolute prefix-local packet start"
+    }
+  ],
+  "prefix_layout": [
+    [
+      0,
+      16,
+      "header"
+    ],
+    [
+      16,
+      66,
+      "index"
+    ],
+    [
+      66,
+      80,
+      "packet7"
+    ],
+    [
+      80,
+      166,
+      "packet15"
+    ],
+    [
+      166,
+      256,
+      "packet12"
+    ],
+    [
+      256,
+      272,
+      "packet6"
+    ],
+    [
+      272,
+      322,
+      "index"
+    ],
+    [
+      322,
+      324,
+      "packet8"
+    ]
+  ],
+  "body_grammar": "printable ASCII and at most two sequential matched nonnested C3/0C/C3 + C4/0C/C4 pair; complete outer tokens only",
+  "resource_qualification": "only exact selected Courier10cpi/Standard Printer packet payloads and pinned executable/PRS resource hashes; metadata fields are not body references; flags/unqualified values refuse",
+  "not_universal": [
+    324,
+    564
+  ],
+  "unresolved_scope": [
+    "deleted/Fast Save layouts not mutation-admitted",
+    "opaque/nested/formatter/C0/other characters or attributes",
+    "general resources and physical font metrics",
+    "new-document creation and production serializer",
+    "unexplained fields or relationships in any other prefix"
+  ],
+  "document_flag_bits": {
+    "0": "WPWIN Wysiwyg display pitch auto/manual; frozen0",
+    "1-2": "redline method enum; frozen0",
+    "3": "must format; preserve for no edit, set for supported body change only",
+    "4": "must regenerate; frozen0",
+    "5": "manual display pitch; frozen0",
+    "6": "update links on retrieval; frozen0",
+    "7": "hide link codes; frozen0"
+  },
+  "quality_nibbles": {
+    "low": "print quality0 dontprint,1draft,2medium,3high; frozen3",
+    "high": "graphics quality sameenum; frozen2"
+  },
+  "printer_flag_bits": {
+    "0": "selected printer",
+    "1": "initialize at WP startup",
+    "2": "unspecified, frozen",
+    "3": "right hzone disabled",
+    "4-7": "supported orientations; exact pinned value"
+  },
+  "descriptor_traits": {
+    "low16": "casual, connected, decorative, formal, future, oldstyle, script, cupped, exaggerated, hairline, slab, slanted, transitional, triangular, curved diagonals, nonconnecting enclosures",
+    "high8": "round,square,angular,exaggerated,uniform,ball terminals,tails,reserved0",
+    "typeface_flags": "lowbits1smallcaps/2shadow/4outline/8italic/16PS; high3weight, frozen exact selected descriptor; no body link"
+  },
+  "font_hash_variants": {
+    "packet15_relative_offset": 21,
+    "width": 2,
+    "qualified_raw_hex": [
+      "e724",
+      "1172"
+    ],
+    "meaning": "descriptor match cache hash; original Other-port/print lifecycle changes, not recalculated by writer; descriptor otherwise exact",
+    "witness": "runs/wp23-a-modes-r1/N0002.WP5 to N0006.WP5; later grouped fresh source witnesses retain1172"
+  },
+  "printer_counter_admission": {
+    "packet6_relative_offset": 8,
+    "exact_admitted_value": 1,
+    "other_values": "read-only actual reader classification separate; mutation refuses. Original print lifecycle increments are observed metadata, not a body-edit algorithm."
+  },
+  "observed_original_lifecycle": {
+    "source_to_final": "counter1 and descriptor hash preserved; flag only0/8; exact per-case raw result, no global body-change iff rule",
+    "retrieve_save_snapshot": "counter1, must-format flag8, source descriptor hash preserved",
+    "subsequent_edit_save_snapshot": "counter1, flag0, source descriptor hash preserved",
+    "one_selected_Other_port_print_then_save": "counter2, flag0, descriptor hash1172",
+    "scope": "exact selected recipes only; not a general cache/printer update algorithm or serializer permission"
+  },
+  "pair_qualification": {
+    "maximum": 2,
+    "empty_first_pair": "preserve literal On-Off-On; no collapse",
+    "status": "initial implementation/qualification policy, NOT original format limit",
+    "higher_counts": "full M1 remains open; refuse prospective output before document/history change",
+    "proof": "two-pair-qualification.json; same complete72-field schema and resource references, no stored body length or pair count"
+  }
+}

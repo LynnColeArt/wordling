@@ -1,0 +1,10 @@
+{
+ "scope": "WP23 required history gaps, fresh-master recipes each repeated twice; no live source edit during current suite",
+ "recipes": [
+  {"id":"history-consecutive","sequence":"plain abc; snapshot; Delete a, Delete b with no navigation/save between; inspect and cancel newest history, save c; interoperability chain"},
+  {"id":"history-save-only","sequence":"plain abc; snapshot; Delete a; snapshot (explicit Save); Delete b without Right; inspect and cancel newest/previous history; save c; interoperability chain"},
+  {"id":"history-consume-direct","sequence":"plain abc; snapshot; Delete a, Right, Delete c; Restore newest; inspect/cancel then Restore again WITHOUT Save between restores; inspect/cancel final stack then save final body; interoperability chain"},
+  {"id":"history-repair-restore","sequence":"A BoldOn BC BoldOff D; snapshot; block only opening Bold boundary and confirm Yes; inspect and Restore resulting history entry; inspect/cancel post-Restore history; save actual body (refuse writer if grammar changes); interoperability chain"}
+ ],
+ "admission":"actual outcomes remain unknown until captured; no inferred history reset across clear/retrieve and no guessed Restore consumption"
+}

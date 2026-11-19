@@ -1,0 +1,118 @@
+{
+  "time_limit": 180,
+  "case_limit": 30,
+  "cleanup": 2,
+  "combined_output": 2097152,
+  "roster": [
+    {
+      "name": "reverse-branch",
+      "path": "evaluate.go",
+      "old": "if !blank {",
+      "new": "if blank {",
+      "target": "TestBothOriginalRuns|TestAlternativeBodies",
+      "source_sha256": "1c6d0b67ffabe48da31347fb37bad13ec8505c8b0083b0b6b7d8ed3cab763a08",
+      "mutated_sha256": "bdcb70738f18dc194630d7f08e5ee4ab1fd7487eef86201ce7da041b9949e5f2",
+      "diff_sha256": "7e75dff268906bc36f0134bfdd932b56968d36de24d1db2d7216b0e69f5836cb"
+    },
+    {
+      "name": "field2-substitution",
+      "path": "evaluate.go",
+      "old": "value, field, e := access(1, false)",
+      "new": "value, field, e := access(2, false)",
+      "target": "TestBothOriginalRuns|TestAlternativeBodies",
+      "source_sha256": "1c6d0b67ffabe48da31347fb37bad13ec8505c8b0083b0b6b7d8ed3cab763a08",
+      "mutated_sha256": "39a72915d4ec8bad8a1d3454d9809e884fee136bc339dc5324231b2a5f91b0e4",
+      "diff_sha256": "22ee4391b9d8b47bee865d4bd3c21d2038b3b52c949d5577d8a6c02a7b0cec78"
+    },
+    {
+      "name": "operand-leak",
+      "path": "compile.go",
+      "old": "p.after = []literal{{t.Raw, 0x0a}}",
+      "new": "p.after = []literal{{t.Raw, '~'}}",
+      "target": "TestBothOriginalRuns",
+      "source_sha256": "7d55533d95b226db2306a1e4d895f7fb61f61dd9f3aa1ffd5d5aa42f3c056f29",
+      "mutated_sha256": "324c8218d7ce6b05e0ce80da344557dce373bdee56398c32a071abd0d9606917",
+      "diff_sha256": "0bd59920e400837bd3b1c3ffa165bd35d86876d04861db7be57f053824ffbcb1"
+    },
+    {
+      "name": "match-token-index",
+      "path": "compile.go",
+      "old": "cmd.Match != match",
+      "new": "cmd.Match != c.token",
+      "target": "TestBothOriginalRuns",
+      "source_sha256": "7d55533d95b226db2306a1e4d895f7fb61f61dd9f3aa1ffd5d5aa42f3c056f29",
+      "mutated_sha256": "f94f4cb518dfe958bdf0b84e2ad81633d01274cf00422e7626135f0d46f92809",
+      "diff_sha256": "0c301c3b42b936fa6b64a191f5b24c4f0fa78f755a4a93043d430f82c2bb6a4c"
+    },
+    {
+      "name": "skip-whole-primary",
+      "path": "compile.go",
+      "old": "e = fail(\"UnsupportedForm\")",
+      "new": "return Plan{p}, nil",
+      "target": "TestWholePrimaryRefusals|TestOriginalPagePrimariesRefused",
+      "source_sha256": "7d55533d95b226db2306a1e4d895f7fb61f61dd9f3aa1ffd5d5aa42f3c056f29",
+      "mutated_sha256": "7943ce4dd916554deb69ed007c4133a9ae84ed72b3095d46bdafc5387af8f441",
+      "diff_sha256": "65353d86805990abdc3dd407e56b2784dd4cc391b1826b0c8465da608b007884"
+    },
+    {
+      "name": "missing-as-empty",
+      "path": "evaluate.go",
+      "old": "v, a, e := access(2, true)\n\t\tif e != nil {\n\t\t\treturn Result{}, e\n\t\t}",
+      "new": "v, a, e := access(2, true)\n\t\tif e != nil {\n\t\t\tv, _ = data.Field(recordOrdinal, 1)\n\t\t\ta = field\n\t\t}",
+      "target": "TestMissingEmptyInvalidAndForeign",
+      "source_sha256": "1c6d0b67ffabe48da31347fb37bad13ec8505c8b0083b0b6b7d8ed3cab763a08",
+      "mutated_sha256": "a7be37e5e2940ee080b46545ac439042668f4f4c8996522bad5eb81a3f3ff74c",
+      "diff_sha256": "7047cf4627bea950884b835bbcfa19014bc7c5abdb84e0045a9ed86ede2bd574"
+    },
+    {
+      "name": "owner-bypass",
+      "path": "compile.go",
+      "old": "!primary.Source().Equal(expectedPrimary)",
+      "new": "false",
+      "target": "TestMissingEmptyInvalidAndForeign",
+      "source_sha256": "7d55533d95b226db2306a1e4d895f7fb61f61dd9f3aa1ffd5d5aa42f3c056f29",
+      "mutated_sha256": "4b406ea96eb6be50dd67bb6c229c46a9db6b5c69bf7baceef122d1f1fbaac7b2",
+      "diff_sha256": "d6a06fc4470babf50753cb0552692ed2c6d66883e51de32bb7e8a90016221062"
+    },
+    {
+      "name": "late-body-bound",
+      "path": "evaluate.go",
+      "old": "total > uint64(q.limits.BodyBytes)",
+      "new": "false",
+      "target": "TestBodyAndWorkAtomicity|TestExactMaximumBody",
+      "source_sha256": "1c6d0b67ffabe48da31347fb37bad13ec8505c8b0083b0b6b7d8ed3cab763a08",
+      "mutated_sha256": "361280474339dd59942ec9e2a8067374322fb6889764f6411f1059b1bceb9fe5",
+      "diff_sha256": "b70c646b6d3e7ba5ebcf214c89b1e8888488f99b7817cdb56a1879c884850a65"
+    },
+    {
+      "name": "partial-valid-result",
+      "path": "evaluate.go",
+      "old": "return Result{}, fail(\"BodyLimit\")",
+      "new": "return Result{&resultProof{}}, nil",
+      "target": "TestBodyAndWorkAtomicity|TestExactMaximumBody",
+      "source_sha256": "1c6d0b67ffabe48da31347fb37bad13ec8505c8b0083b0b6b7d8ed3cab763a08",
+      "mutated_sha256": "68ad067683deaf8117bf8478f85f64a8fdb3981dda85a9c186234890591fd207",
+      "diff_sha256": "1a9bacc7db2499688b09dd5a130c264b0965cc111d2112f5929e0068b6955155"
+    },
+    {
+      "name": "fixed-fixture-byte",
+      "path": "evaluate.go",
+      "old": "out[at] = x.code",
+      "new": "out[at] = 'H'",
+      "target": "TestAlternativeBodiesAndExactFootprints",
+      "source_sha256": "1c6d0b67ffabe48da31347fb37bad13ec8505c8b0083b0b6b7d8ed3cab763a08",
+      "mutated_sha256": "cd66e361d954fb1c7be256fd2303ee2b8d31df5b9a7ac2657f7747dca2e40cf5",
+      "diff_sha256": "e53a907132fb3ab0672e9447d7a3ea40a1a5f9e72185bd77f050413678f7687a"
+    },
+    {
+      "name": "remove-consumer-call",
+      "path": "evidence/evaluate/main.go",
+      "old": "result, e := plan.Evaluate(d, si.Source(), n)",
+      "new": "result, e := body.Result{}, error(nil)",
+      "target": "TestRunComputesAndRefusesAtomically",
+      "source_sha256": "e7499499915d1c4b0b6542e38a21cc42206489f5e8b5eb290d1d512efc2b53f2",
+      "mutated_sha256": "2601d130a4b8c824997af2c73acc0d22086092d4b3ce615e5d711a877dc02d39",
+      "diff_sha256": "d72bc6bcdd14263c4c8ef7554e97360b790163b68126f9250b848056c336b96b"
+    }
+  ]
+}

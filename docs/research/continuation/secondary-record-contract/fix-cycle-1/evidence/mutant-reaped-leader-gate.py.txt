@@ -1,0 +1,625 @@
+#!/usr/bin/env python3
+"""Offline original explicit-field evidence checker; never a merge interpreter.
+
+Commands audit and inspect build a byte-exact approved-reader composition outside
+this checkout. No guest, native writer, admission change or host app is invoked.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import selectors
+import select
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+import xml.etree.ElementTree as ET
+
+ROOT = Path(__file__).resolve().parents[2]
+OWNED = Path('docs/research/continuation/secondary-record-contract')
+READER = '376a37a6afd0d9f11594cadfefe0d557b874a56c'
+AUTHORITY_SHA = '5401c8350d6be1fc51a776904826c7d32b355aba0972c99c653de81ad39582f8'
+MAX_INPUT = 1 << 20
+MAX_INPUTS = 104
+MAX_TOTAL = MAX_INPUT * MAX_INPUTS
+MAX_JSON = 64 << 20
+MAX_DIAGNOSTIC = 1 << 20
+INSPECT_SECONDS = 120
+SYNTHETIC_SECONDS = 30
+AUDIT_SECONDS = 600
+CASES = ('CMD51-207', 'CMD51-208', 'CMD51-209', 'CMD51-216', 'CMD51-217')
+ROLES = {'Primary': 1, 'Secondary': 2, 'Result': 3}
+
+
+class Refusal(Exception):
+    """An atomic checker refusal, distinct from a native reader finding."""
+
+
+def require(condition, reason):
+    if not condition:
+        raise Refusal(reason)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def limited_read(path, limit):
+    require(not path.is_symlink(), 'SymlinkInput')
+    require(path.is_file(), 'NonregularInput')
+    with path.open('rb') as stream:
+        data = stream.read(limit + 1)
+    require(len(data) <= limit, 'InputLimit')
+    return data
+
+
+def archive_digest(path):
+    """Bounded stream custody of actual compiler output, never retain full archive."""
+    count = 0
+    hasher = hashlib.sha256()
+    with path.open('rb') as stream:
+        while chunk := stream.read(1 << 20):
+            count += len(chunk)
+            require(count <= 32 << 20, 'CompilerArchiveLimit')
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def relative(root, name):
+    p = Path(name)
+    require(not p.is_absolute() and '..' not in p.parts and bool(p.parts), 'UnsafePath')
+    q = root / p
+    for item in [q, *q.parents]:
+        if item == root:
+            break
+        require(not item.is_symlink(), 'SymlinkInput')
+    return q
+
+
+def _owned_group_pin(process):
+    """Observe OUR unreaped child without consuming its PID ownership pin."""
+    require(process.returncode is None, 'CleanupOwnershipLost: child already reaped')
+    try:
+        observed = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        require(os.getpgid(process.pid) == process.pid and os.getsid(process.pid) == process.pid,
+                'CleanupOwnershipLost: private group/session changed')
+    except (ChildProcessError, ProcessLookupError) as error:
+        raise Refusal('CleanupOwnershipLost: no unreaped private child') from error
+    return observed
+
+
+def _drain_killed_pipes(process):
+    """Bounded EOF proof for inherited output pipes after group escalation."""
+    pipes = {stream.fileno() for stream in (process.stdout, process.stderr)
+             if stream is not None and not stream.closed}
+    deadline = time.monotonic() + 1
+    discarded = 0
+    while pipes:
+        remaining = deadline - time.monotonic()
+        require(remaining > 0, 'CleanupFailure: inherited pipes did not close')
+        readable, _, _ = select.select(list(pipes), [], [], remaining)
+        for fd in readable:
+            chunk = os.read(fd, 65536)
+            if not chunk:
+                pipes.remove(fd)
+            discarded += len(chunk)
+            require(discarded <= MAX_DIAGNOSTIC, 'CleanupFailure: drain output cap')
+
+
+def _terminate_owned_group(process):
+    """Bounded TERM/KILL of ONLY this still-pinned start_new_session group."""
+    _owned_group_pin(process)
+    try:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return  # Group already gone; the finally below still reaps our child.
+        deadline = time.monotonic() + 1
+        while time.monotonic() < deadline:
+            _owned_group_pin(process)
+            try:
+                os.killpg(process.pid, 0)
+            except ProcessLookupError:
+                return
+            time.sleep(min(.01, max(0, deadline - time.monotonic())))
+        # No poll()/wait()/communicate() has consumed the leader's PID. A leader
+        # exiting does NOT waive escalation for a TERM-ignoring descendant.
+        _owned_group_pin(process)
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        _drain_killed_pipes(process)
+    finally:
+        try:
+            process.wait(timeout=1)
+        except subprocess.TimeoutExpired as error:
+            raise Refusal('CleanupFailure: immediate child did not reap') from error
+
+
+def bounded(argv, cwd, *, data=b'', timeout=INSPECT_SECONDS, cap=MAX_JSON):
+    """Bound pipes while they are read; terminate only this owned offline group."""
+    started = time.monotonic()
+    with tempfile.TemporaryFile() as stdin:
+        stdin.write(data)
+        stdin.seek(0)
+        process = subprocess.Popen(argv, cwd=cwd, stdin=stdin, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, start_new_session=True,
+                                   env={**os.environ, 'GOWORK': 'off', 'GOTOOLCHAIN': 'local', 'GOENV': 'off',
+                                        'GOFLAGS': '', 'GOPROXY': 'off', 'GOSUMDB': 'off', 'CGO_ENABLED': '1' if '-race' in argv else '0'})
+        selector = None
+        output = [bytearray(), bytearray()]
+        try:
+            selector = selectors.DefaultSelector()
+            for i, stream in enumerate([process.stdout, process.stderr]):
+                selector.register(stream, selectors.EVENT_READ, i)
+            while selector.get_map():
+                require(time.monotonic() - started < timeout, 'HelperTimeout')
+                for key, _ in selector.select(min(.1, timeout)):
+                    chunk = os.read(key.fileobj.fileno(), 65536)
+                    if not chunk:
+                        selector.unregister(key.fileobj)
+                        continue
+                    i = key.data
+                    require(len(output[i]) + len(chunk) <= (cap if i == 0 else MAX_DIAGNOSTIC),
+                            'HelperOutputLimit' if i == 0 else 'HelperDiagnosticLimit')
+                    output[i].extend(chunk)
+            # Wait for immediate-child completion WITHOUT reaping it. Thus every
+            # protected failure (including pipe EOF followed by wait timeout)
+            # retains a kernel-proven child/PGID/session pin for group cleanup.
+            while _owned_group_pin(process) is None:
+                remaining = timeout - (time.monotonic() - started)
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(argv, timeout)
+                time.sleep(min(.01, remaining))
+            # Resource-close faults are protected too; the leader is still
+            # unreaped until all pipe/selector ownership has been released.
+            selector.close()
+            selector = None
+            process.stdout.close()
+            process.stderr.close()
+        except BaseException:
+            if process.poll() is None:
+                _terminate_owned_group(process)
+            raise
+        finally:
+            if selector is not None:
+                selector.close()
+            process.stdout.close()
+            process.stderr.close()
+        # This is the success-only reap, after the protected region. If an
+        # exceptional reap fails, cleanup either proves the pin or reports loss;
+        # it never signals an unproven numeric PID/PGID.
+        try:
+            code = process.wait(timeout=1)
+        except BaseException:
+            _terminate_owned_group(process)
+            raise
+    out, err = bytes(output[0]), bytes(output[1])
+    return code, out, err
+
+
+def command(argv, cwd, **kw):
+    code, out, err = bounded(argv, cwd, **kw)
+    require(code == 0, 'SubprocessFailure: ' + repr(argv) + ': ' + err[:4096].decode(errors='replace'))
+    return out
+
+
+def load_json(data):
+    require(len(data) <= MAX_JSON, 'JSONLimit')
+    try:
+        return json.loads(data)
+    except (ValueError, RecursionError) as error:
+        raise Refusal('InvalidJSON') from error
+
+
+def git(root, *args, deadline=None):
+    seconds = INSPECT_SECONDS if deadline is None else min(INSPECT_SECONDS, deadline - time.monotonic())
+    require(seconds > 0, 'AuditTimeout')
+    return command(['git', *args], root, timeout=seconds)
+
+
+def authority(root=ROOT, deadline=None):
+    deadline = deadline or (time.monotonic() + AUDIT_SECONDS)
+    raw = limited_read(root / OWNED / 'authority.json', MAX_INPUT)
+    require(digest(raw) == AUTHORITY_SHA, 'AuthorityBinding')
+    a = load_json(raw)
+    require(a['approved_reader'] == READER, 'ReaderRevision')
+    pro = relative(root, a['provenance_directory'])
+    mapping = limited_read(pro / 'path-map.json', MAX_JSON)
+    require(digest(mapping) == a['provenance_map_sha256'], 'ProvenanceMapBinding')
+    files = load_json(mapping)['files']
+    require(len(files) == 142, 'ProvenanceRoster')
+    require(sum(row['size'] for row in files) <= 8 << 20, 'ProvenanceAggregateLimit')
+    for row in files:
+        require(time.monotonic() < deadline, 'AuditTimeout')
+        data = limited_read(relative(pro, row['archive_relative_path']), MAX_INPUT)
+        require(len(data) == row['size'] and digest(data) == row['sha256'], 'ProvenanceBinding')
+        if 'commit' in row:
+            blob = git(root, 'rev-parse', row['commit'] + ':' + row['source'], deadline=deadline).decode().strip()
+            require(blob == row['git_blob'], 'GitBlobBinding')
+            require(git(root, 'cat-file', 'blob', blob, deadline=deadline) == data, 'GitBytesBinding')
+    expected_set = a['inherited_go_module_files']
+    current_set = {n for n in git(root, 'ls-files', deadline=deadline).decode().splitlines()
+                   if n.endswith('.go') or Path(n).name in ('go.mod', 'go.sum')}
+    require(current_set == set(expected_set), 'InheritedGoModuleSet')
+    for name, row in expected_set.items():
+        require(digest(limited_read(relative(root, name), MAX_JSON)) == row['sha256'],
+                'InheritedGoModuleBytes: ' + name)
+    for name, row in a['source_files'].items():
+        b = limited_read(relative(root, name), MAX_JSON)
+        require(digest(b) == row['sha256'] and len(b) == row['bytes'], 'ReaderSourceBinding')
+        require(git(root, 'rev-parse', READER + ':' + name, deadline=deadline).decode().strip() == row['git_blob'],
+                'ReaderGitBinding')
+    return a, pro
+
+
+class Session:
+    """A source-pinned inspection executable, with no authority to run a merge."""
+    def __init__(self, root=ROOT):
+        self.root = root
+        self.deadline = time.monotonic() + AUDIT_SECONDS
+        self.authority, self.provenance = authority(root, self.deadline)
+        self.temp = tempfile.TemporaryDirectory(prefix='wordling-secondary-inspection-')
+        self.cwd = Path(self.temp.name)
+        self.receipt = {'reader': READER, 'cwd': str(self.cwd), 'commands': [], 'sources': {},
+                        'checker_source_sha256': digest(limited_read(root / 'scripts/reference/secondary_record_contract.py', MAX_INPUT)),
+                        'authority_sha256': AUTHORITY_SHA}
+        self.total = 0
+        self.inputs = 0
+        try:
+            for name, row in self.authority['source_files'].items():
+                q = self.cwd / name
+                q.parent.mkdir(parents=True, exist_ok=True)
+                q.write_bytes(limited_read(root / name, MAX_JSON))
+                self.receipt['sources'][name] = row
+            helper = self.cwd / 'internal/secondary-contract'
+            helper.mkdir(parents=True)
+            for src, dest in [('inspect.go.txt', 'main.go'), ('inspect_test.go.txt', 'main_test.go')]:
+                raw = limited_read(root / OWNED / src, MAX_INPUT)
+                (helper / dest).write_bytes(raw)
+                self.receipt['sources'][str((helper / dest).relative_to(self.cwd))] = {
+                    'sha256': digest(raw), 'bytes': len(raw), 'owned_source': str(OWNED / src)}
+            fixture = self.provenance / 'git' / READER / (
+                'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-207/SECOND.WP5.txt')
+            (helper / 'fixture.wp5').write_bytes(limited_read(fixture, MAX_INPUT))
+            self.binary = self.cwd / 'inspect'
+            self.run(['go', 'build', '-trimpath', '-o', str(self.binary), './internal/secondary-contract'])
+            self.receipt['binary_sha256'] = digest(limited_read(self.binary, 32 << 20))
+        except BaseException:
+            self.close()
+            raise
+
+    def close(self):
+        self.temp.cleanup()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+    def run(self, argv, **kw):
+        started = time.monotonic()
+        seconds = min(kw.pop('timeout', INSPECT_SECONDS), self.deadline - started)
+        require(seconds > 0, 'AuditTimeout')
+        code, out, err = bounded(argv, self.cwd, timeout=seconds, **kw)
+        self.receipt['commands'].append({'argv': argv, 'cwd': str(self.cwd), 'exit': code,
+            'stdin_sha256': digest(kw.get('data', b'')), 'stdin_bytes': len(kw.get('data', b'')),
+            'stdout_sha256': digest(out), 'stdout_bytes': len(out),
+            'stderr_sha256': digest(err), 'stderr_bytes': len(err),
+            'seconds': time.monotonic() - started})
+        require(code == 0, 'HelperFailure: ' + err[:4096].decode(errors='replace'))
+        return out
+
+    def inspect(self, raw, role, *, synthetic=False):
+        require(role in ROLES, 'InvalidRole')
+        require(len(raw) <= MAX_INPUT, 'InputLimit')
+        self.inputs += 1
+        self.total += len(raw)
+        require(self.inputs <= MAX_INPUTS and self.total <= MAX_TOTAL, 'AggregateLimit')
+        out = self.run([str(self.binary), role], data=raw,
+                       timeout=SYNTHETIC_SECONDS if synthetic else INSPECT_SECONDS)
+        info = load_json(out)
+        require(isinstance(info, dict) and info.get('sha256') == digest(raw)
+                and info.get('bytes') == len(raw) and info.get('role') == ROLES[role], 'HelperBinding')
+        for key in ['exact_export', 'ownership_isolated', 'zero_span_refused', 'cross_source_span_refused']:
+            require(info.get(key) is True, 'HelperOwnership')
+        return info
+
+    def build_proof(self):
+        out = self.run(['go', 'list', '-deps', '-export', '-json', './internal/secondary-contract'])
+        decoder = json.JSONDecoder()
+        rest = out.decode()
+        packages = []
+        while rest.strip():
+            row, end = decoder.raw_decode(rest.lstrip())
+            rest = rest.lstrip()[end:]
+            files = {}
+            for name in row.get('GoFiles', []):
+                p = Path(row['Dir']) / name
+                files[name] = digest(limited_read(p, 32 << 20))
+            export = row.get('Export')
+            packages.append({'import': row['ImportPath'], 'dir': row['Dir'], 'GoFiles': files,
+                             'imports': row.get('Imports', []), 'module': row.get('Module'),
+                             'export': export, 'archive_sha256': archive_digest(Path(export)) if export else None})
+        actual = {p['import']: set(p['GoFiles']) for p in packages if p['import'].startswith('github.com/lynncoleart/wordling/')}
+        require(actual == {'github.com/lynncoleart/wordling/internal/wp51': {'native.go'},
+                           'github.com/lynncoleart/wordling/internal/merge/native': {'image.go', 'semantic.go', 'view.go'},
+                           'github.com/lynncoleart/wordling/internal/secondary-contract': {'main.go'}}, 'CompiledClosure')
+        env = load_json(self.run(['go', 'env', '-json', 'GOMOD', 'GOWORK', 'GOVERSION', 'GOOS', 'GOARCH', 'GOROOT', 'GOENV', 'GOFLAGS', 'GOPROXY', 'CGO_ENABLED']))
+        require(env['GOMOD'] == str(self.cwd / 'go.mod') and env['GOWORK'] == 'off', 'ModuleBinding')
+        self.receipt.update(packages=packages, go_env=env)
+        return self.receipt
+
+
+def part_bytes(part):
+    require(isinstance(part, dict) and isinstance(part.get('Offset'), int)
+            and isinstance(part.get('Length'), int) and part['Offset'] >= 0 and part['Length'] >= 0,
+            'InvalidOwnedSpan')
+    try:
+        raw = bytes.fromhex(part['Hex'])
+    except (KeyError, ValueError, TypeError) as error:
+        raise Refusal('InvalidOwnedSpan') from error
+    require(len(raw) == part['Length'], 'InvalidOwnedSpan')
+    return raw
+
+
+def at(part):
+    part_bytes(part)
+    return part['Offset']
+
+
+def end(part):
+    return at(part) + part['Length']
+
+
+def secondary_shape(info, known_d4):
+    """Closed shape observation, NEVER production admission or count inference."""
+    require(info['role'] == 2 and info['admit_refused'] and not info['supported'], 'SecondaryRole')
+    require(not info['findings_capped'], 'FindingsCapped')
+    require({x['code'] for x in info['findings']} <= {'RecordCountUnresolved', 'FormatterUnresolved'},
+            'SecondaryFinding')
+    records = info['records']
+    require(0 < len(records) <= 4096, 'RecordRoster')
+    pos = info['body_offset']
+    accepted = []
+    for j, r in enumerate(records, 1):
+        require(r['ordinal'] == j and at(r['raw']) == pos, 'RecordExtent')
+        fields = r['fields']
+        # This lookup preserves TWO literal observed shapes; it is not count-1.
+        require((r['stored_count'], len(fields)) in {(2, 1), (3, 2)}, 'ObservedCountShape')
+        values = []
+        for k, f in enumerate(fields, 1):
+            value = part_bytes(f['content'])
+            require(f['ordinal'] == k and at(f['content']) == pos, 'FieldExtent')
+            require(f['empty'] == (len(value) == 0) and f['plain_ascii']
+                    and not f['whitespace_only'] and all(32 <= c <= 126 for c in value), 'FieldIdentity')
+            require(end(f['content']) == at(f['end_field'])
+                    and part_bytes(f['end_field']) == bytes.fromhex('de310400040031de'), 'EndField')
+            require(end(f['end_field']) == at(f['separator'])
+                    and part_bytes(f['separator']) == b'\x0a', 'ExactSeparator')
+            pos = end(f['separator'])
+            values.append(value.hex())
+        require(at(r['tail']) == pos and part_bytes(r['tail']) == b'', 'UnaddressedTail')
+        require(at(r['end_record']) == pos, 'EndRecordExtent')
+        eor = part_bytes(r['end_record'])
+        # Reader owns framing and exposes its raw count; compare bytes to the
+        # literal observed EOR payload, not an independent DE frame decoder.
+        expected_eor = {2: 'de3406000200060034de', 3: 'de3406000300060034de'}[r['stored_count']]
+        require(eor.hex() == expected_eor and end(r['raw']) == end(r['end_record']), 'EndRecord')
+        inter = r['interstitial']
+        require(len(inter) == 2 and at(inter[0]) == end(r['end_record'])
+                and part_bytes(inter[0]).hex() in known_d4, 'FormatterFamily')
+        require(at(inter[1]) == end(inter[0]) and part_bytes(inter[1]) == b'\x0c', 'ActualHardPage')
+        pos = end(inter[1])
+        accepted.append({'ordinal': j, 'literal_stored_count': r['stored_count'], 'explicit_values_hex': values,
+                         'tail_is_unaddressed_empty': True, 'raw': r['raw'], 'fields': fields,
+                         'end_record': r['end_record'], 'tail': r['tail'], 'post_record': inter})
+    require(pos == info['bytes'], 'UnownedTrailingData')
+    return accepted
+
+
+def explicit_reference(records, number):
+    require(type(number) is int and number > 0, 'FieldReference')
+    require(all(number <= len(r['explicit_values_hex']) for r in records), 'OutsideExplicitFields')
+    return [r['explicit_values_hex'][number - 1] for r in records]
+
+
+def primary_contract(info, records):
+    require(info['role'] == 1 and not info['findings'] and info['supported'], 'PrimaryFinding')
+    commands = info['commands']
+    require(commands and all(c['kind'] in {0x36, 0x3b, 0x30, 0x33, 0x4d, 0x4e} for c in commands), 'PrimaryContext')
+    references = []
+    for c in commands:
+        if c['kind'] in {0x36, 0x3b}:
+            number = c['number']
+            require(number == (1 if c['kind'] == 0x36 else 2), 'UnprovedFieldReference')
+            references.append({'command': c['kind'], 'number': number,
+                               'explicit_values_hex': explicit_reference(records, number),
+                               'operand': c['operand'], 'terminator': c['terminator']})
+    return references
+
+
+def result_projection(info):
+    require(info['role'] == 3 and info['admit_refused'] and not info['findings_capped'], 'ResultRole')
+    require({f['code'] for f in info['findings']} <= {'ResultNotProgram', 'FormatterUnresolved'},
+            'ResultFinding')
+    selected = bytearray()
+    metadata = []
+    for token in info['tokens']:
+        raw = part_bytes(token['raw'])
+        if token['kind'] == 1 or (token['kind'] == 2 and token['code'] in (10, 12)):
+            selected.extend(raw)
+        elif token['kind'] == 3 and token['code'] == 0xd4 and token['subfunction'] == 0:
+            metadata.append(token['raw'])
+        else:
+            raise Refusal('ResultProjectionUnqualified')
+    return {'selected_hex': selected.hex(), 'hard_pages': selected.count(12),
+            'retained_D4_metadata': metadata, 'projection_only_not_output_generation': True}
+
+
+def paired_sources(case_id, triplet):
+    require(case_id in CASES and len(triplet) == 3, 'PairedSources')
+    by_role = {x['role']: x for x in triplet}
+    require(set(by_role) == set(ROLES), 'RoleAssociation')
+    run = triplet[0]['run']
+    names = {'Primary': 'PRIMARY.WP5', 'Secondary': 'SECOND.WP5', 'Result': 'MERGED.WP5'}
+    for role, src in by_role.items():
+        require(src['run'] == run and src['path'] ==
+                f'docs/research/reference-runs/{run}/{case_id}/{names[role]}', 'CaseAssociation')
+    return run, by_role
+
+
+def original_context(case_id, primary, records):
+    commands = {
+        'CMD51-207': [0x36], 'CMD51-208': [0x4d, 0x36],
+        'CMD51-209': [0x3b, 0x30, 0x33, 0x36],
+        'CMD51-216': [0x4d, 0x36, 0x4e],
+        'CMD51-217': [0x3b, 0x4d, 0x30, 0x4e, 0x33, 0x36]}
+    require([c['kind'] for c in primary['commands']] == commands[case_id], 'OriginalCommandContext')
+    expected = [['Alice'], ['Bob']]
+    if case_id == 'CMD51-209':
+        expected = [['Alice', 'YES'], ['Bob', '']]
+    if case_id == 'CMD51-217':
+        expected = [['Alice', ''], ['Bob', ''], ['Carol', 'YES'], ['Dave', 'YES']]
+    require([r['explicit_values_hex'] for r in records] ==
+            [[v.encode('ascii').hex() for v in row] for row in expected], 'OriginalExplicitValues')
+    # This is a checked table of historical observations, never an evaluator.
+
+
+def audit(session):
+    started = time.monotonic()
+    pro = session.provenance
+    proof = load_json(limited_read(pro / 'recon/source-proof.json.txt', MAX_JSON))
+    selected = [x for x in proof['cases'] if x['case'] in CASES]
+    require(tuple(x['case'] for x in selected) == CASES, 'CaseRoster')
+    rows = []
+    for case in selected:
+        require(time.monotonic() - started <= AUDIT_SECONDS, 'AuditTimeout')
+        sources = case['sources']
+        require(len(sources) == 6, 'PairedSources')
+        pair = []
+        for offset in (0, 3):
+            triplet = sources[offset:offset + 3]
+            run, by_role = paired_sources(case['case'], triplet)
+            inspections = {}
+            for role, src in sorted(by_role.items()):
+                raw = limited_read(relative(pro / 'git' / READER, src['path'] + '.txt'), MAX_INPUT)
+                require(digest(raw) == src['sha256'], 'OriginalSourceBinding')
+                info = session.inspect(raw, role)
+                inspections[role] = info
+            records = secondary_shape(inspections['Secondary'], session.authority['known_secondary_D4_00'])
+            references = primary_contract(inspections['Primary'], records)
+            original_context(case['case'], inspections['Primary'], records)
+            projection = result_projection(inspections['Result'])
+            expected = case['expected']['expected_text'].encode('ascii')
+            require(projection['selected_hex'] == expected.hex()
+                    and projection['hard_pages'] == case['expected']['hard_pages'], 'OriginalTraceMismatch')
+            pair.append({'run': run, 'source_paths': {role: x['path'] for role, x in sorted(by_role.items())},
+                'original_native_inspections': inspections, 'closed_explicit_shape': records,
+                'explicit_references': references, 'original_result_projection': projection})
+        require(pair[0]['run'] != pair[1]['run'], 'FreshPairIdentity')
+        rows.append({'case': case['case'], 'original_observation': case['observation'], 'paired': pair})
+    return {'schema': 'wordling.secondary-record-contract/v1', 'reader': READER,
+            'authority_sha256': AUTHORITY_SHA, 'cases': rows, 'case_count': 5, 'original_runs': 10,
+            'native_inputs': session.inputs, 'native_bytes': session.total,
+            'production_secondary_admission_changed': False, 'interpreter_executed': False,
+            'stored_count_relationship': 'UNRESOLVED; two literal observed shapes only',
+            'full_M1_and_parent_obligations_open': True}
+
+
+def output_path(path):
+    require('..' not in path.parts, 'ReportTraversal')
+    require(path.suffix in {'.json', '.xml'}, 'ReportSuffix')
+    for q in [path.absolute(), *path.absolute().parents]:
+        require(not q.is_symlink(), 'ReportSymlink')
+    resolved = path.absolute()
+    if resolved.is_relative_to(ROOT):
+        require(resolved.is_relative_to(ROOT / OWNED / 'evidence'), 'ReportOutsideOwnedEvidence')
+    return path
+
+
+def atomic_report(path, data, check=False):
+    output_path(path)
+    require(len(data) <= MAX_JSON, 'ReportLimit')
+    if check:
+        require(limited_read(path, MAX_JSON) == data, 'ReportMismatch')
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=path.parent, prefix='.secondary-report-', delete=False) as f:
+        temp = Path(f.name)
+        try:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        except BaseException:
+            temp.unlink(missing_ok=True)
+            raise
+    try:
+        os.replace(temp, path)
+    finally:
+        temp.unlink(missing_ok=True)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest='command', required=True)
+    a = sub.add_parser('audit', help='Reinspect five existing paired original workflows; no execution')
+    a.add_argument('--output', required=True, type=Path)
+    a.add_argument('--receipt', type=Path)
+    a.add_argument('--junitxml', type=Path)
+    a.add_argument('--check', action='store_true')
+    i = sub.add_parser('inspect', help='Synthetic/offline closed-shape observation, never admission')
+    i.add_argument('--input', required=True, type=Path)
+    i.add_argument('--role', required=True, choices=ROLES)
+    i.add_argument('--output', required=True, type=Path)
+    args = parser.parse_args(argv)
+    try:
+        targets = [args.output, *[getattr(args, n, None) for n in ['receipt', 'junitxml']]]
+        targets = [output_path(p) for p in targets if p is not None]
+        require(len({str(p.absolute()) for p in targets}) == len(targets), 'DuplicateReportPath')
+        if args.command == 'inspect':
+            require(all(p.absolute() != args.input.absolute() for p in targets), 'InputIsReport')
+        with Session() as session:
+            if args.command == 'audit':
+                report = audit(session)
+                if args.receipt:
+                    session.build_proof()
+            else:
+                raw = limited_read(args.input, MAX_INPUT)
+                info = session.inspect(raw, args.role, synthetic=True)
+                report = {'reader_inspection': info, 'synthetic_offline_only': True}
+                if args.role == 'Secondary':
+                    report['closed_shape'] = secondary_shape(info, session.authority['known_secondary_D4_00'])
+                elif args.role == 'Result':
+                    report['originality_not_claimed_projection'] = result_projection(info)
+                else:
+                    require(info['supported'] and not info['findings'], 'PrimaryFinding')
+            data = (json.dumps(report, sort_keys=True, indent=2) + '\n').encode()
+            # All source, helper and semantic checks finish BEFORE ANY report write.
+            atomic_report(args.output, data, getattr(args, 'check', False))
+            if args.command == 'audit':
+                if args.receipt:
+                    atomic_report(args.receipt, (json.dumps(session.receipt, indent=2) + '\n').encode())
+                if args.junitxml:
+                    suite = ET.Element('testsuite', name='secondary-original-contract', tests='10', failures='0', skipped='0')
+                    for row in report['cases']:
+                        for pair in row['paired']:
+                            ET.SubElement(suite, 'testcase', name=row['case'] + ':' + pair['run'])
+                    atomic_report(args.junitxml, ET.tostring(suite, encoding='utf-8', xml_declaration=True))
+        print(json.dumps({'result': 'offline-contract-observation', 'output_sha256': digest(data),
+                          'not_admission_or_merge_execution': True}, sort_keys=True))
+        return 0
+    except (Refusal, OSError, subprocess.TimeoutExpired, ValueError, KeyError, TypeError) as error:
+        print(('REFUSED ' + str(error))[:4096], file=sys.stderr)
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
