@@ -700,9 +700,9 @@ def _supervise_owner(campaign,source_sha):
         release_owner.close();release_owner=None;setup_complete=True
         while first_fault is None:
             if current:campaign.root.check()
-            current=now()
+            tick=now()
             if stopped:begin_fault('CampaignOwnerSignal')
-            elif current>=min(traffic_end,active_end):begin_fault('CampaignExecutionDeadline')
+            elif tick>=min(traffic_end,active_end):begin_fault('CampaignExecutionDeadline')
             else:
                 exited=root_exit()
                 if exited is not None:

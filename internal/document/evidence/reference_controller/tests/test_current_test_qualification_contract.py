@@ -267,6 +267,22 @@ class CurrentFiniteRuntimeWiringStructuralTests(unittest.TestCase):
 
 
 class CurrentCorrectionStructuralTests(unittest.TestCase):
+    def test_direct_owner_actual_purpose_flag_is_never_reassigned(self):
+        owner = function(source_tree('runtime_qualification_supervisor.py'), '_supervise_owner')
+        bindings = [node for node in ast.walk(owner) if isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute)
+            and node.value.func.attr == '_actual_current_owner']
+        self.assertEqual(len(bindings), 1, 'one actual purpose classification')
+        self.assertEqual(len(bindings[0].targets), 1)
+        self.assertIsInstance(bindings[0].targets[0], ast.Name)
+        flag = bindings[0].targets[0].id
+        writes = [node for node in ast.walk(owner) if isinstance(node, ast.Name)
+            and node.id == flag and isinstance(node.ctx, (ast.Store, ast.Del))]
+        self.assertEqual(len(writes), 1, 'timing/cleanup must not overwrite the actual purpose flag')
+        uses = [node for node in ast.walk(owner) if isinstance(node, ast.Name)
+            and node.id == flag and isinstance(node.ctx, ast.Load)]
+        self.assertGreaterEqual(len(uses), 3, 'non-vacuous registration, loop and cleanup purpose checks')
+
     def test_current_entry_has_one_q_identity_and_pinned_siblings_before_bootstrap(self):
         tree = source_tree('runtime_qualification.py')
         entry = function(tree, '_current_phase_entry')
