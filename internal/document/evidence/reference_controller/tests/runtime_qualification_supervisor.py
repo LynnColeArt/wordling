@@ -279,8 +279,9 @@ def _supervise_owner(campaign,source_sha):
             any(c not in '0123456789abcdef' for c in source_sha)):
         raise RuntimeError('CampaignSourceSHA')
     control=q._actual_harmless_owner(campaign)
-    if not control and not q._actual_campaign(campaign):raise RuntimeError('ActualOwnerProducerRequired')
-    total_slots=(2 if campaign.group==1 else 1) if control else 199
+    current=q._actual_current_owner(campaign)
+    if not current and not control and not q._actual_campaign(campaign):raise RuntimeError('ActualOwnerProducerRequired')
+    total_slots=1 if current else (2 if campaign.group==1 else 1) if control else 199
     descriptor=campaign.descriptor;whole_end=campaign.end;traffic_end=whole_end-2000000000
     if type(whole_end) is not int or type(campaign.start) is not int or time.monotonic_ns()>=traffic_end:
         raise RuntimeError('CampaignOwnerClock')
@@ -292,6 +293,8 @@ def _supervise_owner(campaign,source_sha):
         budget.reserve([receipt/'whole.json'],'custody',65536)
         budget.reserve(list(paths.values()),'custody',262144)
     if control:campaign.arena.hold('owner-live',1048576)
+    elif current:
+        if campaign.arena.holds.get('current-owner-live')!=1048576:raise RuntimeError('CurrentEarlyJointOwnerReservation')
     elif campaign.arena.holds.get('joint-owner-source-live')!=1572864:raise RuntimeError('CampaignEarlyJointOwnerReservation')
     # 1MiB joint hold: raw bytearrays<=294912; retired199<=65536;
     # bounded census/split/int scratch<=196608; frame/decode<=65536;
@@ -394,8 +397,9 @@ def _supervise_owner(campaign,source_sha):
 
     def receive(limit):
         nonlocal request_count
-        terminal_receive=(not control and hello and last_seq==total_slots==199
-                          and len(retired)==199 and active is None)
+        terminal_receive=(not control and hello and active is None
+            and ((current and last_seq==total_slots==1 and len(retired)==1)
+                or (not current and last_seq==total_slots==199 and len(retired)==199)))
         exited=root_exit()
         if terminal_receive and (root is None or rootfd is None or not root_retained or root.returncode is not None):
             raise RuntimeError('CampaignRetainedRootRequired')
@@ -521,7 +525,7 @@ def _supervise_owner(campaign,source_sha):
             elif kind=='R':
                 if not hello or active is not None or set(value)!={'k','v','n','s','i','e','c'}:
                     raise RuntimeError('CampaignREGISTERShape')
-                expected_slot=last_seq+1 if control else q._campaign_slot_order(last_seq+1)
+                expected_slot=last_seq+1 if control or current else q._campaign_slot_order(last_seq+1)
                 seq,slot,end=q._campaign_registration_fields(value,descriptor['nonce'],last_seq,expected_slot,now(),traffic_end)
                 if value['c']is not True or fd is None:raise RuntimeError('CampaignRegisteredNoChildRefusal')
                 q._campaign_live(fd)
@@ -540,6 +544,7 @@ def _supervise_owner(campaign,source_sha):
                 close_active() # Signal lifecycle CLOSED before census barrier and IDLEACK.
                 barrier_end=min(end,whole_end,now()+2000000000)
                 if not barrier(barrier_end):raise RuntimeError('CampaignIDLEOwnChildBarrier')
+                if current and len(retired)>=1:raise RuntimeError('CurrentRetiredRegistryBound')
                 if len(retired)>=199:raise RuntimeError('CampaignRetiredRegistryBound')
                 retired.append((seq,slot,end,value['r']))
                 send({'k':'i','n':descriptor['nonce'],'s':seq,'i':slot,'e':end},min(traffic_end,end))
@@ -560,8 +565,12 @@ def _supervise_owner(campaign,source_sha):
         if control:
             allocation={'used':0}
         else:
-            target.mkdir(mode=0o700);(target/'home').mkdir(mode=0o700)
-            evidence.mkdir(mode=0o700);receipt.mkdir(mode=0o700)
+            if current:
+                evidence.mkdir(mode=0o700);target.mkdir(mode=0o700);(target/'home').mkdir(mode=0o700)
+                budget.document(evidence/'command.json',q._current_command(campaign.manifest,'slot',1),'pair')
+            else:
+                target.mkdir(mode=0o700);(target/'home').mkdir(mode=0o700);evidence.mkdir(mode=0o700)
+            receipt.mkdir(mode=0o700)
             allocation,raw_handles=budget.raw_group(list(paths.values()),'custody',262144)
         libc=ctypes.CDLL(None,use_errno=True)
         if libc.prctl(36,1,0,0,0)!=0:raise OSError(ctypes.get_errno(),'PR_SET_CHILD_SUBREAPER')
@@ -570,8 +579,9 @@ def _supervise_owner(campaign,source_sha):
         old_handlers={n:signal.signal(n,stop_handler)for n in(signal.SIGTERM,signal.SIGINT)}
         control_owner,control_child=q._campaign_pair()
         release_owner,release_child=q._campaign_pair()
-        command=q._harmless_command(campaign.manifest,'root',0) if control else q._campaign_command(campaign.manifest,'root',0)
+        command=q._current_command(campaign.manifest,'root',0) if current else q._harmless_command(campaign.manifest,'root',0) if control else q._campaign_command(campaign.manifest,'root',0)
         launch=(q._harmless_gate_args(campaign.group,source_sha,'root',0,0,release_child.fileno(),descriptor['nonce'],traffic_end,control=control_child.fileno()) if control else q._campaign_gate_args(source_sha,'root',0,0,release_child.fileno(),descriptor['nonce'],traffic_end,control=control_child.fileno()))
+        if current:launch=q._current_gate_args(campaign.kind,source_sha,'root',0,0,release_child.fileno(),descriptor['nonce'],traffic_end,control=control_child.fileno())
         if now()>=traffic_end:raise RuntimeError('CampaignRootLaunchDeadline')
         spawn_attempted=True
         root=subprocess.Popen(launch,cwd=command['cwd'],env=q._campaign_gate_environment(command['env']),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,

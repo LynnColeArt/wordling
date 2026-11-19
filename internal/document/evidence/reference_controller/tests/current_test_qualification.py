@@ -28,9 +28,84 @@ _UNRESOLVED = ('reference roots/source review', 'BASE/stdlib/config/aliases/righ
 _LIVE_CONTEXTS = set()
 
 
+# These registries contain only objects made by the fixed live bootstrap. Saved
+# bytes, a matching hash, or a caller supplied PID cannot populate either one.
+_LIVE_ROOTS = set()
+_LIVE_REFERENCE_OWNERS = set()
+_CURRENT_ROOT = None
+_CURRENT_ROOT_PATH = Path('/tmp/wordling-WP70-current-test-qualification-v2')
+_CURRENT_DESIGN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/design/source-writers-TDD-design.json'
+_CURRENT_DESIGN_SHA = 'ca9b16e498fa5fe2c4a4b560de8860783e45bf9b741edb9c016d55f208210a8f'
+_PREPARATION_STAGES = ('DISPOSABLE_PREPARING', 'FINAL_PREPARING')
+
+
+def _q():
+    value = sys.modules.get('runtime_qualification')
+    if value is None or type(value) is not type(sys):
+        raise RuntimeError('CurrentCanonicalModuleRequired')
+    return value
+
+
+class _RootBoundary:
+    """Live coordinator relation; its constructor is never a DATA admission API."""
+    __slots__ = ('channel', 'parentfd', 'peer', 'nonce', 'source_sha', 'state',
+        'whole_origin', 'whole_end', 'failed', 'finished', 'expected', 'selection',
+        'capacity', 'groups', 'budget', 'arena', 'contexts', 'sequence', 'proof',
+        'source', 'repository', 'frozen_disposable', 'candidate', 'used_stages')
+
+    def __new__(cls):
+        raise TypeError('CurrentLiveBootstrapOnly')
+
+    def check(self):
+        if self not in _LIVE_ROOTS or self is not _CURRENT_ROOT or self.failed or self.finished:
+            raise RuntimeError('CurrentRootIdentity')
+        _q()._current_live_boundary(self)
+        if self.whole_end is not None and time.monotonic() >= self.whole_end:
+            self.fail('CurrentWholeDeadline')
+            raise RuntimeError('CurrentWholeDeadline')
+
+    def fail(self, reason):
+        # Terminal, including errors after an ordinary command's idle notice.
+        self.failed = True
+        for value in tuple(self.contexts):
+            value.failed = True
+        _q()._current_abort_boundary(self, reason)
+
+    def advance(self, before, after):
+        self.check()
+        if self.state != before:
+            self.fail('CurrentStageOrder')
+            raise RuntimeError('CurrentStageOrder')
+        self.state = after
+
+    def accept(self, stage):
+        """An independent action over the STILL LIVE private owner channel.
+
+        The owner sends only the next finite decision. No on-disk verdict is
+        read here and replaying one cannot restore this session or a context.
+        """
+        self.check()
+        transitions = {
+            'SOURCE_ACCEPTED_NO_CLOCK': 'REFERENCE_RUNNING',
+            'REFERENCE_PENDING_ACCEPTANCE': 'REFERENCE_ACCEPTED',
+            'DISPOSABLE_FROZEN_OWNER_FINISHED': 'COLD_ARTIFACT_CHECKS',
+            'CANDIDATE_PENDING_ACCEPTANCE': 'CANDIDATE_ACCEPTED'}
+        if stage != self.state or stage not in transitions:
+            raise RuntimeError('CurrentAcceptanceStage')
+        _q()._current_root_decision(self, stage)
+        if stage == 'SOURCE_ACCEPTED_NO_CLOCK':
+            # Earliest qualified action; never renewed by a later preparation.
+            self.whole_origin = time.monotonic()
+            self.whole_end = self.whole_origin + 1200
+        self.state = transitions[stage]
+
+
 class _CurrentContext:
-    """No DATA constructor or reconstruction route exists in this checkpoint."""
-    __slots__ = ()
+    """A one-stage borrower of the actual retained local coordinator."""
+    __slots__ = ('root', 'stage', 'start', 'end', 'whole_origin', 'whole_end',
+        'preparation_origin', 'preparation', 'failed', 'finished', 'budget',
+        'arena', 'claimed', 'expected', 'selection', 'target', 'evidence',
+        'capture_index', 'inventory_frozen')
 
     def __new__(cls):
         raise TypeError('CurrentTestGenuineProducerUnavailable')
@@ -44,9 +119,195 @@ class _CurrentContext:
     def __reduce__(self):
         raise TypeError('CurrentTestContextNotSerializable')
 
+    def check(self, preparation=None):
+        if not _actual_context(self) or self.failed or self.finished:
+            raise RuntimeError('CurrentTestIdentity')
+        root = _require_live_root_boundary(self.root)
+        if root.state != self.stage or time.monotonic() >= self.end:
+            self.fail('CurrentTestStageOrDeadline')
+            raise RuntimeError('CurrentTestStageOrDeadline')
+        if preparation is not None:
+            q = _q()
+            if (type(preparation) is not q.Preparation or preparation is not self.preparation
+                    or preparation.current_test is not self or preparation.expected is not self.expected
+                    or preparation.target != self.target or preparation.evidence != self.evidence
+                    or preparation.source != root.source or preparation.repository != root.repository):
+                self.fail('CurrentPreparationIdentity')
+                raise RuntimeError('CurrentPreparationIdentity')
+        return self
+
+    def fail(self, reason):
+        self.failed = True
+        self.root.fail(reason)
+
+    def context(self, target, evidence, expected, origin, earlier_end):
+        self.check()
+        if (self.stage not in _PREPARATION_STAGES or self.preparation is not None
+                or Path(target) != self.target or Path(evidence) != self.evidence
+                or expected is not self.expected or origin != self.preparation_origin
+                or earlier_end != self.end):
+            raise RuntimeError('CurrentPreparationConstructor')
+
+    def bind_preparation(self, preparation):
+        if (self.preparation is not None or type(preparation) is not _q().Preparation
+                or preparation.current_test is not self):
+            raise RuntimeError('CurrentPreparationBindOnce')
+        self.preparation = preparation
+        self.check(preparation)
+
+    def metadata_arena(self, preparation):
+        self.check(preparation)
+        return self.arena
+
+    def metadata_identity(self, preparation):
+        self.check(preparation)
+        return 'current-' + self.target.name + '-'
+
+    def provider_rows(self, preparation):
+        self.check(preparation)
+        q = _q()
+        result = dict(q.PROVIDERS)
+        result['startup_family/lifetime.py'] = ('scripts/reference/startup_family/lifetime.py', q._R5_COMMIT)
+        return result
+
+    def preflight_inputs(self, preparation):
+        self.check(preparation)
+        return _q()._current_preflight_inputs(self)
+
+    def verify_tools(self, expected):
+        self.check()
+        if expected is not self.expected:
+            raise RuntimeError('CurrentReferenceIdentity')
+        receipt = _q().check_selection_records(expected, self.selection)
+        if receipt['disposition'] != 'UNACCEPTED_VALIDATOR_DATA':
+            raise RuntimeError('CurrentReferenceDataDisposition')
+        _q()._current_preflight_inputs(self)
+        return True
+
+    def budget_constructor(self, roots, baseline_bytes, baseline_files, earlier_document_cap):
+        self.check()
+        wanted = (_CURRENT_ROOT_PATH.absolute(), self.root.repository / 'docs/research/continuation/test-runtime-qualification-v2')
+        if (tuple(Path(p).absolute() for p in roots) != wanted
+                or baseline_bytes != self.root.capacity['E_bytes']
+                or baseline_files != self.root.capacity['E_files']
+                or earlier_document_cap is not None):
+            raise RuntimeError('CurrentBudgetConstructor')
+        _q()._current_capacity_proof(self.root)
+
+    def install(self, book):
+        self.check()
+        if type(book) is not _q().EvidenceBudget or self.root.budget is not None:
+            raise RuntimeError('CurrentBudgetOnce')
+        self.root.budget = book
+        self.budget = book
+
+    def admit(self, expected, root):
+        self.check()
+        if expected is not self.expected or Path(root) != self.evidence:
+            raise RuntimeError('CurrentCapacityIdentity')
+        q = _q()
+        if self.root.budget is None:
+            q.EvidenceBudget([_CURRENT_ROOT_PATH, self.root.repository / 'docs/research/continuation/test-runtime-qualification-v2'],
+                self.root.capacity['E_bytes'], self.root.capacity['E_files'], current_test=self)
+        self.budget = self.root.budget
+        self.budget._current_test_book = self
+        q._ACTIVE_BUDGET = self.budget
+        return self.budget
+
+    def claim(self, book, paths, kind, maximum):
+        self.check()
+        if book is not self.root.budget:
+            raise RuntimeError('CurrentBudgetIdentity')
+        matches = [(i, row) for i, row in enumerate(self.root.groups)
+            if tuple(Path(p) for p in row['paths']) == paths]
+        if len(matches) != 1:
+            raise RuntimeError('CurrentClosedWriter')
+        index, row = matches[0]
+        if (row['kind'] != kind or type(maximum) is not int or not 0 <= maximum <= row['reserved_bytes']
+                or index in self.claimed):
+            raise RuntimeError('CurrentWriterSpentOrCap')
+        self.claimed.add(index)
+        return book._reserve_actual_group(paths, kind, row['reserved_bytes'])
+
+    def deployment(self, preparation, source, repository, target, evidence):
+        self.check(preparation)
+        if (Path(source), Path(repository), Path(target), Path(evidence)) != (
+                self.root.source, self.root.repository, self.target, self.evidence / 'deployment'):
+            raise RuntimeError('CurrentDeploymentBinding')
+        if self.capture_index:
+            raise RuntimeError('CurrentDeploymentOnce')
+
+    def add_inventory_path(self, preparation, paths, path):
+        self.check(preparation)
+        if len(paths) >= 1024 or sum(len(str(p)) for p in paths) + len(str(path)) > 524288:
+            raise RuntimeError('CurrentInventoryCardinality')
+        paths.add(path)
+
+    def inventory_complete(self, preparation, paths):
+        self.check(preparation)
+        if not 0 < len(paths) <= 1024:
+            raise RuntimeError('CurrentInventoryCardinality')
+
+    def capture_admission(self, preparation, argv, label, tool):
+        self.check(preparation)
+        _q()._current_preparation_command(self, argv, label, tool)
+        self.capture_index += 1
+
+    def freeze_deployment(self, interpreter, inventory):
+        self.check(self.preparation)
+        if self.capture_index != 8 or self.inventory_frozen is not None:
+            raise RuntimeError('CurrentFreezeAfterEight')
+        _q().preflight(interpreter, inventory)
+        self.inventory_frozen = inventory
+        if self.stage == 'DISPOSABLE_PREPARING':
+            self.root.frozen_disposable = (interpreter, inventory)
+        else:
+            self.root.candidate = (interpreter, inventory)
+
+    def finish(self):
+        self.check(self.preparation)
+        if self.inventory_frozen is None:
+            raise RuntimeError('CurrentUnfrozenPreparation')
+        # Context remains permanently finished. The retained parent separately
+        # qualifies cleanup/census/EOF before changing the session stage.
+        self.preparation.finished = True
+        self.finished = True
+        _LIVE_CONTEXTS.remove(self)
+
 
 def _actual_context(value):
     return type(value) is _CurrentContext and value in _LIVE_CONTEXTS
+
+
+def _require_live_root_boundary(value):
+    if type(value) is not _RootBoundary or value not in _LIVE_ROOTS:
+        raise RuntimeError('CurrentLiveRootRequired')
+    value.check()
+    return value
+
+
+def _produce_current_context(live_root_boundary, exact_stage):
+    root = _require_live_root_boundary(live_root_boundary)
+    if exact_stage not in _PREPARATION_STAGES + ('REFERENCE_RUNNING','CLI_ADMIN_ONCE','CLI_HEALTHY_ONCE') or root.state != exact_stage or exact_stage in root.used_stages:
+        raise RuntimeError('CurrentContextStageOnce')
+    preparation_origin = time.monotonic()
+    whole_end = root.whole_end
+    if whole_end is None or preparation_origin >= whole_end:
+        raise RuntimeError('CurrentWholeClockRequired')
+    root.used_stages.add(exact_stage)
+    value = object.__new__(_CurrentContext)
+    value.root = root; value.stage = exact_stage
+    value.preparation_origin = preparation_origin; value.start = preparation_origin
+    value.whole_origin = root.whole_origin; value.whole_end = whole_end
+    value.end = min(preparation_origin + 120, whole_end)
+    value.preparation = None; value.failed = False; value.finished = False
+    value.expected = root.expected; value.selection = root.selection
+    value.budget = root.budget; value.arena = root.arena
+    value.claimed = set(); value.capture_index = 0; value.inventory_frozen = None
+    value.target = _CURRENT_ROOT_PATH / ('reference' if exact_stage == 'REFERENCE_RUNNING' else 'cli-admin' if exact_stage == 'CLI_ADMIN_ONCE' else 'cli-healthy' if exact_stage == 'CLI_HEALTHY_ONCE' else 'disposable' if exact_stage == 'DISPOSABLE_PREPARING' else 'final')
+    value.evidence = value.target if exact_stage in ('REFERENCE_RUNNING','CLI_ADMIN_ONCE','CLI_HEALTHY_ONCE') else value.target / 'receipts'
+    root.contexts.append(value); _LIVE_CONTEXTS.add(value)
+    return value
 
 
 def current_status():
@@ -59,13 +320,82 @@ def _operational_blocked():
     raise RuntimeError('CurrentTestExecutionClosureUnresolved')
 
 
-# These finite names cannot start a clock or turn a record/schema into a role.
-# Real implementations await the closed reference/coordinator source stage.
-capture_reference = _operational_blocked
-prepare_disposable = _operational_blocked
-prepare_final = _operational_blocked
-test_admin = _operational_blocked
-test_healthy = _operational_blocked
+def capture_reference():
+    if _CURRENT_ROOT is None:
+        return _operational_blocked()
+    root = _require_live_root_boundary(_CURRENT_ROOT)
+    if root.state != 'REFERENCE_RUNNING':
+        raise RuntimeError('CurrentReferenceStage')
+    return _q()._current_reference_capture(root)
+
+
+def _prepare_stage(before, stage):
+    root = _require_live_root_boundary(_CURRENT_ROOT)
+    root.advance(before, stage)
+    context = _produce_current_context(root, stage)
+    q = _q()
+    preparation = q.Preparation(context.target, context.evidence, root.expected,
+        origin=context.start, earlier_end=context.end, current_test=context)
+    deployment = sys.modules.get('controller_deployment')
+    if deployment is None:
+        context.fail('CurrentCanonicalDeploymentNotLoaded')
+        raise RuntimeError('CurrentCanonicalDeploymentNotLoaded')
+    try:
+        interpreter, inventory = deployment.deploy(root.source, root.repository,
+            context.target, context.evidence / 'deployment', context=preparation)
+        context.freeze_deployment(interpreter, inventory)
+        return context
+    except BaseException:
+        context.fail('CurrentDeploymentFailed')
+        raise
+
+
+def prepare_disposable():
+    if _CURRENT_ROOT is None:
+        return _operational_blocked()
+    return _prepare_stage('REFERENCE_ACCEPTED', 'DISPOSABLE_PREPARING')
+
+
+def prepare_final():
+    if _CURRENT_ROOT is None:
+        return _operational_blocked()
+    return _prepare_stage('COLD_ARTIFACT_CHECKS', 'FINAL_PREPARING')
+
+
+def test_admin():
+    if _CURRENT_ROOT is None:
+        return _operational_blocked()
+    return _q()._current_cli_action(_require_live_root_boundary(_CURRENT_ROOT), 'admin')
+
+
+def test_healthy():
+    if _CURRENT_ROOT is None:
+        return _operational_blocked()
+    return _q()._current_cli_action(_require_live_root_boundary(_CURRENT_ROOT), 'healthy')
+
+
+def _actual_reference_owner(value):
+    return type(value) is _ReferenceOwner and value in _LIVE_REFERENCE_OWNERS
+
+
+class _ReferenceOwner:
+    """Distinct genuine reference owner; never a fabricated Preparation."""
+    __slots__ = ('root', 'target', 'evidence', 'expected', 'env', 'budget',
+        'calls', 'call_paths', 'start', 'end', 'output_cap', 'current_test')
+
+    def __new__(cls):
+        raise TypeError('CurrentReferenceOwnerProducerOnly')
+
+    def check(self, clock_only=False):
+        if not _actual_reference_owner(self):
+            raise RuntimeError('CurrentReferenceOwnerIdentity')
+        self.root.check()
+        if self.root.state != 'REFERENCE_RUNNING' or time.monotonic() >= self.end:
+            raise RuntimeError('CurrentReferenceDeadline')
+
+    def tool_origins(self, path, label, capture=None):
+        # The same canonical semantic consumer checks the same owned capture.
+        return _q()._consume_tool_origins(self, path, label, capture)
 
 
 class Incomplete(Exception):

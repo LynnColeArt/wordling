@@ -146,7 +146,9 @@ def _campaign_inventory_paths(environment,observation,context):
     for text in observation['maps']:
         if type(text) is not str or len(text)>512 or not text.isascii():raise RuntimeError('CampaignObservedPathBound')
         context.add_inventory_path(paths,Path(text.encode('ascii').decode('ascii')))
-    if len(paths)!=188:raise RuntimeError('CampaignExact188Inventory')
+    if getattr(context,'current_test',None) is not None:
+        context.current_test.inventory_complete(context,paths)
+    elif len(paths)!=188:raise RuntimeError('CampaignExact188Inventory')
     return paths
 
 
@@ -154,7 +156,7 @@ def review_wheel(wheel,expected_payloads,context=None):
     """DATA validation only. Caller freezes reviewed source + compiled fixture
     and source-defined MASTER BEFORE wheel construction. Never adopt wheel data.
     """
-    if context is not None and (getattr(context,'campaign',None) is not None or getattr(context,'qualification',None) is not None):
+    if context is not None and (getattr(context,'campaign',None) is not None or getattr(context,'qualification',None) is not None or getattr(context,'current_test',None) is not None):
         return _campaign_review_wheel(wheel,expected_payloads,context)
     dist='wordling_reference_controller_test-0.2.0.dist-info'
     metadata={dist+'/'+n for n in ('METADATA','WHEEL','top_level.txt','RECORD')}
@@ -188,7 +190,12 @@ def deploy(source,repository,target,evidence,context=None):
         context=Preparation(target,evidence,load_expected(),earlier_end=time.monotonic()+remaining())
     elif context.target != target:
         raise RuntimeError("PreparationTargetMismatch")
+    current=getattr(context,'current_test',None)
+    if current is not None:
+        from runtime_qualification import _require_current_test
+        _require_current_test(current).deployment(context,source,repository,target,evidence)
     campaign=getattr(context,'campaign',None) or getattr(context,'qualification',None)
+    finite=campaign is not None or current is not None
     if campaign is not None:
         qualification=getattr(context,'qualification',None)
         wanted_evidence=context.evidence/'deployment' if qualification is not None else context.evidence
@@ -200,7 +207,7 @@ def deploy(source,repository,target,evidence,context=None):
     def source_pin(path):
         # The actual producer derives the variant's sole approved postimage
         # from immutable originals. Copied/mutated bytes never become expected.
-        if campaign is not None:return context.source_pin(path)
+        if finite:return context.source_pin(path)
         return {k:context.expected['files'][str(path)][k] for k in ('size','sha256')}
     evidence.mkdir(parents=True,exist_ok=True)
     def run(argv,cwd,log,tool=False):
@@ -212,9 +219,9 @@ def deploy(source,repository,target,evidence,context=None):
     strict_layout(interpreter)
     run([str(interpreter),'-I','-B','-c',context.qualification_literal()],target,evidence/'qualify-literal-before')
     r=run([str(interpreter),"-I","-B","-c",probe(False)],target,evidence/"stdlib-before")
-    before=context.decode_metadata(r.stdout,'stdlib-before',65536) if campaign is not None else bounded_json_loads(r.stdout)
+    before=context.decode_metadata(r.stdout,'stdlib-before',65536) if finite else bounded_json_loads(r.stdout)
     compare_observation(before,interpreter,context.expected,{},False)
-    if campaign is not None:
+    if finite:
         for key in ('version_string','base_prefix'):
             if type(before[key]) is not str or len(before[key])>512 or len(before[key].encode('utf8'))>512:raise RuntimeError('CampaignPythonProjectionBound')
         # Independent bounded strings, rather than references into the decoded
@@ -222,19 +229,19 @@ def deploy(source,repository,target,evidence,context=None):
         python=dict(version=before['version_string'].encode('utf8').decode('utf8'),base_prefix=before['base_prefix'].encode('utf8').decode('utf8'))
     else:python=dict(version=before['version_string'],base_prefix=before['base_prefix'])
     del before,r
-    if campaign is not None:
+    if finite:
         context.release_metadata('stdlib-before')
         context.begin_metadata_maps()
     build=target/'build-input';build.mkdir()
     frozen={}
     for name in E_FILES:
-        if campaign is not None and len(frozen)>=20:raise RuntimeError('CampaignFrozenSourceCardinality')
+        if finite and len(frozen)>=20:raise RuntimeError('CampaignFrozenSourceCardinality')
         p=build/'reference_controller'/name;p.parent.mkdir(exist_ok=True);p.write_bytes((source/name).read_bytes())
         frozen['reference_controller/'+name]=pin(p)
         if frozen['reference_controller/'+name] != source_pin(source/name):raise RuntimeError('OwnedSourceDrift:'+name)
         context.check()
     for name,(rel,commit) in context.provider_rows().items():
-        if campaign is not None and len(frozen)>=20:raise RuntimeError('CampaignFrozenSourceCardinality')
+        if finite and len(frozen)>=20:raise RuntimeError('CampaignFrozenSourceCardinality')
         raw=(repository/rel).read_bytes()
         # Exact immutable approved Git blob/hash provenance is bound in the
         # reviewed expected manifest; no unbounded Git subprocess during prep.
@@ -243,7 +250,7 @@ def deploy(source,repository,target,evidence,context=None):
         frozen[name]=dict(**pin(p),original_path=rel,approved_commit=commit)
         if pin(p)!={k:context.expected['files'][str(repository/rel)][k] for k in ('size','sha256')}:raise RuntimeError('ProviderInputDrift')
         context.check()
-    if campaign is not None:
+    if finite:
         if len(frozen)!=20:raise RuntimeError('CampaignFrozenSourceCardinality')
         del raw
     for original in (source/'pyproject.toml',source/'tests/harmless_fixture.c',source/'tests/controller_roster.json'):
@@ -260,14 +267,14 @@ def deploy(source,repository,target,evidence,context=None):
     r=run(argv,target,evidence/'compile',tool=True)
     if r.returncode:raise RuntimeError('fixture compile failed; raw preserved')
     del r
-    if campaign is not None and (data/'fixture').stat().st_size>1048576:raise RuntimeError('fixed fixture binary bound exceeded')
-    if campaign is not None:context.begin_wheel_copy('fixture-elf')
+    if finite and (data/'fixture').stat().st_size>1048576:raise RuntimeError('fixed fixture binary bound exceeded')
+    if finite:context.begin_wheel_copy('fixture-elf')
     static_elf(data/'fixture')
-    if campaign is not None:context.end_wheel_copy('fixture-elf')
+    if finite:context.end_wheel_copy('fixture-elf')
     if (data/'fixture').stat().st_size>1048576:raise RuntimeError('fixed fixture binary bound exceeded')
     if (data/'master.bin').read_bytes()!=MASTER:raise RuntimeError('SourceMasterChanged')
     # Freeze custody BEFORE wheel creation; installed observations never become expected data.
-    if campaign is not None and len(SOURCE_NAMES)!=20:raise RuntimeError('CampaignCode20Cardinality')
+    if finite and len(SOURCE_NAMES)!=20:raise RuntimeError('CampaignCode20Cardinality')
     expected_payloads={name:(build/name,pin(build/name)) for name in SOURCE_NAMES}
     expected_payloads.update({'reference_controller/testdata/'+n:(data/n,pin(data/n)) for n in ('fixture','master.bin')})
     expected_data={n:expected_payloads['reference_controller/testdata/'+n][1] for n in ('fixture','master.bin')}
@@ -279,9 +286,9 @@ def deploy(source,repository,target,evidence,context=None):
     del r
     wheel,=wheels.glob('*.whl')
     if wheel.name!='wordling_reference_controller_test-0.2.0-py3-none-any.whl':raise RuntimeError('ExactWheelFilename')
-    if campaign is not None:context.begin_wheel_copy('review-wheel')
+    if finite:context.begin_wheel_copy('review-wheel')
     review_wheel(wheel,expected_payloads,context=context)
-    if campaign is not None:context.end_wheel_copy('review-wheel')
+    if finite:context.end_wheel_copy('review-wheel')
     del expected_payloads
     prior_env=context.env
     context.env={**prior_env,'PYTHONUSERBASE':str(environment)}
@@ -297,7 +304,7 @@ def deploy(source,repository,target,evidence,context=None):
     site=environment/'lib/python3.12/site-packages'
     code={};digest=hashlib.sha256()
     for name in SOURCE_NAMES:
-        if campaign is not None and len(code)>=20:raise RuntimeError('CampaignInstalledCode20Cardinality')
+        if finite and len(code)>=20:raise RuntimeError('CampaignInstalledCode20Cardinality')
         p=site/name;code[name]=pin(p)
         if p.read_bytes()!=(build/name).read_bytes():raise RuntimeError('installed source mismatch '+name)
         digest.update(name.encode('ascii')+b'\0'+bytes.fromhex(code[name]['sha256']))
@@ -310,7 +317,7 @@ def deploy(source,repository,target,evidence,context=None):
     context.payload_document(environment/'wordling-test-deployment.json',manifest)
     # Compare every installed wheel member and exact derived installer metadata;
     # no discovered foreign distribution becomes an admitted source.
-    if campaign is not None:
+    if finite:
         context.begin_wheel_copy('installed-wheel')
         _campaign_review_installed_wheel(wheel,site,context)
         # Helper frame has returned: ZipFile, ZipInfo, member buffers, CSV
@@ -359,15 +366,15 @@ def deploy(source,repository,target,evidence,context=None):
             if direct.get('url')!=wheel.as_uri() or direct.get('archive_info',{}).get('hashes',{}).get('sha256')!=pin(wheel)['sha256']:raise RuntimeError('WheelDirectURL')
     del frozen
     installed={str(site/name):dict(**pin(site/name),**rights(site/name)) for name in SOURCE_NAMES}
-    if campaign is not None and (len(installed)!=20 or len(expected_data)!=2):raise RuntimeError('CampaignInstalledPayloadCardinality')
+    if finite and (len(installed)!=20 or len(expected_data)!=2):raise RuntimeError('CampaignInstalledPayloadCardinality')
     installed.update({str(site/'reference_controller/testdata'/n):dict(**pin(site/'reference_controller/testdata'/n),**rights(site/'reference_controller/testdata'/n)) for n in ('fixture','master.bin')})
     r=run([str(interpreter),'-I','-B','-c',probe(True)],target,evidence/'origins')
-    observation=context.decode_metadata(r.stdout,'origins',65536) if campaign is not None else bounded_json_loads(r.stdout)
+    observation=context.decode_metadata(r.stdout,'origins',65536) if finite else bounded_json_loads(r.stdout)
     del r
     compare_observation(observation,interpreter,context.expected,installed,True)
     # Complete venv inventory is admitted only AFTER exact normal config,
     # aliases, wheel members and source-specific observations have passed.
-    if campaign is not None:paths=_campaign_inventory_paths(environment,observation,context)
+    if finite:paths=_campaign_inventory_paths(environment,observation,context)
     else:
         paths={p for p in environment.rglob('*') if p.is_file()}
         paths.update(Path(x['path']) for fields in observation['modules'].values() for x in fields.values() if x['exists'])
@@ -379,7 +386,7 @@ def deploy(source,repository,target,evidence,context=None):
         interpreter=str(interpreter),interpreter_pin=pin(interpreter),source_hash=manifest['source_hash'],
         static_fixture=pin(data/'fixture'),master=data_pins['master.bin'],actual_provider=observation['project']['provider'],
         actual_classes=observation['project']['classes'],cwd=str(target),premise='Trusted exclusive immutable-for-invocation local deployment; actual complete preflight before every launch, not a hostile-owner sandbox'))
-    if campaign is not None:
+    if finite:
         # Path strings were independently copied by the returned helper frame;
         # no fields/x/ZipInfo/CSV variable in this frame borrows this JSON tree.
         del observation

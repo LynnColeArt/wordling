@@ -379,6 +379,8 @@ class EvidenceBudget:
         if self._current_test_book is not None:return self._current_test_book.claim(self,paths,kind,maximum)
         if self._campaign_book is not None:return self._campaign_book.claim(paths,kind,maximum)
         if self._qualification_book is not None:return self._qualification_book.claim(self,paths,kind,maximum)
+        return self._reserve_actual_group(paths,kind,maximum)
+    def _reserve_actual_group(self,paths,kind,maximum):
         if kind not in CLASS_LIMITS or type(maximum) is not int or maximum<0:raise RuntimeError('EvidenceReservation')
         if len(set(paths))!=len(paths) or any(p in self.slots for p in paths):raise RuntimeError('EvidenceNoClobberReservation')
         if _R5_REG_CURRENT is not None:return _r5_reg_module()._claim_owner(self,paths,kind,maximum)
@@ -521,7 +523,8 @@ def _current_role_frames_data(expected, selection):
     links=expected['links'];directories=expected['directories'];roots=expected['closed_roots']
     if type(links) is not dict or len(links)>24576 or type(directories) is not dict or len(directories)>24576:
         raise RuntimeError('CurrentReferenceAliasSchema')
-    if type(roots) is not list or len(roots)>512 or len(set(roots))!=len(roots):
+    if (type(roots) is not list or len(roots)>512
+            or any(type(n) is not str for n in roots) or len(set(roots))!=len(roots)):
         raise RuntimeError('CurrentReferenceRootSchema')
     for root in roots:_current_data_path(root)
     for name,row in directories.items():
@@ -530,7 +533,8 @@ def _current_role_frames_data(expected, selection):
     runtime=set()
     for field in ('runtime_elf','runtime_mapped_data'):
         rows=expected[field]
-        if type(rows) is not list:raise RuntimeError('CurrentToolSelectionSchema')
+        if type(rows) is not list or len(rows)>512 or any(type(n) is not str for n in rows):raise RuntimeError('CurrentToolSelectionSchema')
+        for name in rows:_current_data_path(name)
         runtime.update(rows)
     new=selection['new_tool_records']
     if type(new) is not list:raise RuntimeError('CurrentToolSelectionSchema')
@@ -562,7 +566,8 @@ def _current_role_frames_data(expected, selection):
     if type(hooks) is not dict or len(hooks)>64:raise RuntimeError('CurrentToolHookSchema')
     for root,names in hooks.items():
         _current_data_path(root)
-        if type(names) is not list or len(names)>64 or len(set(names))!=len(names):
+        if (type(names) is not list or len(names)>64
+                or any(type(n) is not str for n in names) or len(set(names))!=len(names)):
             raise RuntimeError('CurrentToolHookSchema')
         for name in names:
             _current_data_path(name)
@@ -571,7 +576,8 @@ def _current_role_frames_data(expected, selection):
     aliases=selection['shell_aliases']
     if type(aliases) is not list or len(aliases)>64:raise RuntimeError('CurrentToolSelectionSchema')
     for alias in aliases:
-        if type(alias) is not dict or set(alias)!={'logical','text','resolved','rights'}:
+        if (type(alias) is not dict or set(alias)!={'logical','text','resolved','rights'}
+                or type(alias['logical']) is not str):
             raise RuntimeError('CurrentToolAliasSchema')
         row=links.get(alias['logical'])
         if row is None or row['role']!='TOOL_ALIAS' or any(alias[k]!=row[v] for k,v in (('text','target'),('resolved','resolved'),('rights','rights'))):
@@ -2332,7 +2338,7 @@ def _campaign_gate_args(source_sha,role,index,seq,release,nonce,end,control=-1,t
     return [str(BASE),'-I','-B',str(Path(__file__).resolve()),'--campaign-gate',source_sha,role,str(index),str(seq),str(release),nonce,str(end),str(control),str(trace),'CLOSED']
 
 
-def _campaign_gate(values,harmless_group=None):
+def _campaign_gate(values,harmless_group=None,current_kind=None):
     """Fixed source-owned SAME-PID gate. Never accepts an exec recipe."""
     if len(values)!=10:raise RuntimeError('CampaignGateArguments')
     source_sha,role,index,seq,release,nonce,end,control,trace=values[0],values[1],int(values[2]),int(values[3]),int(values[4]),values[5],int(values[6]),int(values[7]),int(values[8])
@@ -2344,8 +2350,8 @@ def _campaign_gate(values,harmless_group=None):
         if channel.family!=socket.AF_UNIX or channel.type!=socket.SOCK_SEQPACKET or not channel.getsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED):raise RuntimeError('CampaignGateSocketType')
         channel.setblocking(False);channel.set_inheritable(False)
         _campaign_live(parentfd)
-        manifest=_campaign_manifest(source_sha) if harmless_group is None else _harmless_manifest(harmless_group,source_sha)
-        command=_campaign_command(manifest,role,index,trace) if harmless_group is None else _harmless_command(manifest,role,index,trace,end)
+        manifest=(_current_manifest(source_sha,current_kind) if current_kind is not None else _campaign_manifest(source_sha) if harmless_group is None else _harmless_manifest(harmless_group,source_sha))
+        command=(_current_command(manifest,role,index,trace) if current_kind is not None else _campaign_command(manifest,role,index,trace) if harmless_group is None else _harmless_command(manifest,role,index,trace,end))
         if nonce!=manifest['nonce']:raise RuntimeError('CampaignNonce')
         value,fd,raw=_campaign_recv(channel,(parent,os.getuid(),os.getgid()),end,False,128)
         if fd is not None or value!={'k':'A','n':nonce,'s':seq,'i':index,'e':end}:raise RuntimeError('CampaignGateRelease')
@@ -3123,11 +3129,15 @@ class Preparation:
         return _campaign_qualification_literal(campaign.manifest,120+8*slot.number+stage)
 
     def _metadata_arena(self):
+        if self.current_test is not None:
+            return _require_current_test(self.current_test).metadata_arena(self)
         if self.qualification is not None:
             self.qualification.check(self);return self.qualification.arena
         return self.campaign.arena
 
     def _metadata_identity(self):
+        if self.current_test is not None:
+            return _require_current_test(self.current_test).metadata_identity(self)
         if self.campaign is None and self.qualification is None:return None
         self.check(clock_only=True)
         if self.qualification is not None:
@@ -3136,7 +3146,7 @@ class Preparation:
         return 'prep-'+str(self.slot.number)+'-'
 
     def decode_metadata(self,raw,label,maximum=65536):
-        if self.campaign is None and self.qualification is None:return bounded_json_loads(raw)
+        if self.current_test is None and self.campaign is None and self.qualification is None:return bounded_json_loads(raw)
         prefix=self._metadata_identity()
         if label not in ('stdlib-before','direct-url','origins') or label in self._metadata_seen or self._metadata_wheel is not None or type(maximum) is not int or not 0<maximum<=65536:raise RuntimeError('PreparationClosedJSONLease')
         self._metadata_seen.add(label);self._metadata_json.add(label)
@@ -3145,25 +3155,25 @@ class Preparation:
         return self._metadata_arena().decode(prefix+'json-'+label,raw,maximum,earlier_nodes=32768)
 
     def release_metadata(self,label):
-        if self.campaign is None and self.qualification is None:return
+        if self.current_test is None and self.campaign is None and self.qualification is None:return
         prefix=self._metadata_identity()
         if label not in self._metadata_json:raise RuntimeError('PreparationJSONLeaseIdentity')
         self._metadata_arena().release(prefix+'json-'+label);self._metadata_json.remove(label)
 
     def begin_metadata_maps(self):
-        if self.campaign is None and self.qualification is None:return
+        if self.current_test is None and self.campaign is None and self.qualification is None:return
         prefix=self._metadata_identity()
         if self._metadata_maps or self._metadata_json or self._metadata_seen!={'stdlib-before'}:raise RuntimeError('PreparationMapPhase')
         self._metadata_arena().hold(prefix+'direct-maps',2097152);self._metadata_maps=True
 
     def begin_wheel_copy(self,label):
-        if self.campaign is None and self.qualification is None:return
+        if self.current_test is None and self.campaign is None and self.qualification is None:return
         prefix=self._metadata_identity()
         if label not in ('fixture-elf','review-wheel','installed-wheel') or self._metadata_wheel is not None or self._metadata_json or not self._metadata_maps:raise RuntimeError('PreparationWheelPhase')
         self._metadata_arena().hold(prefix+'wheel-copy',3145728);self._metadata_wheel=label
 
     def end_wheel_copy(self,label):
-        if self.campaign is None and self.qualification is None:return
+        if self.current_test is None and self.campaign is None and self.qualification is None:return
         prefix=self._metadata_identity()
         if self._metadata_wheel!=label:raise RuntimeError('PreparationWheelLeaseIdentity')
         self._metadata_arena().release(prefix+'wheel-copy');self._metadata_wheel=None
@@ -3174,7 +3184,7 @@ class Preparation:
         self._metadata_arena().release(prefix+'direct-maps');self._metadata_maps=False
 
     def guard_wheel(self,path):
-        if self.campaign is None and self.qualification is None:return
+        if self.current_test is None and self.campaign is None and self.qualification is None:return
         self._metadata_identity()
         if self._metadata_wheel is None:raise RuntimeError('PreparationWheelCopyLeaseRequired')
         path=Path(path)
@@ -3208,7 +3218,7 @@ class Preparation:
         self.check(clock_only=True)
 
     def guard_wheel_member(self,info,record=False):
-        if self.campaign is None and self.qualification is None:return
+        if self.current_test is None and self.campaign is None and self.qualification is None:return
         self._metadata_identity()
         if self._metadata_wheel is None or len(info.filename)>256 or not info.filename.isascii() or info.file_size>(65536 if record else 1048576) or info.file_size<0 or len(info.extra)>4096:raise RuntimeError('PreparationWheelMemberBound')
         offset=0
@@ -3219,12 +3229,14 @@ class Preparation:
             offset+=size
 
     def add_inventory_path(self,paths,path):
-        if self.campaign is None and self.qualification is None:paths.add(path);return
+        if self.current_test is None and self.campaign is None and self.qualification is None:paths.add(path);return
         self._metadata_identity()
         if not self._metadata_maps:raise RuntimeError('PreparationInventoryMapLease')
         text=str(path)
         if len(text)>512 or not text.isascii():raise RuntimeError('PreparationInventoryPathBound')
         if path in paths:return
+        if self.current_test is not None:
+            return self.current_test.add_inventory_path(self,paths,path)
         if len(paths)>=192 or sum(len(str(p)) for p in paths)+len(text)>32768:raise RuntimeError('PreparationInventoryCardinalityBound')
         paths.add(path)
 
@@ -3313,6 +3325,8 @@ class Preparation:
         finally:os.close(fd)
 
     def preflight_inputs(self):
+        if self.current_test is not None:
+            return _require_current_test(self.current_test).preflight_inputs(self)
         allnames=set(self.expected['files'])|set(self.expected['links'])|set(self.expected['directories'])
         for root in self.expected['closed_roots']:
             r=Path(root)
@@ -3362,83 +3376,14 @@ class Preparation:
         if time.monotonic()>=self.end:raise RuntimeError('PreparationSharedDeadline')
 
     def run(self,argv,label,tool=False):
+        if self.current_test is not None:
+            current=_require_current_test(self.current_test)
+            current.capture_admission(self,argv,label,tool)
+            try:return _capture_command(self,argv,label,tool)
+            except BaseException:
+                current.fail('CurrentCaptureFailed');supervisor_notice('abort');raise
         if self.campaign is not None:return self._run_campaign(argv,label,tool)
-        self.check();base=self.evidence/label;base.parent.mkdir(parents=True,exist_ok=True)
-        trace_read=trace_write=None
-        actual=list(argv);pass_fds=()
-        if tool:
-            trace_read,trace_write=os.pipe2(os.O_CLOEXEC);pass_fds=(trace_write,)
-            pipe_stat=os.fstat(trace_read);trace_identity=(pipe_stat.st_dev,pipe_stat.st_ino,pipe_stat.st_mode)
-            actual=['/usr/bin/strace','-f','-qq','-y','-s','4096','-e','trace='+TRACE_SURFACE,'-o','/proc/self/fd/'+str(trace_write)]+actual
-        end=min(self.end,time.monotonic()+30)
-        supervisor_notice('command',end=end)
-        spec=dict(argv=actual,logical_argv=argv,cwd=str(self.target),env=self.env,command_end=end,cleanup=2,live_combined_output=self.output_cap,shared_origin=self.start,shared_end=self.end,tool_origin_trace=tool,trace_capture='OWN PIPE; never uncontrolled regular file')
-        write_json(base.with_suffix('.command.json'),spec)
-        self.budget.reserve([base.with_suffix('.whole.json')],'pair',65536)
-        if tool:
-            self.budget.reserve([base.with_suffix('.origins.json')],'origin',16777216)
-            self.budget.reserve([base.with_suffix('.transient-data.json')],'transient',1048576)
-        out=bytearray();err=bytearray();trace=bytearray();failure=None;partial=False;total=0
-        rawpaths=[base.with_suffix(suffix) for suffix in ('.stdout','.stderr','.trace')]
-        allocation,handles=self.budget.raw_group(rawpaths,'construction_raw',self.output_cap)
-        rawfiles={id(buf):handles[base.with_suffix(suffix)] for buf,suffix in ((out,'.stdout'),(err,'.stderr'),(trace,'.trace'))}
-        file_limit=33554432 if label.endswith('venv') else 2097152
-        def file_ceiling():resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
-        try:
-            p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
-        except BaseException as error:
-            if trace_write is not None:os.close(trace_write)
-            if trace_read is not None:os.close(trace_read)
-            for handle in rawfiles.values():handle.close()
-            receipt=dict(**spec,exit=None,failure='PopenFailure:'+type(error).__name__,combined_retained_bytes=0,partial_prefix=False,unretained_suffix=None,child_started=False)
-            self.budget.document(base.with_suffix('.whole.json'),receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(base.with_suffix('.whole.json'))
-            supervisor_notice('abort')
-            raise RuntimeError('PreparationPopenFailure') from None
-        if trace_write is not None:os.close(trace_write)
-        sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,out);sel.register(p.stderr,selectors.EVENT_READ,err)
-        if trace_read is not None:sel.register(trace_read,selectors.EVENT_READ,trace)
-        try:
-            while sel.get_map() or p.poll() is None:
-                if time.monotonic()>=end:raise RuntimeError('PreparationCommandDeadline')
-                self.check()
-                for key,_ in sel.select(.01):
-                    remaining=self.output_cap-total
-                    fd=key.fileobj if isinstance(key.fileobj,int) else key.fileobj.fileno()
-                    raw=os.read(fd,min(4096,remaining+1))
-                    if not raw:sel.unregister(key.fileobj);continue
-                    kept=raw[:remaining]
-                    # Reserve shared remaining BEFORE retaining in either RAM or
-                    # durable raw prefix. The extra detection byte is not kept.
-                    self.budget.retain(allocation,key.data,rawfiles[id(key.data)],raw)
-                    total=allocation['used']
-                    if len(raw)>remaining:
-                        partial=True;raise RuntimeError('PreparationLiveOutputBound')
-            p.wait(timeout=max(.001,min(1,end-time.monotonic())))
-        except BaseException as e:failure=error_tag(e)
-        finally:
-            if p.poll() is None:
-                p.terminate()
-                try:p.wait(timeout=.25)
-                except subprocess.TimeoutExpired:p.kill();p.wait(timeout=.25)
-            sel.close();p.stdout.close();p.stderr.close()
-            if trace_read is not None:os.close(trace_read)
-            for f in rawfiles.values():f.close()
-            total=allocation['used']
-            receipt=dict(**spec,exit=p.returncode,failure=failure,combined_retained_bytes=total,partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None)
-            self.budget.document(base.with_suffix('.whole.json'),receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(base.with_suffix('.whole.json'))
-        if failure or p.returncode:
-            supervisor_notice('abort')
-            raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
-        supervisor_notice('idle')
-        if tool:
-            capture=object.__new__(_RunCapture)
-            launch=Path(argv[0]).resolve()
-            same(launch,self.expected['files'][str(launch)])
-            same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
-            _CAPTURES[capture]=dict(owner=self,trace_path=str(base.with_suffix('.trace')),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),tracer_pin=self.expected['files']['/usr/bin/strace'],tracer_pid=p.pid,pipe_identity=trace_identity,source_helper_sha256=self.expected['files'][str(Path(__file__).resolve())]['sha256'])
-            self.tool_origins(base.with_suffix('.trace'),label,capture)
-        self.check()
-        return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
+        return _capture_command(self,argv,label,tool)
 
     def _run_campaign(self,argv,label,tool):
         origin=time.monotonic_ns();self.check()
@@ -3542,36 +3487,520 @@ class Preparation:
         return subprocess.CompletedProcess(actual,code,bytes(out),bytes(err))
 
     def tool_origins(self,path,label,capture=None):
-        # No JSON/PID/bool/reconstructed record can select the production exception.
-        facts=_CAPTURES.pop(capture,None) if type(capture) is _RunCapture else None
-        if facts is None or facts['owner'] is not self or str(path)!=facts['trace_path']:raise RuntimeError('MissingGenuineOwnedCapture')
-        raw=path.read_bytes()
-        if hashlib.sha256(raw).hexdigest()!=facts['trace_sha256']:raise RuntimeError('CaptureChanged')
-        records=parse_trace(raw.decode('utf-8'))
-        transient=_transient_maps_events(records,facts['launch_argv']);excluded={r['event'] for r in transient}
-        receipt=dict(classification='BOUNDED_TRANSIENT_DATA_ONLY',capture={k:v for k,v in facts.items() if k!='owner'},events=transient,contents='UNKNOWN/not captured',not_source_or_permission=True)
-        write_json(self.evidence/(label+'.transient-data.json'),receipt,'transient')
-        observed={};executed=[]
-        for record in records:
-            if not record['success'] or record['kind'] not in ('open','exec') or record['event'] in excluded:continue
-            # Eligible transient records were consumed LEXICALLY above, before
-            # even constructing/resolving/looking up their proc pathname.
-            name=str(Path(record['path'].removesuffix(' (deleted)')).resolve());p=Path(name)
-            if not p.exists():
-                # Successful unavailable external exec/open NEVER disappears.
-                # Unavailable owned metadata may not establish code authority.
-                if record['kind']=='exec' or not p.is_relative_to(self.target) or p.suffix in ('.py','.pyc','.so'):
-                    raise RuntimeError('UnavailableToolOrigin:'+name)
-                observed[name]=dict(classification='OWNED_TRANSIENT_NONCODE_UNKNOWN_BYTES');continue
-            if not p.is_file():continue
-            if p.is_relative_to(self.target):observed[name]=dict(**pin(p),classification='NEW_OWNED_BUILD_OUTPUT')
-            elif name in self.expected['files']:
-                same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
-            else:raise RuntimeError('UnclassifiedToolInput:'+name)
-            if record['kind']=='exec':executed.append(name)
-        write_json(self.evidence/(label+'.origins.json'),dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'))
-        if not executed:raise RuntimeError('MissingToolProcessTrace')
-        self.check()
+        return _consume_tool_origins(self,path,label,capture)
+
+
+def _consume_tool_origins(self,path,label,capture=None):
+    """Canonical capture semantic consumer shared by two genuine owner types."""
+    if type(self) is not Preparation:
+        module=sys.modules.get('current_test_qualification')
+        if module is None or not module._actual_reference_owner(self):raise RuntimeError('ActualCaptureOwnerRequired')
+    # No JSON/PID/bool/reconstructed record can select the production exception.
+    facts=_CAPTURES.pop(capture,None) if type(capture) is _RunCapture else None
+    if facts is None or facts['owner'] is not self or str(path)!=facts['trace_path']:raise RuntimeError('MissingGenuineOwnedCapture')
+    raw=path.read_bytes()
+    if hashlib.sha256(raw).hexdigest()!=facts['trace_sha256']:raise RuntimeError('CaptureChanged')
+    records=parse_trace(raw.decode('utf-8'))
+    transient=_transient_maps_events(records,facts['launch_argv']);excluded={r['event'] for r in transient}
+    receipt=dict(classification='BOUNDED_TRANSIENT_DATA_ONLY',capture={k:v for k,v in facts.items() if k!='owner'},events=transient,contents='UNKNOWN/not captured',not_source_or_permission=True)
+    write_json(self.evidence/(label+'.transient-data.json'),receipt,'transient')
+    observed={};executed=[]
+    for record in records:
+        if not record['success'] or record['kind'] not in ('open','exec') or record['event'] in excluded:continue
+        # Eligible transient records were consumed LEXICALLY above, before
+        # even constructing/resolving/looking up their proc pathname.
+        name=str(Path(record['path'].removesuffix(' (deleted)')).resolve());p=Path(name)
+        if not p.exists():
+            # Successful unavailable external exec/open NEVER disappears.
+            # Unavailable owned metadata may not establish code authority.
+            if record['kind']=='exec' or not p.is_relative_to(self.target) or p.suffix in ('.py','.pyc','.so'):
+                raise RuntimeError('UnavailableToolOrigin:'+name)
+            observed[name]=dict(classification='OWNED_TRANSIENT_NONCODE_UNKNOWN_BYTES');continue
+        if not p.is_file():continue
+        if p.is_relative_to(self.target):observed[name]=dict(**pin(p),classification='NEW_OWNED_BUILD_OUTPUT')
+        elif name in self.expected['files']:
+            same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
+        else:raise RuntimeError('UnclassifiedToolInput:'+name)
+        if record['kind']=='exec':executed.append(name)
+    write_json(self.evidence/(label+'.origins.json'),dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'))
+    if not executed:raise RuntimeError('MissingToolProcessTrace')
+    self.check()
+
+def _capture_command(self,argv,label,tool=False):
+    """One canonical capture engine, admitted by an actual owned consumer."""
+    if type(self) is not Preparation:
+        module=sys.modules.get('current_test_qualification')
+        if module is None or not module._actual_reference_owner(self):
+            raise RuntimeError('ActualCaptureOwnerRequired')
+    self.check();base=self.evidence/label;base.parent.mkdir(parents=True,exist_ok=True)
+    reference=type(self) is not Preparation
+    command_path=base/'command.json' if reference else base.with_suffix('.command.json')
+    whole_path=base/'process.json' if reference else base.with_suffix('.whole.json')
+    if reference:base.mkdir(mode=0o700,exist_ok=False)
+    trace_read=trace_write=None
+    actual=list(argv);pass_fds=()
+    if tool:
+        trace_read,trace_write=os.pipe2(os.O_CLOEXEC);pass_fds=(trace_write,)
+        pipe_stat=os.fstat(trace_read);trace_identity=(pipe_stat.st_dev,pipe_stat.st_ino,pipe_stat.st_mode)
+        actual=['/usr/bin/strace','-f','-qq','-y','-s','4096','-e','trace='+TRACE_SURFACE,'-o','/proc/self/fd/'+str(trace_write)]+actual
+    end=min(self.end,time.monotonic()+30)
+    supervisor_notice('command',end=end)
+    spec=dict(argv=actual,logical_argv=argv,cwd=str(self.target),env=self.env,command_end=end,cleanup=2,live_combined_output=self.output_cap,shared_origin=self.start,shared_end=self.end,tool_origin_trace=tool,trace_capture='OWN PIPE; never uncontrolled regular file')
+    self.budget.document(command_path,spec,'pair')
+    self.budget.reserve([whole_path],'pair',65536)
+    if tool:
+        self.budget.reserve([base.with_suffix('.origins.json')],'origin',16777216)
+        self.budget.reserve([base.with_suffix('.transient-data.json')],'transient',1048576)
+    out=bytearray();err=bytearray();trace=bytearray();failure=None;partial=False;total=0
+    if reference:
+        if tool:raise RuntimeError('CurrentReferenceTraceWriterUnclosed')
+        rawpaths=[base/'stdout-summary.raw',base/'stderr.raw']
+        out_allocation,out_handles=self.budget.raw_group([rawpaths[0]],'construction_raw',8192)
+        err_allocation,err_handles=self.budget.raw_group([rawpaths[1]],'construction_raw',16384)
+        handles={**out_handles,**err_handles}
+        rawfiles={id(out):handles[rawpaths[0]],id(err):handles[rawpaths[1]]}
+        allocations={id(out):out_allocation,id(err):err_allocation}
+    else:
+        rawpaths=[base.with_suffix(suffix) for suffix in ('.stdout','.stderr','.trace')]
+        allocation,handles=self.budget.raw_group(rawpaths,'construction_raw',self.output_cap)
+        rawfiles={id(buf):handles[base.with_suffix(suffix)] for buf,suffix in ((out,'.stdout'),(err,'.stderr'),(trace,'.trace'))}
+        allocations={id(buf):allocation for buf in (out,err,trace)}
+    file_limit=33554432 if label.endswith('venv') else 2097152
+    def file_ceiling():resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
+    try:
+        p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
+    except BaseException as error:
+        if trace_write is not None:os.close(trace_write)
+        if trace_read is not None:os.close(trace_read)
+        for handle in rawfiles.values():handle.close()
+        receipt=dict(**spec,exit=None,failure='PopenFailure:'+type(error).__name__,combined_retained_bytes=0,partial_prefix=False,unretained_suffix=None,child_started=False)
+        self.budget.document(whole_path,receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(whole_path)
+        supervisor_notice('abort')
+        raise RuntimeError('PreparationPopenFailure') from None
+    if trace_write is not None:os.close(trace_write)
+    sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,out);sel.register(p.stderr,selectors.EVENT_READ,err)
+    if trace_read is not None:sel.register(trace_read,selectors.EVENT_READ,trace)
+    try:
+        while sel.get_map() or p.poll() is None:
+            if time.monotonic()>=end:raise RuntimeError('PreparationCommandDeadline')
+            self.check()
+            for key,_ in sel.select(.01):
+                slot=allocations[id(key.data)]
+                remaining=min(self.output_cap-total,slot['maximum']-slot['used'])
+                fd=key.fileobj if isinstance(key.fileobj,int) else key.fileobj.fileno()
+                raw=os.read(fd,min(4096,remaining+1))
+                if not raw:sel.unregister(key.fileobj);continue
+                kept=raw[:remaining]
+                # Reserve shared remaining BEFORE retaining in either RAM or
+                # durable raw prefix. The extra detection byte is not kept.
+                self.budget.retain(slot,key.data,rawfiles[id(key.data)],raw)
+                total=sum(v['used'] for v in {id(v):v for v in allocations.values()}.values())
+                if len(raw)>remaining:
+                    partial=True;raise RuntimeError('PreparationLiveOutputBound')
+        p.wait(timeout=max(.001,min(1,end-time.monotonic())))
+    except BaseException as e:failure=error_tag(e)
+    finally:
+        if p.poll() is None:
+            p.terminate()
+            try:p.wait(timeout=.25)
+            except subprocess.TimeoutExpired:p.kill();p.wait(timeout=.25)
+        sel.close();p.stdout.close();p.stderr.close()
+        if trace_read is not None:os.close(trace_read)
+        for f in rawfiles.values():f.close()
+        total=sum(v['used'] for v in {id(v):v for v in allocations.values()}.values())
+        receipt=dict(**spec,exit=p.returncode,failure=failure,combined_retained_bytes=total,partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None)
+        self.budget.document(whole_path,receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(whole_path)
+    if failure or p.returncode:
+        supervisor_notice('abort')
+        raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
+    supervisor_notice('idle')
+    if tool:
+        capture=object.__new__(_RunCapture)
+        launch=Path(argv[0]).resolve()
+        same(launch,self.expected['files'][str(launch)])
+        same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
+        _CAPTURES[capture]=dict(owner=self,trace_path=str(base.with_suffix('.trace')),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),tracer_pin=self.expected['files']['/usr/bin/strace'],tracer_pid=p.pid,pipe_identity=trace_identity,source_helper_sha256=self.expected['files'][str(Path(__file__).resolve())]['sha256'])
+        self.tool_origins(base.with_suffix('.trace'),label,capture)
+    self.check()
+    return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
+
+_CURRENT_BOOTSTRAP = None
+_CURRENT_OWNER = None
+
+
+class _CurrentOwner:
+    """One separately deliberate current CLI owner, never a Campaign or Case."""
+    __slots__=('root','context','kind','start','end','traffic_end','manifest','descriptor','arena','budget','aborted')
+    def __new__(cls):raise TypeError('CurrentOwnerPrivateProducerOnly')
+    def fatal(self,reason):
+        self.aborted=True;self.root.fail(reason)
+
+
+def _actual_current_owner(value):
+    return type(value)is _CurrentOwner and value is _CURRENT_OWNER and not value.aborted
+
+
+def _current_manifest(source_sha,kind):
+    if kind not in ('admin','healthy') or type(source_sha)is not str or re.fullmatch('[0-9a-f]{64}',source_sha)is None:
+        raise RuntimeError('CurrentFiniteCLIPurpose')
+    directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
+    source_path=directory/'capture-source-manifest.json'
+    if source_path.is_symlink() or source_path.stat().st_size>65536:raise RuntimeError('CurrentCaptureSourceBound')
+    source=bounded_json_loads(source_path.read_bytes(),65536)
+    if type(source)is not dict or set(source)!={'schema','sources','closure'} or source['schema']!='wordling.current-source-manifest/v2':
+        raise RuntimeError('CurrentSourceManifestSchema')
+    tests=Path(__file__).resolve().parent
+    members={str(tests/n) for n in ('runtime_qualification.py','controller_deployment.py','runtime_qualification_supervisor.py','current_test_qualification.py')}
+    if type(source['sources'])is not dict or set(source['sources'])!=members or source['sources'][str(Path(__file__).resolve())]['sha256']!=source_sha:
+        raise RuntimeError('CurrentExactFourSourceMembers')
+    for name,row in source['sources'].items():same(name,row)
+    required={'roles','argv','writers','joint_memory','native_descendants','clock','cases','startup'}
+    if type(source['closure'])is not dict or set(source['closure'])!=required or any(source['closure'][k]is not True for k in required):
+        raise RuntimeError('CurrentSourceClosureIncomplete')
+    # This is source DATA verification only. Actual execution still requires
+    # the real retained parent's exact release on the private gate channel.
+    source['nonce']=hashlib.sha256(('wordling.current-cli/v2:'+source_sha+':'+kind).encode('ascii')).hexdigest()
+    source['kind']=kind
+    return source
+
+
+def _current_command(manifest,role,index,trace=-1):
+    kind=manifest['kind'];base=Path('/tmp/wordling-WP70-current-test-qualification-v2')
+    folder=base/('cli-admin' if kind=='admin' else 'cli-healthy')
+    env=dict(PATH='/usr/bin:/bin',HOME=str(folder/'workspace/home'),LANG='C.UTF-8',LC_ALL='C.UTF-8')
+    if role=='root':
+        if index!=0 or trace!=-1:raise RuntimeError('CurrentRootSlot')
+        return dict(argv=[str(BASE),'-I','-B',str(Path(__file__).resolve()),'--current-cli-coordinator',kind,manifest['sources'][str(Path(__file__).resolve())]['sha256']],cwd=str(folder/'workspace'),env=env,fsize=2097152)
+    if role!='slot' or index!=1 or trace!=-1:raise RuntimeError('CurrentExactlyOneCLISlot')
+    interpreter=base/'final/venv/bin/python'
+    argv=[str(interpreter),'-I','-B','-m','reference_controller']
+    testroot='/tmp/wordling-reference-TEST-current-v2'
+    if kind=='admin':argv+=['test-admin','--root',testroot,'--generation','wp70-current-v2']
+    else:argv+=['test-leaf','--root',testroot,'--generation','wp70-current-v2','--grant-id','current-v2-healthy','--scenario','healthy']
+    return dict(argv=argv,cwd=str(folder/'workspace'),env=env,fsize=2097152)
+
+
+def _current_gate_args(kind,source_sha,role,index,seq,release,nonce,end,control=-1):
+    if kind not in ('admin','healthy') or role not in ('root','slot') or (role,index,seq)not in (('root',0,0),('slot',1,1)):
+        raise RuntimeError('CurrentGateScope')
+    return [str(BASE),'-I','-B',str(Path(__file__).resolve()),'--current-gate',kind,source_sha,role,str(index),str(seq),str(release),nonce,str(end),str(control),'-1','CLOSED']
+
+
+def _current_owner_admission(root,kind):
+    global _CURRENT_OWNER
+    module=sys.modules.get('current_test_qualification')
+    if module is None or module._require_live_root_boundary(root)is not root or _CURRENT_OWNER is not None:
+        raise RuntimeError('CurrentActualRootOwnerOnce')
+    before='CANDIDATE_ACCEPTED' if kind=='admin' else 'CLI_ADMIN_FINISHED'
+    after='CLI_ADMIN_ONCE' if kind=='admin' else 'CLI_HEALTHY_ONCE'
+    root.advance(before,after)
+    context=module._produce_current_context(root,after)
+    value=object.__new__(_CurrentOwner)
+    value.root=root;value.context=context;value.kind=kind;value.aborted=False
+    value.start=time.monotonic_ns();value.end=min(int(root.whole_end*1000000000),value.start+32000000000);value.traffic_end=value.end-2000000000
+    value.manifest=_current_manifest(pin(Path(__file__).resolve())['sha256'],kind)
+    value.descriptor=dict(root=str(context.target/'workspace'),evidence=str(context.target),nonce=value.manifest['nonce'])
+    value.arena=_CampaignArena();value.arena.hold('current-owner-live',1048576)
+    value.budget=context.admit(root.expected,context.evidence)
+    _CURRENT_OWNER=value
+    return value
+
+
+def _current_cli_action(root,kind):
+    global _CURRENT_OWNER
+    module=sys.modules.get('runtime_qualification_supervisor')
+    if module is None:raise RuntimeError('CurrentCanonicalOwnerNotLoaded')
+    owner=_current_owner_admission(root,kind)
+    try:
+        result=module._supervise_owner(owner,pin(Path(__file__).resolve())['sha256'])
+        settled=(result['coordinator_reaped_last'] and result['kernel_no_children_observed']
+            and result['own_children_remaining']==[] and not result['signal_identity_unknown']
+            and result['root_exit']==0)
+        if not settled:raise RuntimeError('CurrentOwnerCleanupUnknown')
+        owner.budget.document(Path(owner.descriptor['evidence'])/'checked-report.json',dict(status='OBSERVED_PENDING_INDEPENDENT_REVIEW',kind=kind,cleanup_qualified=True),'control')
+        owner.context.finished=True
+        sys.modules['current_test_qualification']._LIVE_CONTEXTS.remove(owner.context)
+        root.state='CLI_ADMIN_FINISHED' if kind=='admin' else 'SPENT_OR_FAILED'
+        if kind=='healthy':root.finished=True
+        return result
+    except BaseException:
+        owner.fatal('CurrentCLIOrOwnerFailure');raise
+    finally:_CURRENT_OWNER=None
+
+
+def _current_cli_coordinator(kind,source_sha):
+    manifest=_current_manifest(source_sha,kind)
+    # These are the established actual owner descriptors and HELLO framing.
+    # They grant only one fixed current slot, never a campaign object.
+    channel,parentfd,parent,end,actual_sha=_campaign_bootstrap_descriptors()
+    if actual_sha!=source_sha:raise RuntimeError('CurrentBootstrapSource')
+    peer=(parent,os.getuid(),os.getgid());traffic_end=end-2000000000
+    _campaign_hello(channel,peer,manifest['nonce'],source_sha,source_sha,end,traffic_end)
+    release,child=_campaign_pair();p=None;fd=None
+    try:
+        command=_current_command(manifest,'slot',1)
+        slot_end=min(traffic_end,time.monotonic_ns()+30000000000)
+        argv=_current_gate_args(kind,source_sha,'slot',1,1,child.fileno(),manifest['nonce'],slot_end)
+        p=subprocess.Popen(argv,cwd=command['cwd'],env=command['env'],stdin=subprocess.DEVNULL,close_fds=True,pass_fds=(child.fileno(),),start_new_session=False)
+        child.close();fd=_campaign_open_child(p)
+        _campaign_send(channel,dict(k='R',v=1,n=manifest['nonce'],s=1,i=1,e=slot_end,c=True),slot_end,fd=fd)
+        ack,received,raw=_campaign_recv(channel,peer,slot_end,False,128)
+        if received is not None or ack!=dict(k='A',n=manifest['nonce'],s=1,i=1,e=slot_end):raise RuntimeError('CurrentActualRegistrationACK')
+        _campaign_send(release,ack,slot_end,maximum=128);release.close()
+        p.wait(timeout=max(.001,(slot_end-time.monotonic_ns())/1000000000))
+        _campaign_send(channel,dict(k='I',n=manifest['nonce'],s=1,i=1,r=p.returncode),slot_end,maximum=128)
+        idle,received,raw=_campaign_recv(channel,peer,slot_end,False,128)
+        if received is not None or idle!=dict(k='i',n=manifest['nonce'],s=1,i=1,e=slot_end):raise RuntimeError('CurrentActualIdleACK')
+        return 0 if p.returncode==0 else 2
+    finally:
+        # Closing the unreleased gate cannot authorize exec. The retained
+        # external owner, not a reconstructed numeric PID, performs cleanup.
+        release.close();child.close();channel.close();os.close(parentfd)
+        if fd is not None:os.close(fd)
+
+
+def _current_live_boundary(root):
+    module=sys.modules.get('current_test_qualification')
+    if module is None or root not in module._LIVE_ROOTS or root is not module._CURRENT_ROOT:
+        raise RuntimeError('CurrentLiveRootRequired')
+    if (root.channel.fileno()<0 or os.get_inheritable(root.channel.fileno())
+            or root.channel.family!=socket.AF_UNIX or root.channel.type!=socket.SOCK_SEQPACKET
+            or not root.channel.getsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED)
+            or root.peer!=(os.getppid(),os.getuid(),os.getgid())):
+        raise RuntimeError('CurrentOwnerRelation')
+    _campaign_live(root.parentfd)
+    if root.channel.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12)!=struct.pack('3i',*root.peer):
+        raise RuntimeError('CurrentOwnerPeer')
+
+
+def _current_abort_boundary(root,reason):
+    # Cleanup is still owned by the authentic surviving supervisor. A failed
+    # context cannot restore itself by sending a new HELLO or reloading DATA.
+    end=min(int((root.whole_end or time.monotonic()+2)*1000000000),time.monotonic_ns()+2000000000)
+    try:_campaign_send(root.channel,dict(k='B',n=root.nonce,s=root.sequence,i=0),end,maximum=128)
+    except BaseException:pass
+
+
+def _current_root_decision(root,stage):
+    _current_live_boundary(root)
+    if root.sequence>=6:raise RuntimeError('CurrentDecisionCount')
+    end=int((root.whole_end or time.monotonic()+30)*1000000000)
+    root.sequence+=1
+    _campaign_send(root.channel,dict(k='D',n=root.nonce,s=root.sequence,t=stage),end,maximum=256)
+    value,fd,raw=_campaign_recv(root.channel,root.peer,end,False,256)
+    if fd is not None or value!=dict(k='d',n=root.nonce,s=root.sequence,t=stage):
+        root.failed=True;raise RuntimeError('CurrentIndependentDecisionRequired')
+
+
+def _current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha):
+    """Only the verified real bootstrap can create this local session object."""
+    global _CURRENT_BOOTSTRAP
+    if (_CURRENT_BOOTSTRAP is None or _CURRENT_BOOTSTRAP!=(channel,parentfd,peer,nonce,source_sha)
+            or module is not sys.modules.get('current_test_qualification') or module._CURRENT_ROOT is not None):
+        raise RuntimeError('CurrentActualBootstrapRequired')
+    _CURRENT_BOOTSTRAP=None
+    root=object.__new__(module._RootBoundary)
+    root.channel=channel;root.parentfd=parentfd;root.peer=peer;root.nonce=nonce;root.source_sha=source_sha
+    root.state='SOURCE_ACCEPTED_NO_CLOCK';root.whole_origin=None;root.whole_end=None
+    root.failed=False;root.finished=False;root.expected=None;root.selection=None;root.capacity=None
+    root.groups=();root.budget=None;root.arena=_CampaignArena();root.contexts=[];root.sequence=0
+    root.proof=None;root.source=Path(__file__).resolve().parent.parent;root.repository=root.source.parents[3]
+    root.frozen_disposable=None;root.candidate=None;root.used_stages=set()
+    module._CURRENT_ROOT=root;module._LIVE_ROOTS.add(root)
+    _current_live_boundary(root)
+    return root
+
+
+def _current_bootstrap(module,source_sha):
+    """Fixed inherited descriptor roles, restored CLOEXEC before child paths."""
+    global _CURRENT_BOOTSTRAP
+    names=('WORDLING_CURRENT_CONTROL_FD','WORDLING_CURRENT_OWNER_PIDFD','WORDLING_CURRENT_OWNER','WORDLING_CURRENT_SOURCE','WORDLING_CURRENT_NONCE')
+    if any(n not in os.environ for n in names):raise RuntimeError('CurrentActualRootGateRequired')
+    control,parentfd,parent,actual_sha,nonce=(os.environ.pop(n) for n in names)
+    control=int(control);parentfd=int(parentfd);parent=int(parent)
+    os.set_inheritable(control,False);os.set_inheritable(parentfd,False)
+    if control==parentfd or parent!=os.getppid() or source_sha!=actual_sha:
+        raise RuntimeError('CurrentOwnerDescriptorBinding')
+    channel=socket.socket(fileno=control);channel.setblocking(False)
+    try:
+        _campaign_live(parentfd)
+        if channel.family!=socket.AF_UNIX or channel.type!=socket.SOCK_SEQPACKET or not channel.getsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED):
+            raise RuntimeError('CurrentOwnerChannel')
+        peer=(parent,os.getuid(),os.getgid())
+        _CURRENT_BOOTSTRAP=(channel,parentfd,peer,nonce,source_sha)
+        return _current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha)
+    except BaseException:
+        _CURRENT_BOOTSTRAP=None;channel.close();os.close(parentfd);raise
+
+
+def _current_load_reference(root):
+    """Decode only the fixed public reference, never candidate-produced DATA."""
+    root.check();directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
+    seal_path=directory/'seal.json'
+    if seal_path.is_symlink() or seal_path.stat().st_size>65536:raise RuntimeError('CurrentReferenceSealBound')
+    seal=bounded_json_loads(seal_path.read_bytes(),65536)
+    names={'expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','base-observation.json','capture-source-manifest.json','reference-summary.json'}
+    if (type(seal)is not dict or set(seal)!={'schema','members','complete'}
+            or seal['schema']!='wordling.current-reference-seal/v2' or seal['complete']is not True
+            or type(seal['members'])is not dict or set(seal['members'])!=names):
+        raise RuntimeError('CurrentCompleteReferenceSeal')
+    for name,row in seal['members'].items():same(directory/name,row);root.check()
+    compressed=directory/'expected-inputs.json.gz'
+    if compressed.stat().st_size>1572864:raise RuntimeError('CurrentCompressedExpectedBound')
+    raw=bounded_gzip(compressed,8388608)
+    # The source reference builder owns the independent roles/provider map.
+    # This tree remains charged until the complete child context is retired.
+    text,charge=_json_prepared(raw,8388608)
+    if charge>46137344:raise RuntimeError('CurrentExpectedMapCharge')
+    expected=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+    del raw,text
+    selection=bounded_json_loads((directory/'tool-selection.json').read_bytes(),1048576)
+    check_selection_records(expected,selection)
+    capacity=bounded_json_loads((directory/'capacity.json').read_bytes(),262144)
+    root.expected=expected;root.selection=selection;root.capacity=capacity
+    design=root.repository/'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/design/source-writers-TDD-design.json'
+    same(design,dict(size=157535,sha256='ca9b16e498fa5fe2c4a4b560de8860783e45bf9b741edb9c016d55f208210a8f'))
+    plan=bounded_json_loads(design.read_bytes(),524288)
+    groups=plan['funded_runtime_groups']+[dict(paths=[r['path']],kind=r['kind'],reserved_bytes=r['reserved_bytes']) for r in plan['funded_runtime_additional_rows']]
+    if len({p for row in groups for p in row['paths']})!=197:raise RuntimeError('CurrentClosed197Writers')
+    root.groups=tuple(groups);root.proof=seal
+    del plan,seal
+    _current_capacity_proof(root)
+    return charge
+
+
+def _current_reference_capture(root):
+    module=sys.modules.get('current_test_qualification')
+    if module is None or module._require_live_root_boundary(root) is not root or root.state!='REFERENCE_RUNNING':
+        raise RuntimeError('CurrentReferenceStage')
+    if root.expected is None or root.selection is None or root.capacity is None:
+        raise RuntimeError('CurrentSourceReferenceInputsRequired')
+    context=module._produce_current_context(root,'REFERENCE_RUNNING')
+    budget=context.admit(root.expected,context.evidence)
+    owner=object.__new__(module._ReferenceOwner)
+    owner.root=root;owner.target=context.target;owner.evidence=context.evidence
+    owner.expected=root.expected;owner.env=dict(PATH='/usr/bin:/bin',HOME=str(owner.target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1')
+    owner.budget=budget;owner.calls=[];owner.call_paths=[]
+    owner.start=context.start;owner.end=min(root.whole_end,owner.start+300)
+    owner.output_cap=24576;owner.current_test=context
+    module._LIVE_REFERENCE_OWNERS.add(owner)
+    try:
+        # REF02 is the canonical nonexecuting complete source preflight. Its
+        # OS classification remains a review obligation, not a free tool run.
+        context.verify_tools(root.expected)
+        before=time.monotonic()
+        budget.document(owner.evidence/'REF02/command.json',dict(operation='canonical-current-input-preflight',tool_executed=False),'pair')
+        _current_preflight_inputs(context)
+        budget.document(owner.evidence/'REF02/process.json',dict(status='OBSERVED_SOURCE_CHECK_ONLY',exit=None,tool_executed=False,elapsed=time.monotonic()-before),'pair')
+        for name in ('stdout-summary.raw','stderr.raw'):
+            cap=8192 if name=='stdout-summary.raw' else 16384
+            allocation,handles=budget.raw_group([owner.evidence/'REF02'/name],'construction_raw',cap)
+            handles[owner.evidence/'REF02'/name].close()
+        # The ordinary engine enforces the separately funded summary channels.
+        # A larger observation refuses; it cannot silently create a new writer.
+        result=_capture_command(owner,[str(BASE),'-I','-B','-c',probe(False)],'REF01',False)
+        observation=context.arena.decode('current-reference-probe',result.stdout,8192)
+        compare_observation(observation,BASE,root.expected,{},False)
+        budget.document(owner.evidence/'base-observation.json',observation,'origin')
+        del observation,result
+        context.arena.release('current-reference-probe')
+        context.finished=True;module._LIVE_CONTEXTS.remove(context)
+        root.advance('REFERENCE_RUNNING','REFERENCE_PENDING_ACCEPTANCE')
+        return dict(status='REFERENCE_PENDING_INDEPENDENT_ACCEPTANCE',permission_granted=False)
+    except BaseException:
+        context.fail('CurrentReferenceFailure');raise
+    finally:
+        module._LIVE_REFERENCE_OWNERS.discard(owner)
+
+
+def _current_preflight_inputs(context):
+    """The canonical V2 filesystem branch; lexical metadata is never followed."""
+    context.check()
+    expected=context.expected
+    check_selection_records(expected,context.selection)
+    allnames=set(expected['files'])|set(expected['links'])|set(expected['directories'])
+    for root in expected['closed_roots']:
+        directory=Path(root)
+        observed=set()
+        for p in directory.rglob('*'):
+            context.check()
+            if len(observed)>=24576:raise RuntimeError('CurrentClosedInputCardinality')
+            observed.add(str(p))
+        if observed!={n for n in allnames if Path(n).is_relative_to(directory) and n!=root}:
+            raise RuntimeError('ClosedInputSet:'+root)
+    for root,names in expected['tool_startup_hook_sets'].items():
+        if sorted(str(p) for p in Path(root).glob('*.pth'))!=names:
+            raise RuntimeError('ToolStartupHookSet')
+    for name,row in expected['files'].items():
+        same(name,row);context.check()
+    for name,row in expected['links'].items():
+        p=Path(name)
+        if not p.is_symlink() or os.readlink(p)!=row['target'] or rights(p)!=row['rights']:
+            raise RuntimeError('ChangedLink:'+name)
+        if row['role']!='NONEXECUTED_METADATA':
+            # Pure grammar already proved exactly one declared regular target.
+            target=Path(row['resolved'])
+            if target.is_symlink():raise RuntimeError('CurrentAliasTargetChanged')
+            same(target,expected['files'][str(target)])
+        context.check()
+    for name,row in expected['directories'].items():
+        p=Path(name)
+        if p.is_symlink() or not p.is_dir() or rights(p)!=row:
+            raise RuntimeError('ChangedDirectory:'+name)
+    context.check()
+
+
+def _current_capacity_proof(root):
+    """Check the actual complete baseline before the canonical budget allocates."""
+    root.check();data=root.capacity
+    check_reference_shape(data)
+    base=Path(data['evidence_root']);rows=data['E_inventory']
+    if len(rows)!=data['E_files'] or sum(r['bytes'] for r in rows)!=data['E_bytes']:
+        raise RuntimeError('EvidenceBaselineTotals')
+    wanted={r['relative'] for r in rows}
+    if len(wanted)!=len(rows):raise RuntimeError('EvidenceBaselineNameSet')
+    admitted=set() if root.budget is None else {str(p.relative_to(base)) for p in root.budget.slots if p.is_relative_to(base) and p.is_file()}
+    actual=set()
+    for p in base.rglob('*'):
+        root.check()
+        if p.is_file():
+            if len(actual)>=EVIDENCE_FILES:raise RuntimeError('EvidenceBaselineCardinality')
+            actual.add(str(p.relative_to(base)))
+    if actual!=wanted|admitted:raise RuntimeError('EvidenceBaselineNameSet')
+    for row in rows:
+        same(base/row['relative'],dict(size=row['bytes'],**{k:row[k] for k in ('sha256','mode','uid','gid')}))
+        root.check()
+    for ref in data['canonical_reference_roots']:
+        directory=Path(ref['root']);members=ref['members']
+        if {str(p.relative_to(directory)) for p in directory.rglob('*') if p.is_file()}!={r['relative'] for r in members}:
+            raise RuntimeError('ImmutableReferenceMembers')
+        for row in members:
+            same(directory/row['relative'],dict(size=row['bytes'],**{k:row[k] for k in ('sha256','mode','uid','gid')}))
+            root.check()
+    if data['E_bytes']+sum(r[0] for r in CLASS_LIMITS.values())>EVIDENCE_LIMIT or data['E_files']+sum(r[1] for r in CLASS_LIMITS.values())>EVIDENCE_FILES:
+        raise RuntimeError('EvidenceFutureEnvelopeFit')
+
+
+def _current_preparation_command(context,argv,label,tool):
+    """One source-defined eight-command deployment; no caller argv recipes."""
+    context.check(context.preparation)
+    target=context.target;environment=target/'venv';build=target/'build-input'
+    interpreter=environment/'bin/python';wheel=target/'wheels/wordling_reference_controller_test-0.2.0-py3-none-any.whl'
+    rows=(
+        ('deployment/venv',True,[str(BASE),'-I','-B','-m','venv','--copies','--without-pip',str(environment)]),
+        ('deployment/qualify-literal-before',False,[str(interpreter),'-I','-B','-c',qualification_literal(target)]),
+        ('deployment/stdlib-before',False,[str(interpreter),'-I','-B','-c',probe(False)]),
+        ('deployment/compile',True,['/usr/bin/cc','-std=c11','-O2','-static','-Wall','-Wextra','-Werror','-o',str(build/'reference_controller/testdata/fixture'),str(build/'fixture.c')]),
+        ('deployment/wheel',True,['/usr/bin/python','-B','-m','pip','wheel','--no-deps','--no-index','--no-build-isolation','--no-cache-dir','--config-settings=--build-option=--keep-temp','--wheel-dir',str(target/'wheels'),str(build)]),
+        ('deployment/install',True,['/usr/bin/python','-s','-B','-m','pip','install','--user','--root=/','--ignore-installed','--no-index','--no-deps','--no-compile','--no-cache-dir',str(wheel)]),
+        ('deployment/qualify-literal-after',False,[str(interpreter),'-I','-B','-c',qualification_literal(target)]),
+        ('deployment/origins',False,[str(interpreter),'-I','-B','-c',probe(True)]))
+    index=context.capture_index
+    if index>=len(rows) or (label,tool,argv)!=rows[index]:raise RuntimeError('CurrentClosedPreparationCommand')
+    wanted=dict(PATH='/usr/bin:/bin',HOME=str(target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',
+        PYTHONDONTWRITEBYTECODE='1',PIP_DISABLE_PIP_VERSION_CHECK='1',PIP_NO_CACHE_DIR='1',PIP_CONFIG_FILE='/dev/null',TMPDIR=str(target/'tmp'))
+    if index==5:wanted['PYTHONUSERBASE']=str(environment)
+    if context.preparation.env!=wanted:raise RuntimeError('CurrentClosedPreparationEnvironment')
 
 
 def strict_layout(interpreter,expected_files=None):
@@ -3670,6 +4099,8 @@ if __name__=='__main__':
         if sys.argv[1:2]==['--harmless-gate']:result=_campaign_gate(sys.argv[3:],int(sys.argv[2]))
         elif sys.argv[1:2]==['--harmless-coordinator'] and len(sys.argv)==4:result=_harmless_coordinator(int(sys.argv[2]),sys.argv[3])
         elif sys.argv[1:2]==['--harmless-executable'] and len(sys.argv) in (5,6,7):result=_harmless_executable(int(sys.argv[2]),sys.argv[3],int(sys.argv[4]),int(sys.argv[5]) if len(sys.argv)>=6 else -1,int(sys.argv[6]) if len(sys.argv)==7 else -1)
+        elif sys.argv[1:2]==['--current-gate']:result=_campaign_gate(sys.argv[3:],current_kind=sys.argv[2])
+        elif sys.argv[1:2]==['--current-cli-coordinator'] and len(sys.argv)==4:result=_current_cli_coordinator(sys.argv[2],sys.argv[3])
         elif sys.argv[1:2]==['--campaign-gate']:result=_campaign_gate(sys.argv[2:])
         else:result=main()
     except SystemExit as exc: result=exc.code
