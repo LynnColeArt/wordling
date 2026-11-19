@@ -1,0 +1,87 @@
+{
+  "schema": "wordling.wp108-source03-exact-action-and-writer-bijection/v1",
+  "status": "AUTHORIZE_ONE_DELIBERATE_FIXED_SOURCE_ONLY_ACTION",
+  "implementation_Op": "01M7R7PV4KZYRH9YN3R0Q61AWW_OPEN",
+  "basis": "ActualSOURCE02 found exactunreadmatplotlibnamespacehook required bynormalDebiansite.py startup. Thisnewdeliberateactionclosesonlythatnamedsourceobligation; SOURCE01actualfailure remainsimmutable.",
+  "allocation": {
+    "retire_uncreated_names": [
+      {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/bootstrap-source01/command.json",
+        "bytes": 16384
+      },
+      {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/bootstrap-source01/preflight.json",
+        "bytes": 32768
+      }
+    ],
+    "adopt_names": [
+      {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/bootstrap-source03/action.json",
+        "bytes": 16384
+      },
+      {
+        "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/bootstrap-source03/result.json",
+        "bytes": 32768
+      }
+    ],
+    "exact_bijection": true,
+    "old_future_names_never_created": true,
+    "all_actual_SOURCE01_files_and_original_historical_plan_preserved": true,
+    "retention_files_cap": 1212,
+    "retention_bytes_cap": 536870912,
+    "conservative_retained_and_future_bytes": 316431364,
+    "OTHER_files_max": 2522,
+    "OTHER_bytes_max": 1928265728,
+    "unchanged": "All76context/source and197runtimepurposes,17classes,intrinsic4GiB/10240,candidate1024,64logical/16OS/1200s. No prune/archive/countsubstitute; no SOURCE01rerun/overwrite or failedlivecontextrevival."
+  },
+  "independent_review": {
+    "reviewer": "/root/qualification_orchestrator/independent_review",
+    "profile": "reviewer-renata previouslyresolvedbycanonicaldispatch; exactstaticcorrectionreview, notWPapproval",
+    "verdict": "APPROVE_ONE_FIXED_SOURCE_ONLY_ACTION_AND_EXACT_TWO_NAME_BIJECTION",
+    "source_sha256": "92d0e3511fdae7ec857bc70b9c236777630f126d03c870f66310d9c048844c11",
+    "checks": "Verifiedbotholdnamesabsent. Exactnspkgregularfile<=8192/O_NOFOLLOW/held+namedbindingchecks/JSON<=16384 plusonefixedmpl_toolkitslstatmetadatahypothesiswithoutfollow/list/recursion. Fixedtrustedadmin-I-S-B timeout30+2/prlimitAS160FD32nproc0FSIZE0 appropriate. Nativeactualexit/wall/combinedraw retainedtruthfully; no syntheticwait4/channel/qualificationclaim.",
+    "reviewer_performed_no_source_execution_import_test_probe_publicread_or_CLI": true
+  },
+  "source_bytes": 5112,
+  "source_sha256": "92d0e3511fdae7ec857bc70b9c236777630f126d03c870f66310d9c048844c11",
+  "fixed_argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--nofile=32",
+    "--nproc=0",
+    "--fsize=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-S",
+    "-B",
+    "-c",
+    "\"\"\"One fixed trusted-administrative SOURCE read; never import/eval the input.\"\"\"\nimport base64\nimport hashlib\nimport json\nimport os\nimport resource\nimport stat\n\nFILE = '/usr/lib/python3/dist-packages/matplotlib-3.6.3-nspkg.pth'\nNAMESPACE = '/usr/lib/python3/dist-packages/mpl_toolkits'\n\n\ndef stamp(value):\n    return (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)\n\n\ndef facts(value):\n    return dict(dev=value.st_dev, ino=value.st_ino, size=value.st_size,\n        mode=stat.S_IMODE(value.st_mode), uid=value.st_uid, gid=value.st_gid,\n        mtime_ns=value.st_mtime_ns, ctime_ns=value.st_ctime_ns)\n\n\ndef parent(path):\n    parts = path.split('/')[1:-1]\n    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)\n    try:\n        for part in parts:\n            before = os.stat(part, dir_fd=fd, follow_symlinks=False)\n            if not stat.S_ISDIR(before.st_mode):\n                raise RuntimeError('SOURCE03_PARENT_NOT_DIRECTORY')\n            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=fd)\n            if stamp(before) != stamp(os.fstat(child)):\n                os.close(child)\n                raise RuntimeError('SOURCE03_PARENT_CHANGED_AT_OPEN')\n            os.close(fd)\n            fd = child\n        return fd\n    except BaseException:\n        os.close(fd)\n        raise\n\n\ndef named_parent(path, held):\n    current = parent(path)\n    try:\n        before, after = os.fstat(held), os.fstat(current)\n        return (before.st_dev, before.st_ino) == (after.st_dev, after.st_ino)\n    finally:\n        os.close(current)\n\n\ndef main():\n    resource.setrlimit(resource.RLIMIT_AS, (167772160, 167772160))\n    resource.setrlimit(resource.RLIMIT_NOFILE, (32, 32))\n    result = dict(schema='wordling.SOURCE03-exact-hook/v1',\n        classification='UNACCEPTED_SOURCE_DATA', path=FILE, qualified_tool=False,\n        accepted_reference=False, current_context_created=False,\n        qualification_clock_started=False, input_executed=False)\n    directory = fd = None\n    try:\n        directory = parent(FILE)\n        name = FILE.rsplit('/', 1)[1]\n        before = os.stat(name, dir_fd=directory, follow_symlinks=False)\n        result['identity_before'] = facts(before)\n        if not stat.S_ISREG(before.st_mode) or not 0 <= before.st_size <= 8192:\n            raise RuntimeError('SOURCE03_EXACT_REGULAR_BOUND')\n        fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)\n        if stamp(before) != stamp(os.fstat(fd)):\n            raise RuntimeError('SOURCE03_FILE_CHANGED_AT_OPEN')\n        raw = os.read(fd, 8193)\n        after = os.fstat(fd)\n        named = os.stat(name, dir_fd=directory, follow_symlinks=False)\n        result['identity_fd_after'] = facts(after)\n        result['identity_named_after'] = facts(named)\n        if len(raw) != before.st_size or stamp(before) != stamp(after) or stamp(before) != stamp(named) or not named_parent(FILE, directory):\n            raise RuntimeError('SOURCE03_FILE_OR_PARENT_BINDING_CHANGED')\n        result.update(status='OBSERVED_UNACCEPTED_SOURCE_DATA', source_size=len(raw),\n            source_sha256=hashlib.sha256(raw).hexdigest(),\n            source_bytes_base64=base64.b64encode(raw).decode('ascii'))\n        # One explicit metadata-only namespace hypothesis, never derived/followed\n        # from hook code. No listing, recursion, import or target-body read.\n        namespace_name = NAMESPACE.rsplit('/', 1)[1]\n        try:\n            first = os.stat(namespace_name, dir_fd=directory, follow_symlinks=False)\n            last = os.stat(namespace_name, dir_fd=directory, follow_symlinks=False)\n            if stamp(first) != stamp(last) or not named_parent(NAMESPACE, directory):\n                raise RuntimeError('SOURCE03_NAMESPACE_NAMED_BINDING_CHANGED')\n            result['namespace_hypothesis'] = dict(path=NAMESPACE,\n                status='OBSERVED_UNACCEPTED_METADATA', is_directory=stat.S_ISDIR(first.st_mode),\n                is_symlink=stat.S_ISLNK(first.st_mode), followed=False, **facts(first))\n        except FileNotFoundError:\n            if not named_parent(NAMESPACE, directory):\n                raise RuntimeError('SOURCE03_NAMESPACE_PARENT_CHANGED_ON_ABSENCE')\n            result['namespace_hypothesis'] = dict(path=NAMESPACE,\n                status='OBSERVED_ABSENT_UNACCEPTED_METADATA', followed=False)\n    except (OSError, RuntimeError) as error:\n        result.update(status='INCOMPLETE', error=type(error).__name__ + ':' + str(error)[:512])\n    finally:\n        if fd is not None:\n            os.close(fd)\n        if directory is not None:\n            os.close(directory)\n    encoded = (json.dumps(result, sort_keys=True, separators=(',', ':'), ensure_ascii=True) + chr(10)).encode('ascii')\n    if len(encoded) > 16384:\n        raise RuntimeError('SOURCE03_JSON_OUTPUT_BOUND')\n    if os.write(1, encoded) != len(encoded):\n        raise RuntimeError('SOURCE03_SHORT_STDOUT_WRITE')\n    raise SystemExit(0 if result['status'] == 'OBSERVED_UNACCEPTED_SOURCE_DATA' else 2)\n\n\nif __name__ == '__main__':\n    main()\n"
+  ],
+  "fixed_env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "cwd": "/home/lynn/projects/wordling",
+  "writer_namespace": {
+    "uid": 1000,
+    "gid": 1000,
+    "mode": "0o700",
+    "euid": 1000
+  },
+  "actual_orchestrator_decision": "Runthisexactcommandonceafterthiscommit. Preserveactualstatus/fullcombinedrawortruthfulpartial/failure; no automaticfollow/retry/repair/adoption. Nativeexec custody is ordinary trustedadministrative machinery, not a new qualifiedsupervisor.",
+  "qualified_tool": false,
+  "reference_accepted": false,
+  "current_context_created": false,
+  "Preparation_started": false,
+  "TEST_P_started": false,
+  "qualification_clock_started": false,
+  "WP108_approved": false
+}
