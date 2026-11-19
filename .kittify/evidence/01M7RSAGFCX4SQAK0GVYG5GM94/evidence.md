@@ -1,0 +1,1 @@
+Adopted independently reviewed retention-only 1024-to-1176 file amendment with 804 existing files, 368 explicit future writers and four reserve slots; 512MiB and all runtime/class/candidate limits preserved. Task body only; no source, test or census execution and no WP108 acceptance.
