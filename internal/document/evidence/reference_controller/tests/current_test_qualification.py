@@ -434,7 +434,7 @@ class _StaticInventory:
             raise Incomplete('StaticShortMetadataRead')
         return raw
 
-    def path_info(self, path, open_file=False):
+    def path_info(self, path, open_file=False, *, open_directory=False):
         """Walk from a held root, no-follow EVERY component before any input read."""
         original = path
         chain = []
@@ -479,10 +479,12 @@ class _StaticInventory:
                         os.close(directory)
                         directory = following
                     else:
-                        if open_file:
-                            if not stat.S_ISREG(before.st_mode):
+                        if open_file or open_directory:
+                            if open_directory and not stat.S_ISDIR(before.st_mode):
+                                raise Incomplete('StaticNotDirectory:' + original)
+                            if open_file and not stat.S_ISREG(before.st_mode):
                                 raise Incomplete('StaticNotRegular:' + original)
-                            fd = os.open(part, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+                            fd = os.open(part, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | (os.O_DIRECTORY if open_directory else 0), dir_fd=directory)
                             if _stamp(os.fstat(fd)) != _stamp(before):
                                 os.close(fd)
                                 raise Incomplete('StaticFileChangedAtOpen:' + original)
@@ -557,6 +559,8 @@ class _StaticInventory:
         return result
 
     def item(self, entry):
+        if entry.get('kind') == 'census_root':
+            return _census_item_data(self, entry)
         kind, name = entry['kind'], entry['path']
         before, fd, resolved, aliases = self.path_info(name, open_file=kind in ('ELF_seed', 'loader_data'))
         row = dict(kind=kind, path=name, resolved=resolved, aliases=aliases, **_rights(before))
@@ -695,7 +699,771 @@ def static_inspection():
     return _StaticInventory(plan, source_bytes).run()
 
 
+
+# This separately reviewed SOURCE-only purpose never constructs a current actor.
+_CENSUS_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/reader-plan.json'
+_CENSUS_PLAN_SHA = '36c8a705b53e6f08bc2fa52f47dea9bed731de1b7f34400ec0f079c7d24cf4c0'
+_CENSUS_MAX = dict(records=24576, reads=17179869184, output=8388608,
+    operations=7362560, deadline=300, depth=16, working=16777216)
+
+
+def census_alias_data(logical, text, closed_roots, declared_aliases):
+    """Lexical SOURCE DATA only: discovered links never authorize a lookup."""
+    if (type(logical) is not str or type(text) is not str or not text.isascii()
+            or '\0' in text or len(text) > 4096):
+        raise Incomplete('CensusAliasText')
+    target = posixpath.normpath(text if text.startswith('/') else posixpath.join(posixpath.dirname(logical), text))
+    listed = logical in declared_aliases and target in declared_aliases
+    return dict(status='OBSERVED_UNACCEPTED_CENSUS_DATA' if listed else 'INCOMPLETE_UNLISTED_CENSUS_ALIAS',
+        target=target, text=text, follow=False, permission_granted=False)
+
+
+def census_snapshot_data(before, after, before_names, after_names):
+    if (type(before) is not dict or type(after) is not dict
+            or type(before_names) is not list or type(after_names) is not list
+            or max(len(before_names), len(after_names)) > 4096
+            or any(type(n) is not str or not n.isascii() or len(n) > 255 for n in before_names + after_names)):
+        raise Incomplete('CensusSnapshotData')
+    stable = before == after and sorted(before_names) == sorted(after_names)
+    return dict(status='UNACCEPTED_CENSUS_DATA' if stable else 'INCOMPLETE_UNSTABLE_CENSUS',
+        stable_identity=stable, permission_granted=False, reference_qualification=False)
+
+
+def census_package_data(distribution, basenames):
+    if (distribution not in ('pip', 'setuptools', 'wheel') or type(basenames) is not list
+            or len(basenames) > 4096 or any(type(n) is not str or not n.isascii() or len(n) > 255 for n in basenames)):
+        raise Incomplete('CensusPackageData')
+    matches = []
+    for name in basenames:
+        match = name == distribution + '.egg-info'
+        for suffix in ('.dist-info', '.egg-info'):
+            if name.startswith(distribution + '-') and name.endswith(suffix):
+                version = name[len(distribution) + 1:-len(suffix)]
+                match = bool(version and len(version) <= 128 and version[0].isalnum()
+                    and all(c.isalnum() or c in '._+!-' for c in version))
+        if match:
+            matches.append(name)
+    return dict(status='UNACCEPTED_PACKAGE_DATA' if len(matches) == 1 else 'INCOMPLETE_PACKAGE_SELECTION',
+        selected=matches[0] if len(matches) == 1 else None, permission_granted=False)
+
+
+def census_header_data(raw):
+    if type(raw) is not bytes or len(raw) > 1048576:
+        raise Incomplete('CensusHeaderBound')
+    tokens, unresolved = [], False
+    start = 0
+    while start < len(raw):
+        stop = raw.find(b'\n', start)
+        stop = len(raw) if stop < 0 else stop
+        line = raw[start:stop]
+        start = stop + 1
+        if len(line) > 4096:
+            unresolved = True
+            continue
+        line = line.strip()
+        if not line.startswith(b'#'):
+            continue
+        line = line[1:].lstrip()
+        if not line.startswith(b'include'):
+            continue
+        tail = line[7:].strip()
+        if not tail or tail[:1] not in (b'<', b'"'):
+            unresolved = True
+            continue
+        end = b'>' if tail[:1] == b'<' else b'"'
+        index = tail.find(end, 1)
+        token = tail[1:index] if index >= 0 else b''
+        if (not token or len(token) > 512 or not token.isascii() or token.startswith(b'/')
+                or any(x in (b'', b'.', b'..') for x in token.split(b'/')) or b'\0' in token):
+            unresolved = True
+            continue
+        if len(tokens) >= 4096:
+            raise Incomplete('CensusHeaderTokenBound')
+        tokens.append(token.decode('ascii'))
+    return dict(tokens=tokens, unresolved=unresolved, permission_granted=False)
+
+
+def _census_scan_directory(state, fd):
+    """The ONLY directory enumeration site; descriptor and names stay bounded."""
+    names, lease = [], 0
+    try:
+        with os.scandir(fd) as iterator:
+            while True:
+                state.work()
+                state.lease(1280, 'CensusMemoryBound')
+                try:
+                    entry = next(iterator)
+                except StopIteration:
+                    state.release(1280)
+                    break
+                try:
+                    name = entry.name
+                    if (type(name) is not str or not name.isascii() or not 0 < len(name) <= 255
+                            or name in ('.', '..') or '/' in name or '\0' in name):
+                        raise Incomplete('CensusDirectoryName')
+                    if len(names) >= 4096:
+                        raise Incomplete('CensusDirectoryEntryBound')
+                    charge = 256 + 4 * len(name)
+                    if state.name_memory + charge > 8388608:
+                        raise GlobalStop('CensusMemoryBound')
+                    state.lease(charge, 'CensusMemoryBound')
+                    state.name_memory += charge
+                    lease += charge
+                    names.append(name)
+                finally:
+                    del entry
+                    state.release(1280)
+        state.work(len(names) * (len(names).bit_length() + 1))
+        state.lease(64 * len(names), 'CensusMemoryBound')
+        try:
+            names.sort()
+            if len(names) != len(set(names)):
+                raise Incomplete('CensusRepeatedDirectoryName')
+        finally:
+            state.release(64 * len(names))
+        return names, lease
+    except BaseException:
+        state.release_names(lease)
+        raise
+
+
+def _census_row_size(value, depth=0):
+    """Conservative pre-encoding allocation charge, not a new role validator."""
+    if depth > 12:
+        raise GlobalStop('CensusOutputDepth')
+    if value is None or type(value) is bool:
+        return 5
+    if type(value) is int:
+        return 24
+    if type(value) is str:
+        return 6 * len(value) + 2
+    if type(value) is list:
+        if len(value) > 4096:
+            raise GlobalStop('CensusOutputShape')
+        return 2 + sum(_census_row_size(x, depth + 1) + 1 for x in value)
+    if type(value) is dict:
+        if len(value) > 64 or any(type(k) is not str for k in value):
+            raise GlobalStop('CensusOutputShape')
+        return 2 + sum(_census_row_size(k, depth + 1) + _census_row_size(v, depth + 1) + 2 for k, v in value.items())
+    raise GlobalStop('CensusOutputShape')
+
+
+class _CensusState:
+    """Bounded read-only SOURCE state. No Preparation/context/capacity grant."""
+    def __init__(self, inventory):
+        self.inventory = inventory
+        options = inventory.plan.get('census_options')
+        if type(options) is not dict or options.get('disposition') not in ('UNACCEPTED_SYNTHETIC_SOURCE_DATA', 'UNACCEPTED_SOURCE_DATA'):
+            raise GlobalStop('CensusLowerDataOptions')
+        self.limits = {}
+        for name, maximum in _CENSUS_MAX.items():
+            value = options.get(name)
+            if type(value) is not int or not 0 <= value <= maximum:
+                raise GlobalStop('CensusLowerLimit')
+            self.limits[name] = value
+        roots = options.get('roots')
+        if (type(roots) is not list or not 0 < len(roots) <= 16
+                or any(type(n) is not str or not n.isascii() or not n.startswith('/') or len(n) > 512 or '..' in Path(n).parts for n in roots)):
+            raise GlobalStop('CensusLowerRoots')
+        self.roots = roots
+        self.emit_callback = inventory._census_emit
+        if not callable(self.emit_callback):
+            raise GlobalStop('CensusSinkRequired')
+        self.end = min(inventory.end, time.monotonic() + self.limits['deadline'])
+        self.operations = self.records = self.reads = self.output = self.memory = self.file_bytes = 0
+        self.emitted_records = 0
+        self.peak_memory = 0
+        self.name_memory = 0
+        self.header_queue_bytes = 0
+        self.incomplete = False
+        self.active_name, self.active_read = None, 0
+        self.tracked = set(inventory.plan.get('declared_ELF_seed_files', [])) | set(inventory.plan.get('declared_nonexecuted_loader_data_files', []))
+        self.tracked_reads = {}
+
+    def work(self, count=1):
+        if type(count) is not int or count < 0:
+            raise GlobalStop('CensusWorkShape')
+        if time.monotonic() >= self.end:
+            raise GlobalStop('CensusWholeDeadline')
+        self.operations += count
+        if self.operations > self.limits['operations']:
+            raise GlobalStop('CensusOperationBound')
+
+    def lease(self, count, reason='CensusMemoryBound'):
+        if type(count) is not int or count < 0 or self.memory + count > self.limits['working']:
+            raise GlobalStop(reason)
+        self.memory += count
+        self.peak_memory = max(self.peak_memory, self.memory)
+
+    def release(self, count):
+        self.memory -= count
+        if self.memory < 0:
+            raise GlobalStop('CensusLeaseInvariant')
+
+    def release_names(self, count):
+        self.name_memory -= count
+        if self.name_memory < 0:
+            raise GlobalStop('CensusNameLeaseInvariant')
+        self.release(count)
+
+    def charge(self, name, count, metadata=False):
+        self.work()
+        if type(count) is not int or not 0 <= count <= 65536:
+            raise GlobalStop('CensusReadChunkBound')
+        old = self.tracked_reads.get(name, 0) if name in self.tracked else self.active_read if name == self.active_name else 0
+        if old + count > 67108864 or self.reads + count > self.limits['reads']:
+            raise GlobalStop('CensusReadBound')
+        if metadata:
+            inv = self.inventory
+            if inv.metadata + count > 1048576:
+                raise Incomplete('ELFMetadataReadBound')
+            if inv.metadata_total + count > 16777216:
+                raise GlobalStop('StaticTotalMetadataReadBound')
+            inv.metadata += count
+            inv.metadata_total += count
+        if name in self.tracked:
+            self.tracked_reads[name] = old + count
+        else:
+            self.active_name, self.active_read = name, old + count
+        self.reads += count
+        self.inventory.requested += count
+
+    def encode(self, row, hold=False):
+        bound = _census_row_size(row)
+        if bound > 65536 or self.output + bound + 1 > self.limits['output']:
+            raise GlobalStop('CensusOutputBound')
+        self.lease(bound)
+        encoded = False
+        try:
+            raw = json.dumps(row, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+            if len(raw) > bound:
+                raise GlobalStop('CensusEncodingInvariant')
+            encoded = True
+            if hold:
+                return raw, bound
+            del raw
+            return None
+        finally:
+            if not hold or not encoded:
+                self.release(bound)
+
+    def emit(self, row):
+        self.work()
+        if self.emitted_records >= self.limits['records']:
+            raise GlobalStop('CensusRecordBound')
+        raw, lease = self.encode(row, hold=True)
+        try:
+            self.output += len(raw) + 1
+            self.emitted_records += 1
+            raw_sink = getattr(self.inventory, '_census_emit_raw', None)
+            if raw_sink is None:
+                self.emit_callback(row)
+            else:
+                raw_sink(raw)
+        finally:
+            del raw
+            self.release(lease)
+
+    def member(self):
+        self.work()
+        if self.records >= self.limits['records']:
+            raise GlobalStop('CensusRecordBound')
+        self.records += 1
+
+    def file(self, name, before, fd):
+        if not 0 <= before.st_size <= 67108864:
+            raise GlobalStop('CensusFileSizeBound')
+        self.encode(dict(path=name, kind='file', sha256='0' * 64, size=before.st_size, **_rights(before)))
+        digest, remaining = hashlib.sha256(), before.st_size
+        while remaining:
+            amount = min(65536, remaining)
+            self.charge(name, amount)
+            self.lease(amount)
+            chunk = None
+            try:
+                chunk = os.read(fd, amount)
+                self.inventory.actual += len(chunk)
+                if not chunk:
+                    raise Incomplete('CensusShortFileRead')
+                digest.update(chunk)
+                remaining -= len(chunk)
+            finally:
+                del chunk
+                self.release(amount)
+        self.work()
+        after = os.fstat(fd)
+        current, _, resolved, _ = self.inventory.path_info(name)
+        if _stamp(before) != _stamp(after) or _stamp(before) != _stamp(current) or resolved != name:
+            raise Incomplete('CensusFileSnapshotChanged')
+        self.file_bytes += before.st_size
+        return dict(size=before.st_size, sha256=digest.hexdigest())
+
+    def directory(self, name, before, fd, depth):
+        if depth > self.limits['depth']:
+            raise Incomplete('CensusDepthBound')
+        names, name_lease = _census_scan_directory(self, fd)
+        digest = hashlib.sha256()
+        complete = True
+        try:
+            for child in names:
+                self.member()
+                self.lease(8192)
+                row = record = common = facts = None
+                full = ''
+                try:
+                    full = name.rstrip('/') + '/' + child
+                    if len(full) > 512:
+                        raise Incomplete('CensusPathBound')
+                    opened = None
+                    record = None
+                    was_named = full in self.inventory.names
+                    was_directory = full in self.inventory.directories
+                    try:
+                        self.work()
+                        initial = os.stat(child, dir_fd=fd, follow_symlinks=False)
+                        row = dict(path=full, **_rights(initial), status='OBSERVED_UNACCEPTED_CENSUS_DATA')
+                        common = dict(name=child, **_rights(initial))
+                        was_named = full in self.inventory.names
+                        was_directory = full in self.inventory.directories
+                        self.inventory.names.add(full)
+                        if stat.S_ISREG(initial.st_mode):
+                            observed, opened, resolved, _ = self.inventory.path_info(full, open_file=True)
+                            if _stamp(observed) != _stamp(initial) or resolved != full:
+                                raise Incomplete('CensusMemberChangedAtOpen')
+                            facts = self.file(full, observed, opened)
+                            row.update(kind='file', **facts)
+                            record = dict(common, type='file', **facts)
+                        elif stat.S_ISDIR(initial.st_mode):
+                            self.inventory.directories.add(full)
+                            observed, opened, resolved, _ = self.inventory.path_info(full, open_directory=True)
+                            if _stamp(observed) != _stamp(initial) or resolved != full:
+                                raise Incomplete('CensusDirectoryChangedAtOpen')
+                            facts = self.directory(full, observed, opened, depth + 1)
+                            row.update(kind='directory', census=facts)
+                            if facts['membership_complete']:
+                                record = dict(common, type='directory', membership_sha256=facts['membership_sha256'])
+                            else:
+                                row['status'] = 'INCOMPLETE_UNSTABLE_CENSUS'
+                        elif stat.S_ISLNK(initial.st_mode):
+                            text = os.readlink(child, dir_fd=fd)
+                            current = os.stat(child, dir_fd=fd, follow_symlinks=False)
+                            if _stamp(initial) != _stamp(current):
+                                raise Incomplete('CensusAliasSnapshotChanged')
+                            facts = census_alias_data(full, text, self.roots, self.inventory.aliases)
+                            row.update(kind='symlink', **facts)
+                            if not facts['status'].startswith('INCOMPLETE'):
+                                record = dict(common, type='symlink', text=text)
+                        else:
+                            raise Incomplete('CensusUnsupportedFileType')
+                    except (Incomplete, OSError) as error:
+                        row = dict(path=full, status='INCOMPLETE', reason=str(error)[:512])
+                    finally:
+                        if opened is not None:
+                            os.close(opened)
+                        # Discovered names are a held-parent SOURCE traversal premise,
+                        # never a persistent allowlist or full inventory map.
+                        if not was_named:
+                            self.inventory.names.discard(full)
+                        if not was_directory:
+                            self.inventory.directories.discard(full)
+                    if record is None:
+                        complete = False
+                        self.incomplete = True
+                    else:
+                        raw, frame_lease = self.encode(record, hold=True)
+                        try:
+                            if len(raw) + 1 > 32768:
+                                raise GlobalStop('CensusMembershipFrameBound')
+                            digest.update(raw)
+                            digest.update(b'\n')
+                        finally:
+                            del raw
+                            self.release(frame_lease)
+                    self.emit(row)
+                finally:
+                    del row, record, common, facts, full
+                    self.release(8192)
+            again, again_lease = _census_scan_directory(self, fd)
+            try:
+                held = os.fstat(fd)
+                current, _, resolved, _ = self.inventory.path_info(name)
+                snapshot = census_snapshot_data(_identity(before), _identity(held), names, again)
+                complete = (complete and snapshot['stable_identity'] and _stamp(before) == _stamp(current) and resolved == name)
+            finally:
+                self.release_names(again_lease)
+            facts = dict(membership_complete=bool(complete))
+            if complete:
+                facts['membership_sha256'] = digest.hexdigest()
+            else:
+                self.incomplete = True
+                facts['membership_prefix_sha256'] = digest.hexdigest()
+            return facts
+        finally:
+            self.release_names(name_lease)
+
+    def root(self, entry):
+        name = entry['path']
+        if name not in self.roots or entry != dict(kind='census_root', path=name):
+            raise GlobalStop('CensusUndeclaredRoot')
+        if not self.limits['records']:
+            raise GlobalStop('CensusRecordBound')
+        self.work()
+        before_records, before_bytes = self.records, self.file_bytes
+        before, fd, resolved, aliases = self.inventory.path_info(name, open_directory=True)
+        if fd is None or resolved != name or aliases:
+            if fd is not None:
+                os.close(fd)
+            raise Incomplete('CensusRootMustBeAnchoredDirectory')
+        try:
+            facts = self.directory(name, before, fd, 0)
+        finally:
+            os.close(fd)
+        facts.update(records=self.records - before_records, file_bytes=self.file_bytes - before_bytes)
+        return dict(kind='census_root', path=name, status='UNACCEPTED_CENSUS_DATA' if facts['membership_complete'] else 'INCOMPLETE',
+            census=facts, permission_granted=False, reference_qualification=False, current_context_created=False)
+
+
+def _census_item_data(inventory, entry):
+    if inventory.plan.get('id') != 'SOURCE_CENSUS01':
+        raise GlobalStop('CensusPurposeRequired')
+    state = getattr(inventory, '_census_state', None)
+    if state is None:
+        state = _CensusState(inventory)
+        inventory._census_state = state
+    return state.root(entry)
+
+
+class _CensusInventory(_StaticInventory):
+    """Only the fixed SOURCE entry creates this longer SOURCE budget."""
+    def __init__(self, plan, source_bytes):
+        origin = time.monotonic()
+        super().__init__(plan, source_bytes)
+        self.end = origin + 300
+
+    def check(self):
+        state = getattr(self, '_census_state', None)
+        if state is None:
+            raise GlobalStop('CensusStateRequiredBeforeIO')
+        state.work()
+
+    def charge(self, name, count, metadata=False):
+        self._census_state.charge(name, count, metadata)
+
+
+def _load_census_plan():
+    root = Path(__file__).absolute().parents[5]
+    path = root / _CENSUS_PLAN_REL
+    directory = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    fd = None
+    try:
+        for part in path.parts[1:-1]:
+            before = os.stat(part, dir_fd=directory, follow_symlinks=False)
+            following = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+            if not stat.S_ISDIR(before.st_mode) or _stamp(before) != _stamp(os.fstat(following)):
+                os.close(following)
+                raise GlobalStop('CensusPlanParentChanged')
+            os.close(directory)
+            directory = following
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 32768:
+            raise GlobalStop('CensusPlanBytes')
+        raw = os.read(fd, before.st_size + 1)
+        if (len(raw) != before.st_size or hashlib.sha256(raw).hexdigest() != _CENSUS_PLAN_SHA
+                or _stamp(before) != _stamp(os.fstat(fd))
+                or _stamp(before) != _stamp(os.stat(path.name, dir_fd=directory, follow_symlinks=False))):
+            raise GlobalStop('CensusPlanIdentity')
+    finally:
+        if fd is not None:
+            os.close(fd)
+        os.close(directory)
+    plan = json.loads(raw)
+    if plan['schema'] != 'wordling.wp108-source-census-plan/v1' or plan['id'] != 'SOURCE_CENSUS01':
+        raise GlobalStop('CensusPlanSchema')
+    return plan, len(raw)
+
+
+
+def _census_declare(inventory, name, directory=False):
+    if (type(name) is not str or not name.isascii() or not name.startswith('/')
+            or len(name) > 512 or '..' in Path(name).parts or len(Path(name).parts) > 65):
+        raise Incomplete('CensusDeclaredPath')
+    for parent in Path(name).parents:
+        inventory.names.add(str(parent))
+        inventory.directories.add(str(parent))
+    inventory.names.add(name)
+    if directory:
+        inventory.directories.add(name)
+
+
+def _census_header_lease(state, count):
+    if state.header_queue_bytes + count > 2097152:
+        raise GlobalStop('CensusHeaderQueueBound')
+    state.lease(count)
+    state.header_queue_bytes += count
+
+
+def _census_file_fact(state, name, header=False):
+    """One explicitly declared file read; no include/root is found by a walk."""
+    inv = state.inventory
+    _census_declare(inv, name)
+    state.member()
+    opened = None
+    tokens = []
+    transferred = False
+    try:
+        before, opened, resolved, aliases = inv.path_info(name, open_file=True)
+        if resolved != name or aliases:
+            raise Incomplete('CensusFileAliasNeedsExplicitClosure')
+        facts = state.file(name, before, opened)
+        tokens, unresolved = [], False
+        if header:
+            if before.st_size > 1048576:
+                raise Incomplete('CensusHeaderBound')
+            # Re-read only a bounded line/chunk view on the same held snapshot;
+            # all rereads count, no complete header/table is copied to memory.
+            offset, carry = 0, b''
+            while offset < before.st_size:
+                count = min(4096, before.st_size - offset)
+                state.charge(name, count)
+                state.lease(262144)
+                raw = lines = line = parsed = None
+                try:
+                    raw = os.pread(opened, count, offset)
+                    inv.actual += len(raw)
+                    if len(raw) != count:
+                        raise Incomplete('CensusHeaderShortRead')
+                    offset += count
+                    raw = carry + raw
+                    lines = raw.split(b'\n')
+                    carry = lines.pop()
+                    if len(carry) > 4096:
+                        unresolved = True
+                        carry = b''
+                    for line in lines:
+                        state.work()
+                        parsed = census_header_data(line)
+                        unresolved |= parsed['unresolved']
+                        for token in parsed['tokens']:
+                            if len(tokens) >= 4096:
+                                raise Incomplete('CensusHeaderTokenBound')
+                            _census_header_lease(state, 256 + 4 * len(token))
+                            tokens.append(token)
+                finally:
+                    del raw, lines, line, parsed
+                    state.release(262144)
+            if carry:
+                parsed = census_header_data(carry)
+                unresolved |= parsed['unresolved']
+                for token in parsed['tokens']:
+                    _census_header_lease(state, 256 + 4 * len(token))
+                    tokens.append(token)
+            current, _, current_path, _ = inv.path_info(name)
+            if _stamp(before) != _stamp(os.fstat(opened)) or _stamp(before) != _stamp(current) or current_path != name:
+                raise Incomplete('CensusHeaderSnapshotChanged')
+        row = dict(path=name, kind='header' if header else 'declared_file', **_rights(before), **facts,
+            status='INCOMPLETE_HEADER_MACRO_OR_SEARCH' if unresolved else 'OBSERVED_UNACCEPTED_CENSUS_DATA')
+        state.incomplete |= unresolved
+        state.emit(row)
+        transferred = True
+        return tokens
+    except (Incomplete, OSError) as error:
+        state.incomplete = True
+        state.emit(dict(path=name, status='INCOMPLETE', reason=str(error)[:512]))
+        return []
+    finally:
+        if not transferred:
+            for token in tokens:
+                state.release(256 + 4 * len(token))
+                state.header_queue_bytes -= 256 + 4 * len(token)
+        if opened is not None:
+            os.close(opened)
+
+
+def _census_packages(state, plan):
+    inv = state.inventory
+    parent = plan['package_parent']
+    _census_declare(inv, parent, directory=True)
+    fd = None
+    lease = 0
+    try:
+        before, fd, resolved, aliases = inv.path_info(parent, open_directory=True)
+        if resolved != parent or aliases:
+            raise Incomplete('CensusPackageParentAlias')
+        names, lease = _census_scan_directory(state, fd)
+        selected = set(plan['exact_package_candidates'])
+        for distribution in plan['package_metadata_grammar']['distributions']:
+            result = census_package_data(distribution, names)
+            state.member()
+            state.emit(dict(kind='package_selection', path=parent, distribution=distribution, **result))
+            if result['selected'] is None:
+                state.incomplete = True
+            else:
+                selected.add(parent + '/' + result['selected'])
+        again, again_lease = _census_scan_directory(state, fd)
+        try:
+            current, _, current_path, _ = inv.path_info(parent)
+            if (not census_snapshot_data(_identity(before), _identity(os.fstat(fd)), names, again)['stable_identity']
+                    or _stamp(before) != _stamp(current) or current_path != parent):
+                raise Incomplete('CensusPackageParentChanged')
+        finally:
+            state.release_names(again_lease)
+    except (Incomplete, OSError) as error:
+        state.incomplete = True
+        state.emit(dict(path=parent, status='INCOMPLETE', reason=str(error)[:512]))
+        selected = set(plan['exact_package_candidates'])
+    finally:
+        state.release_names(lease)
+        if fd is not None:
+            os.close(fd)
+    for name in sorted(selected):
+        _census_declare(inv, name, directory=True)
+        if name not in state.roots:
+            state.roots.append(name)
+        try:
+            state.emit(state.root(dict(kind='census_root', path=name)))
+        except (Incomplete, OSError) as error:
+            state.incomplete = True
+            state.emit(dict(path=name, status='INCOMPLETE', reason=str(error)[:512]))
+
+
+def _census_headers(state, plan):
+    roots = plan['header_search_hypotheses']
+    queue = list(plan['direct_header_tokens'])
+    seen_tokens, seen_paths = set(), set()
+    held = 0
+    try:
+        for token in queue:
+            count = 256 + 4 * len(token)
+            _census_header_lease(state, count)
+            held += count
+        index = 0
+        while index < len(queue):
+            state.work()
+            token = queue[index]
+            index += 1
+            if token in seen_tokens:
+                continue
+            seen_tokens.add(token)
+            found = 0
+            for root in roots:
+                name = root + '/' + token
+                if name in seen_paths:
+                    continue
+                if len(seen_paths) >= 4096:
+                    raise Incomplete('CensusHeaderFileCount')
+                count = 256 + 4 * len(name)
+                _census_header_lease(state, count)
+                held += count
+                seen_paths.add(name)
+                # Every exact candidate is attempted and preserved. Source input
+                # discovery never chooses a compiler search order by first-match.
+                before_records = state.file_bytes
+                tokens = _census_file_fact(state, name, header=True)
+                found += state.file_bytes != before_records
+                for value in tokens:
+                    # file_fact already leased these independent source tokens.
+                    count = 256 + 4 * len(value)
+                    held += count
+                    queue.append(value)
+            if found != 1:
+                state.incomplete = True
+                state.emit(dict(kind='header_search', token=token, matches=found,
+                    status='INCOMPLETE_HEADER_SEARCH_ORDER_OR_MEMBERSHIP'))
+    except Incomplete as error:
+        state.incomplete = True
+        state.emit(dict(kind='header_closure', status='INCOMPLETE', reason=str(error)[:512]))
+    finally:
+        state.release(held)
+        state.header_queue_bytes -= held
+        if state.header_queue_bytes != 0:
+            raise GlobalStop('CensusHeaderLeaseInvariant')
+
+
+def closure_source_census():
+    """One fixed streamed SOURCE inventory. Never reference/current acceptance."""
+    plan, source_bytes = _load_census_plan()
+    old, old_bytes = _load_static_plan()
+    if plan['retained_STATIC04_plan']['sha256'] != _PLAN_SHA:
+        raise GlobalStop('CensusStaticConservation')
+    low = dict(old)
+    low['id'] = 'SOURCE_CENSUS01'
+    roots = [r['path'] for r in plan['closed_tree_roots']]
+    low['census_options'] = dict(_CENSUS_MAX, disposition='UNACCEPTED_SOURCE_DATA', roots=roots)
+    inv = _CensusInventory(low, source_bytes + old_bytes)
+    # Stream only: no full JSON inventory or second source map is retained.
+    written, first = 0, True
+    def write(raw):
+        nonlocal written
+        if type(raw) is not bytes or written + len(raw) > 8388608:
+            raise GlobalStop('CensusOutputBound')
+        sys.stdout.buffer.write(raw)
+        written += len(raw)
+    def emit_raw(raw):
+        nonlocal first
+        if written + len(raw) + 1 > 8388608 - 8192:
+            raise GlobalStop('CensusOutputBound')
+        write((b'' if first else b',') + raw)
+        first = False
+    inv._census_emit = lambda row: None
+    inv._census_emit_raw = emit_raw
+    state = _CensusState(inv)
+    inv._census_state = state
+    state.reads = source_bytes + old_bytes
+    state.lease(1048576)  # fixed two plan objects, names/roots, bounded native frame
+    write(b'{"schema":"wordling.source-census-unaccepted/v1","items":[')
+    failure = None
+    try:
+        native_entries = old['fixed_item_order'] + [dict(kind='ELF_seed', path=n) for n in plan['new_exact_ELF_seeds']]
+        for entry in native_entries:
+            _census_declare(inv, entry['path'], directory=entry['kind'] in ('ancestor', 'directory'))
+            state.member()
+            state.lease(2097152)
+            row = None
+            try:
+                try:
+                    row = inv.item(entry)
+                except (Incomplete, OSError) as error:
+                    row = dict(**entry, status='INCOMPLETE', reason=str(error)[:512])
+                state.incomplete |= row['status'].startswith('INCOMPLETE')
+                state.emit(row)
+            finally:
+                del row
+                state.release(2097152)
+        for name in roots:
+            # Closed-tree descendants are admitted only from a held, stable,
+            # declared directory scan, never from an ambient search/role.
+            if name not in inv.names:
+                raise GlobalStop('CensusRootAncestorClosure')
+            try:
+                state.emit(inv.item(dict(kind='census_root', path=name)))
+            except (Incomplete, OSError) as error:
+                state.incomplete = True
+                state.emit(dict(path=name, status='INCOMPLETE', reason=str(error)[:512]))
+        _census_packages(state, plan)
+        _census_headers(state, plan)
+        for name in plan['link_input_hypotheses'] + plan['locale_hypotheses']:
+            _census_file_fact(state, name)
+    except BaseException as error:
+        failure = dict(type=type(error).__name__, reason=str(error)[:512])
+        state.incomplete = True
+    finally:
+        state.release(1048576)
+    summary = dict(status='INCOMPLETE' if state.incomplete else 'UNACCEPTED_SOURCE_DATA',
+        records=state.emitted_records, byte_read_requests=state.reads, actual_bytes_read=inv.actual,
+        operations=state.operations, source_component_operations=state.operations,
+        peak_working_charge=state.peak_memory, remaining_working_charge=state.memory,
+        global_stop=failure, permission_granted=False, reference_qualification=False,
+        current_context_created=False, BASE_executed=False)
+    write(b'],"summary":' + json.dumps(summary, sort_keys=True, separators=(',', ':')).encode('ascii') + b'}\n')
+    sys.stdout.buffer.flush()
+    return summary
+
+
 if __name__ == '__main__':
+    if sys.argv[1:] == ['--closure-source-census']:
+        value = closure_source_census()
+        raise SystemExit(0 if value['status'] == 'UNACCEPTED_SOURCE_DATA' else 2)
     if sys.argv[1:] != ['--static-inspect-v1']:
         raise SystemExit('DORMANT: no current role; only fixed reviewed static DATA inspection is defined')
     value = static_inspection()

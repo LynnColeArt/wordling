@@ -1,0 +1,172 @@
+"""One shared, bounded source/DATA custody writer. Never census/public/qualification action."""
+from pathlib import Path
+import hashlib
+import gzip
+import json
+import os
+import selectors
+import subprocess
+import sys
+import time
+import traceback
+
+ROOT = Path('/home/lynn/projects/wordling')
+DESIGN = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/source'
+OUT = DESIGN
+ALLOWED = {'command-manifest.json': 'c1a98d4d6c670f93814e4492c674c82981a475a87d2c36d95a773657a00a5553', 'mutant-command-manifest.json': '2fcaf5855eb73d3d26609243dfac23b4ebfcc9fe30303ba287bf5728fe8ea694'}
+ENV = dict(PATH='/usr/bin:/bin', HOME='/home/lynn', LANG='C.UTF-8', LC_ALL='C.UTF-8')
+
+
+def pin(path):
+    raw = Path(path).read_bytes()
+    return dict(size=len(raw), sha256=hashlib.sha256(raw).hexdigest())
+
+
+def main():
+    assert len(sys.argv) == 3
+    name, case_id = sys.argv[1:]
+    assert name in ALLOWED
+    raw = (DESIGN / name).read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == ALLOWED[name]
+    manifest = json.loads(raw)
+    row = next(r for r in manifest['commands'] if r['id'] == case_id)
+    assert case_id in ('CENSUS-POST-NEW', 'CENSUS-FULL-DATA', 'CENSUS-FULL-AST', 'CENSUS-NOFOLLOW-CONTROL', 'CENSUS-NOFOLLOW-MUTANT', 'CENSUS-READ-CHARGE-CONTROL', 'CENSUS-READ-CHARGE-MUTANT', 'CENSUS-SNAPSHOT-CONTROL', 'CENSUS-SNAPSHOT-MUTANT', 'CENSUS-OUTPUT-CONTROL', 'CENSUS-OUTPUT-MUTANT')
+    expected_head = '56d6d6b1ca641603ff52a9506a6d573c1de8598a'
+    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    assert head == expected_head
+    before = dict(row.get('source_inputs', manifest['source_inputs']))
+    for path, wanted in manifest['source_inputs'].items():
+        assert pin(ROOT / path) == wanted, ('PRIMARY_SOURCE_PIN', path)
+    working = Path(row['cwd'])
+    if case_id.endswith('-MUTANT'):
+        control = OUT / (row['family'] + '-CONTROL') / 'process.json'
+        assert json.loads(control.read_text())['classification'] == 'PASS_ORIGINAL_CONTROL'
+        mutant = ROOT / row['mutant_postimage']['path']
+        assert pin(mutant) == {k:row['mutant_postimage'][k] for k in ('size','sha256')}
+        (working / 'internal/document/evidence/reference_controller/tests/current_test_qualification.py').write_bytes(mutant.read_bytes())
+        before['internal/document/evidence/reference_controller/tests/current_test_qualification.py'] = pin(mutant)
+    for path, wanted in before.items():
+        assert pin(working / path) == wanted, ('WORKING_SOURCE_PIN', path)
+    for path, wanted in before.items():
+        assert pin(working / path) == wanted, ('SOURCE_PIN_CHANGED', path)
+    artifact = ROOT / 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json'
+    launchers = json.loads(artifact.read_bytes())
+    for item in launchers['rows']:
+        observed = pin(item['resolved'])
+        assert observed['size'] == item['size'] and observed['sha256'] == item['sha256']
+        logical = Path(item['logical'])
+        assert logical.is_symlink() == item['logical_is_symlink']
+        assert (os.readlink(logical) if logical.is_symlink() else None) == item['link_text']
+        rights = Path(item['resolved']).stat()
+        assert dict(mode=rights.st_mode & 0o7777, uid=rights.st_uid, gid=rights.st_gid) == {k:item[k] for k in ('mode','uid','gid')}
+    OUT.mkdir(exist_ok=True)
+    directory = OUT / (case_id.removeprefix('CENSUS-') if case_id in ('CENSUS-POST-NEW','CENSUS-FULL-DATA','CENSUS-FULL-AST') else case_id)
+    directory.mkdir(exist_ok=False)  # all actual receipts are write-once
+    raw_handles = {stream: (directory / (stream + '.raw.gz')).open('xb') for stream in ('stdout', 'stderr')}
+    handles = {stream: gzip.GzipFile(filename='', mode='wb', fileobj=handle, mtime=0) for stream, handle in raw_handles.items()}
+    hashes = {stream: hashlib.sha256() for stream in handles}
+    sizes = {stream: 0 for stream in handles}
+    total = 0
+    caps = dict(stdout=262144, stderr=16384)
+    partial = False
+    error = None
+    status = usage = None
+    process = None
+    start = time.monotonic()
+    selector = selectors.DefaultSelector()
+    try:
+        process = subprocess.Popen(row['argv'], cwd=working, env=ENV, stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        selector.register(process.stdout, selectors.EVENT_READ, 'stdout')
+        selector.register(process.stderr, selectors.EVENT_READ, 'stderr')
+        while selector.get_map() or status is None:
+            if time.monotonic() - start > 32:
+                raise RuntimeError('DATA_OUTER_WATCHDOG')
+            for key, _ in selector.select(0.01):
+                value = os.read(key.fileobj.fileno(), min(4096, caps[key.data] - sizes[key.data] + 1))
+                if not value:
+                    selector.unregister(key.fileobj)
+                    key.fileobj.close()
+                    continue
+                kept = value[:caps[key.data] - sizes[key.data]]
+                handles[key.data].write(kept)
+                hashes[key.data].update(kept)
+                sizes[key.data] += len(kept)
+                total += len(kept)
+                if len(kept) != len(value):
+                    partial = True
+                    raise RuntimeError('DATA_RAW_STREAM_CAP:'+key.data)
+            if status is None:
+                got, observed, observed_usage = os.wait4(process.pid, os.WNOHANG)
+                if got:
+                    status, usage = observed, observed_usage
+                    process.returncode = os.waitstatus_to_exitcode(status)
+    except BaseException as failure:
+        error = ''.join(traceback.format_exception(failure))[:8192]
+        partial = True
+        if process is not None and status is None:
+            process.terminate()
+            end = min(start + 32, time.monotonic() + 2)
+            while time.monotonic() < end:
+                got, observed, observed_usage = os.wait4(process.pid, os.WNOHANG)
+                if got:
+                    status, usage = observed, observed_usage
+                    process.returncode = os.waitstatus_to_exitcode(status)
+                    break
+                time.sleep(0.01)
+            if status is None:
+                process.kill()
+                _, status, usage = os.wait4(process.pid, 0)
+                process.returncode = os.waitstatus_to_exitcode(status)
+    finally:
+        selector.close()
+        for handle in handles.values():
+            handle.close()
+        for handle in raw_handles.values():
+            handle.close()
+        if process is not None:
+            for stream in (process.stdout, process.stderr):
+                if stream is not None and not stream.closed:
+                    stream.close()
+    after = {path: pin(working / path) for path in before}
+    stderr = gzip.decompress((directory / 'stderr.raw.gz').read_bytes())
+    for stream in handles:
+        restored = gzip.decompress((directory / (stream + '.raw.gz')).read_bytes())
+        assert len(restored) == sizes[stream] and hashlib.sha256(restored).hexdigest() == hashes[stream].hexdigest(), 'GZIP_CUSTODY_IDENTITY'
+    common = error is None and not partial and before == after and b'Ran ' in stderr
+    code = None if process is None else process.returncode
+    classification = 'UNEXPECTED_FAILURE_PRESERVED'
+    if common and code == row['expected_exit']:
+        if code == 0 and b'\nOK\n' in stderr and b'ERROR:' not in stderr:
+            classification = row['classification']
+        elif code == 1 and b'FAIL:' in stderr and b'ERROR:' not in stderr and b'AssertionError' in stderr and row['expected_cause'].encode('ascii') in stderr:
+            classification = row['classification']
+
+    value = dict(schema='wordling.wp108-source-census-precode-DATA-receipt/v1', case_id=case_id,
+        argv=row['argv'], cwd=str(working), env=ENV, manifest=dict(path=name, sha256=ALLOWED[name]),
+        capture_source=dict(path=str(Path(__file__).absolute()), **pin(__file__)),
+        execution_base_commit=head, execution_base_provenance='Actual gitrevparse checked against explicit ROOT clean writer handoff; source working bytes pinned here',
+        input_before=before, input_after=after, source_inputs_equal=before == after,
+        actual_exit=code, error=error, partial_prefix=partial, unretained_suffix='UNKNOWN' if partial else None,
+        streams={k: dict(raw_size=sizes[k], raw_sha256=hashes[k].hexdigest(), gzip_path=k+'.raw.gz', gzip_pin=pin(directory/(k+'.raw.gz')), exact_roundtrip=True) for k in handles},
+        raw_separate_caps=caps, elapsed_seconds=time.monotonic() - start,
+        wait4=None if usage is None else dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,
+            maxrss_kib=usage.ru_maxrss, minor_faults=usage.ru_minflt, major_faults=usage.ru_majflt,
+            inblock=usage.ru_inblock, oublock=usage.ru_oublock, voluntary_context_switches=usage.ru_nvcsw,
+            involuntary_context_switches=usage.ru_nivcsw),
+        usage_scope='Actual timeout child and reaped descendants; not a joint-memory/reference proof',
+        classification=classification, expected=dict(exit=row['expected_exit']), operational_actions=0, public_lookup=False,
+        SOURCE_CENSUS01=False, accepted_reference_or_context=False, campaign_clock=False, automatic_followon=0)
+    encoded = (json.dumps(value, indent=2) + '\n').encode('ascii')
+    assert len(encoded) <= 32768, 'DATA_PROCESS_METADATA_CAP'
+    with (directory / 'process.json').open('xb') as handle:
+        handle.write(encoded)
+    print(json.dumps(dict(case_id=case_id, actual_exit=code, classification=classification,
+        elapsed_seconds=value['elapsed_seconds'], resource_maxrss_kib=None if usage is None else usage.ru_maxrss,
+        streams=value['streams'])), flush=True)
+    if classification == 'UNEXPECTED_FAILURE_PRESERVED':
+        raise SystemExit(2)
+
+
+if __name__ == '__main__':
+    main()
