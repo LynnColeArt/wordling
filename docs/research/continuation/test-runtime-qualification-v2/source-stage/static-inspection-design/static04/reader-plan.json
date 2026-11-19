@@ -1,0 +1,794 @@
+{
+  "schema": "wordling.wp108-finite-static-inspection-proposal/v2",
+  "status": "DESIGN_ONLY_PENDING_INDEPENDENT_REVIEW_ADOPTION_RED_IMPLEMENTATION_SOURCE_REVIEW_ROOT_ACTION",
+  "id": "STATIC04",
+  "scope": "one finite read-only public-file/source metadata+ELF inspection; no BASE execute/probe/capture/candidate/controller/TEST/P or currentcontext creation",
+  "declared_ELF_seed_files": [
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload/_crypt.cpython-312-x86_64-linux-gnu.so",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload/_dbm.cpython-312-x86_64-linux-gnu.so",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload/_tkinter.cpython-312-x86_64-linux-gnu.so",
+    "/usr/bin/python3.12",
+    "/usr/bin/strace",
+    "/usr/bin/x86_64-linux-gnu-as",
+    "/usr/bin/x86_64-linux-gnu-gcc-13",
+    "/usr/bin/x86_64-linux-gnu-ld.bfd",
+    "/usr/lib/gcc/x86_64-linux-gnu/13/collect2",
+    "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+    "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "/usr/lib/x86_64-linux-gnu/libdl.so.2",
+    "/usr/lib/x86_64-linux-gnu/libm.so.6",
+    "/usr/lib/x86_64-linux-gnu/libpthread.so.0",
+    "/usr/lib/x86_64-linux-gnu/librt.so.1",
+    "/usr/lib/x86_64-linux-gnu/libutil.so.1",
+    "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+    "/usr/bin/dash",
+    "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+    "/usr/lib/x86_64-linux-gnu/libcrypt.so.1",
+    "/usr/lib/x86_64-linux-gnu/libtcl9tk9.0.so",
+    "/usr/lib/x86_64-linux-gnu/libtcl9.0.so",
+    "/usr/lib/x86_64-linux-gnu/libz.so.1",
+    "/usr/lib/x86_64-linux-gnu/libexpat.so.1",
+    "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0",
+    "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8",
+    "/usr/lib/x86_64-linux-gnu/libbfd-2.42-system.so",
+    "/usr/lib/x86_64-linux-gnu/libzstd.so.1",
+    "/usr/lib/x86_64-linux-gnu/libctf.so.0",
+    "/usr/lib/x86_64-linux-gnu/libjansson.so.4",
+    "/usr/lib/x86_64-linux-gnu/libz.so.1.3",
+    "/usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1",
+    "/usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0",
+    "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0.0.0",
+    "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8.0.1",
+    "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.5",
+    "/usr/lib/x86_64-linux-gnu/libctf.so.0.0.0",
+    "/usr/lib/x86_64-linux-gnu/libjansson.so.4.14.0",
+    "/usr/lib/x86_64-linux-gnu/libsframe.so.1",
+    "/usr/lib/x86_64-linux-gnu/libsframe.so.1.0.0",
+    "/usr/lib/x86_64-linux-gnu/libisl.so.23",
+    "/usr/lib/x86_64-linux-gnu/libmpc.so.3",
+    "/usr/lib/x86_64-linux-gnu/libmpfr.so.6",
+    "/usr/lib/x86_64-linux-gnu/libgmp.so.10",
+    "/usr/lib/x86_64-linux-gnu/liblzma.so.5",
+    "/usr/lib/x86_64-linux-gnu/libunwind.so.8",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9tk9.0.so",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9.0.so",
+    "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5"
+  ],
+  "declared_logical_aliases": [
+    "/bin",
+    "/bin/sh",
+    "/etc/alternatives/cc",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/usr/bin/as",
+    "/usr/bin/cc",
+    "/usr/bin/gcc",
+    "/usr/bin/gcc-13",
+    "/usr/bin/ld",
+    "/usr/bin/python",
+    "/usr/bin/python3",
+    "/usr/bin/sh",
+    "/usr/bin/x86_64-linux-gnu-gcc",
+    "/lib64",
+    "/usr/lib64",
+    "/lib64/ld-linux-x86-64.so.2",
+    "/usr/lib64/ld-linux-x86-64.so.2",
+    "/usr/bin/x86_64-linux-gnu-ld",
+    "/usr/lib/x86_64-linux-gnu/libcrypt.so.1",
+    "/usr/lib/x86_64-linux-gnu/libtcl9tk9.0.so",
+    "/usr/lib/x86_64-linux-gnu/libtcl9.0.so",
+    "/usr/lib/x86_64-linux-gnu/libz.so.1",
+    "/usr/lib/x86_64-linux-gnu/libexpat.so.1",
+    "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0",
+    "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8",
+    "/usr/lib/x86_64-linux-gnu/libbfd-2.42-system.so",
+    "/usr/lib/x86_64-linux-gnu/libzstd.so.1",
+    "/usr/lib/x86_64-linux-gnu/libctf.so.0",
+    "/usr/lib/x86_64-linux-gnu/libjansson.so.4",
+    "/usr/lib/x86_64-linux-gnu/libsframe.so.1",
+    "/usr/lib/x86_64-linux-gnu/libisl.so.23",
+    "/usr/lib/x86_64-linux-gnu/libmpc.so.3",
+    "/usr/lib/x86_64-linux-gnu/libmpfr.so.6",
+    "/usr/lib/x86_64-linux-gnu/libgmp.so.10",
+    "/usr/lib/x86_64-linux-gnu/liblzma.so.5",
+    "/usr/lib/x86_64-linux-gnu/libunwind.so.8",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9tk9.0.so",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9.0.so"
+  ],
+  "declared_metadata_only_directories": [
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages",
+    "/usr/include",
+    "/usr/lib/gcc/x86_64-linux-gnu/13",
+    "/usr/lib/locale",
+    "/usr/lib/python3.12",
+    "/usr/lib/python3/dist-packages",
+    "/usr/lib/x86_64-linux-gnu",
+    "/usr/libexec/gcc/x86_64-linux-gnu/13"
+  ],
+  "declared_nonexecuted_loader_data_files": [
+    "/etc/ld.so.cache",
+    "/etc/ld.so.conf",
+    "/etc/ld.so.conf.d/x86_64-linux-gnu.conf"
+  ],
+  "roster_source": "Retained117 STATIC03 entries plus exact observed libsframe target, six explicit native-directory SONAME hypotheses, two BASE/lib Tcl9 hypotheses justified by observed BASE $ORIGIN/../lib, and exact pinned historical liblzma5.4.5 target. No runtime search, fresh filesystem observation or target acceptance.",
+  "input_rules": {
+    "seed_files": "open only these exact regular resolved seed names, no symlink file open; record stable before/open/after stat identity+size+hash+mode/uid/gid; no executable invocation",
+    "aliases": "lstat/readlink only exact listed logical names; max8 chain hops, max4096 link-text bytes; resolve target only if each intermediate spelling is in seed/alias/directory roster; unlisted target is report+STOP, not traversal or added input",
+    "directories": "lstat rights only; NO directory listing, walk/rglob or recursive membership adoption",
+    "loader_data": "read/hash exact listed regular files only; no ldconfig/ldd/ctypes/dlopen or cache-derived arbitrary path lookup",
+    "missing_or_ambiguous": "Record precise INCOMPLETE for that declared item/branch, do not read or follow its unlisted/unsafe target, and continue ONLY remaining originally declared independent items in fixed order. Every unresolved item forces overall INCOMPLETE/no qualification use; no fallback/version/role growth.",
+    "ancestors": "Before any regular-file read use anchored directory descriptors and component-relative no-follow opens; validate every declared parent component. Final O_NOFOLLOW alone is insufficient. The finite exact ancestor list is metadata only, not a directory listing. Unexpected parent symlink not admitted as a declared alias, unlisted target or unstable component marks that item/branch INCOMPLETE with no target read.",
+    "global_stop": "Any whole clock/read/memory/output/FD ceiling, unsafe I/O invariant, source/tool identity mismatch or internal error stops ENTIRE run and preserves bounded partial INCOMPLETE output. Do not continue on a global resource fault.",
+    "streaming": "Hash all regular bytes in <=65536-byte chunks; never read whole64MiB file into RAM. Charge EVERY actual byte read including header/programheader/dynamic/string-table rereads before each read; perfile64MiB byteREAD cap may stop before EOF if extra rereads consume it. Metadata working set<=16MiB."
+  },
+  "ELF_analysis": {
+    "native_format": "read fixed header; accept ELF64 little endian/current x86_64 only for this selected Linux native inspection; never load/execute the file",
+    "metadata_bounds": "Programheaders<=64/table<=4096; dynamicentries<=4096/table<=65536; logical DT_STRSZ<=67108864 and entire requested VA range unambiguously file-backed, uniform bias and contiguous file range inside actual snapshot length. No whole logical table read/allocation. Each referenced DT string window<=min(4096, logical_size-offset), canonical elf_string_data unchanged (raw buffer cap65536 and terminator<=4096); <=131windows. Perfile metadata<=1048576, aggregate metadata<=16777216, every read charged.",
+    "graph": "Needed-edge algorithm unchanged. Interpreter only: exact completed source row and exact declared completed alias observation resolve solely to one already-completed declared ELF seed in original inventory rows; count all matching rows before filtering, refuse zero/multiple/partial/foreign-receipt/malformed in either order. Metadata edge DECLARED_UNACCEPTED_DATA, all reference/context/permission false. No new path or filesystem/dynamic lookup.",
+    "source_caveat": "no candidate image/runtimecode observation; graph/headers/hashes alone do not establish actual mapped-data/runtime behavior/tool cache body provenance or publisher trust"
+  },
+  "bounds": {
+    "whole_seconds": 30,
+    "cleanup_seconds": 2,
+    "processes_after_launcher": 0,
+    "fd_limit": 32,
+    "address_space_bytes": 167772160,
+    "working_metadata_bytes": 16777216,
+    "per_regular_file_bytes": 67108864,
+    "aggregate_regular_file_read_bytes": 268435456,
+    "output_json_bytes": 262144,
+    "stderr_bytes": 16384,
+    "directory_enumerations": 0,
+    "recursive_roots": 0,
+    "seed_count": 50,
+    "alias_count": 39,
+    "metadata_directory_count": 13,
+    "loader_data_count": 3,
+    "ancestor_metadata_count": 30,
+    "fixed_item_count": 135,
+    "hash_chunk_bytes": 65536
+  },
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=262144",
+    "--nofile=32",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "--static-inspect-v1"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "source_gate": "Reviewed actual existing-run graph RED/test-only commit before graph code; fixed source/test/plan/wrapper review + ROOT deliberate STATIC04 only after exact writer/reallocation approval. No role permission from this document.",
+  "tool_pins": {
+    "artifact": "kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json",
+    "sha256": "028a8ae6ee750dbe914cb2974991d9b27b3acab6cb4df76d6ef437afc890d90c",
+    "scope": "static historical DATA-launcher identities, NOT current live recheck or accepted reference; exact current identity must be verified before ROOT action"
+  },
+  "outputs": {
+    "primary_raw_json": "Fresh ROOT source-stage STATIC04 stdout.raw<=262144; never reference/current-role acceptance",
+    "raw_stderr": "literal failure/setup diagnostics <=16384, every missing/UNKNOWN retained",
+    "post_report": "all exact command/limits/source/tool/input hash+rights/cause facts; no accepted-reference/context/actor status",
+    "preservation": "copy exact inspected output bytes into task authorized docs evidence and commit; failed facts remain immutable"
+  },
+  "remaining_role_limits": [
+    "This opens no stdlib/source/cache tree wholesale; complete canonical stdlib/config/source/alias/cache/tool/header roles remain pending future finite amendments.",
+    "Static ELF DT_NEEDED is not complete loader cache/search/mapped-data closure. Unknown paths/aliases/edges are unresolved, not permissions.",
+    "No ctypes/importlib extension load, compiler/preprocessor/pip/strace/BASE interpreter call, actual target construction or testnamespace/guard/ledger access.",
+    "No current qualification or ROOT CONTROL campaign clock starts. Any later reuse of facts in accepted reference must preserve explicit source/cost/case provenance and independent acceptance, not hide the source inspection as free authority.",
+    "Candidate expectations are never built from candidate outputs; V19 historical custody remains unrecovered.",
+    "Graph lookup remains resolved-seed-only; alias-spelled interpreter edges can remain unresolved even when alias metadata is observed. No claim that new roster closes these edges.",
+    "Retained absent system Tcl9 and wrong collect2 hypotheses remain observed absences, not facts to force valid. Any future actual-role binding must independently classify needed actual inputs vs wrong/unneeded hypotheses; this DATA inventory does not create such a selector/context.",
+    "OBSERVED_UNACCEPTED_METADATA means completed source-safe graph DATA, not reference acceptance. Wrong/absent hypotheses retained as facts; actual needed-role binding remains a separate unimplemented trusted acceptance boundary."
+  ],
+  "actions_performed": 0,
+  "BASE_files_inspected_by_author": false,
+  "revision": "Finite interpreter-alias DATA graph and literal native/RPATH hypotheses; not executed or accepted",
+  "declared_exact_ancestor_metadata": [
+    "/",
+    "/bin",
+    "/etc",
+    "/home",
+    "/usr",
+    "/etc/alternatives",
+    "/etc/ld.so.conf.d",
+    "/home/lynn",
+    "/usr/bin",
+    "/usr/lib",
+    "/usr/libexec",
+    "/home/lynn/.cache",
+    "/usr/lib/gcc",
+    "/usr/lib/python3",
+    "/usr/lib/x86_64-linux-gnu",
+    "/usr/libexec/gcc",
+    "/home/lynn/.cache/codex-runtimes",
+    "/usr/lib/gcc/x86_64-linux-gnu",
+    "/usr/libexec/gcc/x86_64-linux-gnu",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime",
+    "/usr/lib/gcc/x86_64-linux-gnu/13",
+    "/usr/libexec/gcc/x86_64-linux-gnu/13",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12",
+    "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload",
+    "/lib64",
+    "/usr/lib64"
+  ],
+  "fixed_item_order": [
+    {
+      "kind": "ancestor",
+      "path": "/"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/bin"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/etc"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/etc/alternatives"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/etc/ld.so.conf.d"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/bin"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/libexec"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib/gcc"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib/python3"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib/x86_64-linux-gnu"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/libexec/gcc"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib/gcc/x86_64-linux-gnu"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/libexec/gcc/x86_64-linux-gnu"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib/gcc/x86_64-linux-gnu/13"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/libexec/gcc/x86_64-linux-gnu/13"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/lib64"
+    },
+    {
+      "kind": "ancestor",
+      "path": "/usr/lib64"
+    },
+    {
+      "kind": "alias",
+      "path": "/bin"
+    },
+    {
+      "kind": "alias",
+      "path": "/bin/sh"
+    },
+    {
+      "kind": "alias",
+      "path": "/etc/alternatives/cc"
+    },
+    {
+      "kind": "alias",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python"
+    },
+    {
+      "kind": "alias",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/as"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/cc"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/gcc"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/gcc-13"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/ld"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/python"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/python3"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/sh"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/x86_64-linux-gnu-gcc"
+    },
+    {
+      "kind": "alias",
+      "path": "/lib64"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib64"
+    },
+    {
+      "kind": "alias",
+      "path": "/lib64/ld-linux-x86-64.so.2"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib64/ld-linux-x86-64.so.2"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/bin/x86_64-linux-gnu-ld"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libcrypt.so.1"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libtcl9tk9.0.so"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libtcl9.0.so"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libbfd-2.42-system.so"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libctf.so.0"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libjansson.so.4"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libsframe.so.1"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libisl.so.23"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libmpc.so.3"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libmpfr.so.6"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libgmp.so.10"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5"
+    },
+    {
+      "kind": "alias",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind.so.8"
+    },
+    {
+      "kind": "alias",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9tk9.0.so"
+    },
+    {
+      "kind": "alias",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9.0.so"
+    },
+    {
+      "kind": "directory",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python"
+    },
+    {
+      "kind": "directory",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin"
+    },
+    {
+      "kind": "directory",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib"
+    },
+    {
+      "kind": "directory",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12"
+    },
+    {
+      "kind": "directory",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload"
+    },
+    {
+      "kind": "directory",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/include"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/lib/gcc/x86_64-linux-gnu/13"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/lib/locale"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/lib/python3.12"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/lib/python3/dist-packages"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/lib/x86_64-linux-gnu"
+    },
+    {
+      "kind": "directory",
+      "path": "/usr/libexec/gcc/x86_64-linux-gnu/13"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload/_crypt.cpython-312-x86_64-linux-gnu.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload/_dbm.cpython-312-x86_64-linux-gnu.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/lib-dynload/_tkinter.cpython-312-x86_64-linux-gnu.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/bin/python3.12"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/bin/strace"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/bin/x86_64-linux-gnu-as"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/bin/x86_64-linux-gnu-gcc-13"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/bin/x86_64-linux-gnu-ld.bfd"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/gcc/x86_64-linux-gnu/13/collect2"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libc.so.6"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libdl.so.2"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libm.so.6"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libpthread.so.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/librt.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libutil.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/bin/dash"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libcrypt.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libtcl9tk9.0.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libtcl9.0.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libbfd-2.42-system.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libctf.so.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libjansson.so.4"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0.0.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8.0.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libzstd.so.1.5.5"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libctf.so.0.0.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libjansson.so.4.14.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libsframe.so.1"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libsframe.so.1.0.0"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libisl.so.23"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libmpc.so.3"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libmpfr.so.6"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libgmp.so.10"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/libunwind.so.8"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9tk9.0.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/libtcl9.0.so"
+    },
+    {
+      "kind": "ELF_seed",
+      "path": "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5"
+    },
+    {
+      "kind": "loader_data",
+      "path": "/etc/ld.so.cache"
+    },
+    {
+      "kind": "loader_data",
+      "path": "/etc/ld.so.conf"
+    },
+    {
+      "kind": "loader_data",
+      "path": "/etc/ld.so.conf.d/x86_64-linux-gnu.conf"
+    }
+  ],
+  "history": {
+    "STATIC03_plan": {
+      "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static03/static03-reader-plan.json",
+      "size": 24976,
+      "sha256": "95ffd10711d3249b20e7fe7726bbfb5ccab60aa2838e9fb091797749806868d3"
+    },
+    "STATIC03_raw": {
+      "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC03/stdout.raw",
+      "size": 53990,
+      "sha256": "9c72f5cb95d6336185de62eba419a216f612186ac7997b0df5aed5d04062778c"
+    },
+    "all117_retained_in_relative_order": true
+  },
+  "component_operation_cap": 38912
+}
