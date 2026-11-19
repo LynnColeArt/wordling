@@ -56,11 +56,12 @@ class ControlFrames:
 def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,budget=None,fault=None,earlier_end=None,qualification=None,*,current_session=None,current_phase=None):
     if current_session is not None:
         import runtime_qualification as q
-        if (not q._actual_current_session(current_session) or current_phase not in ('reference','disposable','final')
-                or qualification is not None or control is not None or fault is not None
+        if (not q._actual_current_session(current_session) or current_phase not in ('reference','disposable','final','owner-negative')
+                or qualification is not None or control!=('kill-coordinator' if current_phase=='owner-negative' else None) or fault is not None
                 or argv!=q._current_phase_command(current_session,current_phase)
                 or Path(receipt)!=Path('/tmp/wordling-WP70-current-test-qualification-v2/owners')/('reference-probe' if current_phase=='reference' else current_phase)
-                or budget is not current_session.budget or earlier_end is None):raise RuntimeError('CurrentExactGroupOwner')
+                or budget is not current_session.budget or earlier_end is None
+                or (current_phase=='owner-negative' and seconds!=30)):raise RuntimeError('CurrentExactGroupOwner')
         current_session.check()
     elif current_phase is not None:raise RuntimeError('CurrentGroupOwnerRequired')
     if not 0<seconds<=(300 if current_session is not None and current_phase=='reference' else 120) or not 0<output_cap<=98304:raise ValueError('EarlierLimitsOnly')
@@ -81,6 +82,7 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
     allocation,raw_handles=budget.raw_group([receipt/'stdout.raw',receipt/'stderr.raw',receipt/'control.raw'],'custody',98304)
     stopped=[];old={}
     current_parent=current_child=None;current_parentfd=None;current_bootstrap=None
+    owner_ready=None;owner_killed_after_ready=False;owner_pipe_eof=False;owner_kill_at=None
     def terminate(signum,frame):stopped.append(signum)
     try:
         libc=ctypes.CDLL(None,use_errno=True)
@@ -89,7 +91,7 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
         read,write=os.pipe2(os.O_CLOEXEC)
         env=dict(env,WORDLING_PREPARATION_CONTROL_FD=str(write),WORDLING_PREPARATION_ORIGIN=repr(origin),WORDLING_PREPARATION_END=repr(end))
         inherited=(write,)
-        if current_session is not None:
+        if current_session is not None and current_phase!='owner-negative':
             current_parent,current_child=q._campaign_pair()
             current_parentfd=os.pidfd_open(os.getpid(),0);os.set_inheritable(current_parentfd,False)
             env.update(WORDLING_CURRENT_CONTROL_FD=str(current_child.fileno()),WORDLING_CURRENT_OWNER_PIDFD=str(current_parentfd),
@@ -107,8 +109,9 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
             os.close(read);os.close(write);raise
         os.close(write)
         if current_session is not None:
-            current_session.active=p;current_child.close();current_child=None
-            os.close(current_parentfd);current_parentfd=None
+            current_session.active=p
+            if current_child is not None:current_child.close();current_child=None
+            if current_parentfd is not None:os.close(current_parentfd);current_parentfd=None
     except BaseException as error:
         for handle in raw_handles.values():handle.close()
         for endpoint in (current_parent,current_child):
@@ -192,7 +195,7 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
             identity_events.append(dict(event='leader_reaped_LAST',leader=p.pid,other_owned_children=[],returncode=p.returncode));return True
         return now-cleanup_start>=2
     try:
-        if current_session is not None:
+        if current_session is not None and current_phase!='owner-negative':
             current_bootstrap=q._current_parent_bootstrap(current_session,current_phase,current_parent,p,end)
         while True:
             now=time.monotonic()
@@ -209,6 +212,7 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
                 if not raw:
                     sel.unregister(key.fileobj)
                     if key.data is control_raw:
+                        owner_pipe_eof=True
                         try:decoder.finish()
                         except RuntimeError:partial=True;begin('IncompleteControlFrameAtEOF')
                     continue
@@ -224,6 +228,19 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
                             elif message.get('event')=='idle':
                                 if set(message)!={'event'}:raise RuntimeError('SupervisorControlFields')
                                 active_end=end
+                            elif message.get('event')=='owner-negative-ready':
+                                if (current_session is None or current_phase!='owner-negative' or owner_ready is not None
+                                        or set(message)!={'event','child','dev','ino'} or type(message['child'])is not int or not 0<message['child']<2**31):
+                                    raise RuntimeError('CurrentOwnerReadinessFrame')
+                                pipe=os.fstat(read)
+                                if (message['dev'],message['ino'])!=(pipe.st_dev,pipe.st_ino):raise RuntimeError('CurrentOwnerReadinessPipe')
+                                if not root_reserved or root_exit():raise RuntimeError('CurrentOwnerReadinessAfterLeaderExit')
+                                with open('/proc/'+str(p.pid)+'/task/'+str(p.pid)+'/children','rb') as children_stream:child_raw=children_stream.read(4097)
+                                pieces=child_raw.split()
+                                if len(child_raw)>4096 or len(pieces)>256 or any(not item.isdigit() or len(item)>12 for item in pieces):raise RuntimeError('CurrentOwnerReadinessCensusBound')
+                                if message['child'] not in [int(item) for item in pieces]:raise RuntimeError('CurrentOwnerReadinessNotActualChild')
+                                owner_ready=dict(coordinator=p.pid,descendant=message['child'],pipe_dev=pipe.st_dev,pipe_ino=pipe.st_ino,
+                                    observed=time.monotonic(),actual_coordinator_child_relation=True,retained_leader=True)
                             elif message.get('event')=='abort':
                                 if set(message)!={'event'}:raise RuntimeError('SupervisorControlFields')
                                 begin('CoordinatorAbort')
@@ -231,7 +248,10 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
                     except BaseException as error:
                         partial=True;begin('SupervisorControlFailure:'+generated_diagnostic(error,512)['text'])
             if control=='kill-coordinator' and time.monotonic()-origin>=.15 and cleanup_start is None:
-                os.kill(p.pid,signal.SIGKILL);control=None
+                if current_session is None or current_phase!='owner-negative' or owner_ready is not None:
+                    if not root_reserved or root_exit():raise RuntimeError('OwnerControlRetainedLeaderRequired')
+                    os.kill(p.pid,signal.SIGKILL)
+                    owner_kill_at=time.monotonic();owner_killed_after_ready=owner_ready is not None;control=None
     except BaseException as error:
         partial=True;begin('SupervisorBoundedFailure:'+generated_diagnostic(error,512)['text'])
     finally:
@@ -243,7 +263,10 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
             for key,_ in sel.select(.001):
                 fd=key.fileobj if isinstance(key.fileobj,int) else key.fileobj.fileno();remaining=min(output_cap-allocation['used'],32768-len(key.data))
                 raw=os.read(fd,min(4096,remaining+1))
-                if not raw:sel.unregister(key.fileobj);continue
+                if not raw:
+                    sel.unregister(key.fileobj)
+                    if key.data is control_raw:owner_pipe_eof=True
+                    continue
                 channel='control.raw' if key.data is control_raw else 'stdout.raw' if key.data is out else 'stderr.raw'
                 kept=raw[:remaining];budget.retain(allocation,key.data,raw_handles[receipt/channel],kept)
                 if len(kept)!=len(raw):partial=True
@@ -252,6 +275,7 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
         if census_unknown:reap_kernel_after_closed()
         final_children=None if census_unknown else observe_children()
         for n,handler in old.items():signal.signal(n,handler)
+        all_streams_eof=not bool(sel.get_map())
         sel.close();p.stdout.close();p.stderr.close();os.close(read)
         if current_parent is not None:current_parent.close()
         if current_session is not None:current_session.active=None
@@ -261,7 +285,9 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
             reaped=reaped,leader_identity_events=identity_events,owned_children_remaining=final_children,owned_child_census='UNKNOWN' if census_unknown else 'OBSERVED',census_diagnostic=census_diagnostic,census_fault_injected=fault is not None,kernel_no_children_observed=kernel_no_children,
             cleanup_seconds=time.monotonic()-cleanup_start,cleanup_qualified=not census_unknown and final_children==[] and not root_reserved,coordinator_reaped_last=normal_leader_last,
             unknown_cleanup_hold=census_unknown or final_children is None or bool(final_children),uncatchable_owner_kill_not_claimed=True)
-        if current_session is not None:result['current_private_bootstrap']=current_bootstrap
+        if current_session is not None:
+            result['current_private_bootstrap']=current_bootstrap
+            if current_phase=='owner-negative':result['owner_negative']=dict(readiness=owner_ready,killed_after_readiness=owner_killed_after_ready,kill_observed=owner_kill_at,control_pipe_EOF=owner_pipe_eof,all_streams_EOF=all_streams_eof)
         budget.document(receipt/'whole.json',result,'custody',pre_reserved=True)
     return result
 
@@ -278,8 +304,8 @@ def supervise_current_phase(session,phase):
     session.check()
     if phase in ('admin','healthy'):
         return q._current_session_cli(session,phase)
-    if phase not in ('reference','disposable','final'):raise RuntimeError('CurrentGroupPhase')
-    origin=time.monotonic();seconds=300 if phase=='reference' else 120
+    if phase not in ('reference','disposable','final','owner-negative'):raise RuntimeError('CurrentGroupPhase')
+    origin=time.monotonic();seconds=300 if phase=='reference' else 30 if phase=='owner-negative' else 120
     end=min(session.whole_end,origin+seconds)
     if end-origin<=2:raise RuntimeError('CurrentCleanupReserve')
     budget=q._current_session_budget(session)
@@ -287,10 +313,19 @@ def supervise_current_phase(session,phase):
     receipt.parent.mkdir(mode=0o700,exist_ok=True)
     env=dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1')
     result=supervise(q._current_phase_command(session,phase),session.source,env,receipt,
-        seconds=seconds,budget=budget,earlier_end=end-2,current_session=session,current_phase=phase)
+        seconds=seconds,budget=budget,earlier_end=end-2,current_session=session,current_phase=phase,control='kill-coordinator' if phase=='owner-negative' else None)
     if not result['cleanup_qualified'] or not result['coordinator_reaped_last'] or result['partial_prefix']:
         raise RuntimeError('CurrentPhaseCleanupUnknown')
-    if phase=='disposable':
+    if phase=='owner-negative':
+        witness=result.get('owner_negative',{})
+        if (not witness.get('readiness') or not witness.get('killed_after_readiness') or not witness.get('control_pipe_EOF')
+                or not witness.get('all_streams_EOF') or result['exit']!=-int(signal.SIGKILL)
+                or result['cleanup_seconds']>2 or result['elapsed']>30
+                or not witness['readiness']['observed']<=witness['kill_observed']
+                or not any(row.get('pid')==witness['readiness']['descendant'] and row.get('kernel_owned_child')is True for row in result['reaped'])
+                or not any(row.get('event')=='before_group_signal' and row.get('retained_direct_child')is True for row in result['leader_identity_events'])):
+            raise RuntimeError('CurrentOwnerNegativeWitnessIncomplete')
+    elif phase=='disposable':
         q._current_disposable_completion(session,result)
     elif result['exit']!=0:raise RuntimeError('CurrentPhaseNonzero')
     elif phase=='final':q._current_final_completion(session,result)

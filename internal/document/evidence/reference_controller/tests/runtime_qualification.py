@@ -3503,6 +3503,42 @@ class Preparation:
         return _consume_tool_origins(self,path,label,capture)
 
 
+def _current_reference_layout_data(label):
+    root=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference');base=root/label
+    if label=='REF01':
+        return dict(command=base/'command.json',whole=base/'process.json',stdout=root/'base-observation.json',
+            stderr=base/'stderr.raw',trace=None,summary=base/'stdout-summary.raw',origin=None,transient=None,
+            stdout_kind='origin',caps=(262144,16384,0),combined=278528)
+    if label=='HDR01':
+        return dict(command=base/'command.json',whole=base/'process.json',stdout=base/'stdout.raw',
+            stderr=base/'stderr.raw',trace=base/'trace.raw',summary=base/'stdout-summary.raw',
+            origin=base/'origins.json',transient=base/'transient-data.json',stdout_kind='construction_raw',
+            caps=(262144,16384,262144),combined=540672)
+    raise RuntimeError('CurrentFiniteReferenceCaptureLabel')
+
+
+def _current_reference_capture_admission(owner,argv,label,tool):
+    module=sys.modules.get('current_test_qualification')
+    if module is None or not module._actual_reference_owner(owner):raise RuntimeError('ActualCaptureOwnerRequired')
+    owner.check()
+    if owner.root.state!='REFERENCE_RUNNING' or owner.evidence!=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference') or owner.target!=owner.evidence:
+        raise RuntimeError('CurrentReferenceCaptureBinding')
+    expected_env=dict(PATH='/usr/bin:/bin',HOME=str(owner.target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1')
+    if owner.env!=expected_env:raise RuntimeError('CurrentReferenceCaptureEnvironment')
+    if label=='REF01':
+        if owner.calls or tool is not False or argv!=[str(BASE),'-I','-B','-c',probe(False)]:raise RuntimeError('CurrentExactREF01')
+    elif label=='HDR01':
+        source=owner.root.source/'tests/harmless_fixture.c'
+        wanted=['/usr/bin/cc','-std=c11','-O2','-static','-Wall','-Wextra','-Werror','-E','-dD','-v','-H',str(source)]
+        if len(owner.calls)!=1 or tool is not True or argv!=wanted:raise RuntimeError('CurrentExactHDR01')
+        row=owner.expected['files'][str(source)]
+        if {k:row[k] for k in ('size','sha256')}!=dict(size=5798,sha256='f37add43898cb78f913e7a9ab0b43c732fed2eda4af6eb6bcb181c52eb5c88d7'):
+            raise RuntimeError('CurrentFrozenHDRSource')
+        same(source,row)
+    else:raise RuntimeError('CurrentFiniteReferenceCaptureLabel')
+    return _current_reference_layout_data(label)
+
+
 def _consume_tool_origins(self,path,label,capture=None):
     """Canonical capture semantic consumer shared by two genuine owner types."""
     if type(self) is not Preparation:
@@ -3511,14 +3547,24 @@ def _consume_tool_origins(self,path,label,capture=None):
     # No JSON/PID/bool/reconstructed record can select the production exception.
     facts=_CAPTURES.pop(capture,None) if type(capture) is _RunCapture else None
     if facts is None or facts['owner'] is not self or str(path)!=facts['trace_path']:raise RuntimeError('MissingGenuineOwnedCapture')
+    reference=type(self)is not Preparation
+    if reference:
+        layout=_current_reference_layout_data(label)
+        if (label!='HDR01' or facts.get('reference_label')!=label or facts.get('origin_path')!=str(layout['origin'])
+                or facts.get('transient_path')!=str(layout['transient']) or str(path)!=str(layout['trace'])
+                or facts.get('semantic_end')!=self.semantic_end):raise RuntimeError('CurrentOwnedTraceLayout')
+        self.check()
+    origin_path=Path(facts['origin_path']) if reference else self.evidence/(label+'.origins.json')
+    transient_path=Path(facts['transient_path']) if reference else self.evidence/(label+'.transient-data.json')
     raw=path.read_bytes()
     if hashlib.sha256(raw).hexdigest()!=facts['trace_sha256']:raise RuntimeError('CaptureChanged')
     records=parse_trace(raw.decode('utf-8'))
     transient=_transient_maps_events(records,facts['launch_argv']);excluded={r['event'] for r in transient}
     receipt=dict(classification='BOUNDED_TRANSIENT_DATA_ONLY',capture={k:v for k,v in facts.items() if k!='owner'},events=transient,contents='UNKNOWN/not captured',not_source_or_permission=True)
-    write_json(self.evidence/(label+'.transient-data.json'),receipt,'transient')
+    write_json(transient_path,receipt,'transient')
     observed={};executed=[]
     for record in records:
+        if reference:self.check()
         if not record['success'] or record['kind'] not in ('open','exec') or record['event'] in excluded:continue
         # Eligible transient records were consumed LEXICALLY above, before
         # even constructing/resolving/looking up their proc pathname.
@@ -3535,118 +3581,140 @@ def _consume_tool_origins(self,path,label,capture=None):
             same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
         else:raise RuntimeError('UnclassifiedToolInput:'+name)
         if record['kind']=='exec':executed.append(name)
-    write_json(self.evidence/(label+'.origins.json'),dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'))
+    write_json(origin_path,dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'))
     if not executed:raise RuntimeError('MissingToolProcessTrace')
     self.check()
 
 def _capture_command(self,argv,label,tool=False):
-    """One canonical capture engine, admitted by an actual owned consumer."""
-    if type(self) is not Preparation:
+    """One canonical process/trace engine for genuine preparation/reference owners."""
+    reference=type(self)is not Preparation
+    if reference:
         module=sys.modules.get('current_test_qualification')
-        if module is None or not module._actual_reference_owner(self):
-            raise RuntimeError('ActualCaptureOwnerRequired')
-    self.check();base=self.evidence/label;base.parent.mkdir(parents=True,exist_ok=True)
-    reference=type(self) is not Preparation
-    command_path=base/'command.json' if reference else base.with_suffix('.command.json')
-    whole_path=base/'process.json' if reference else base.with_suffix('.whole.json')
+        if module is None or not module._actual_reference_owner(self):raise RuntimeError('ActualCaptureOwnerRequired')
+        hard_end=min(self.end,time.monotonic()+30);end=hard_end-2
+        self.semantic_end=end
+        layout=_current_reference_capture_admission(self,argv,label,tool)
+        output_cap=layout['combined'];base=self.evidence/label
+    else:
+        self.check();base=self.evidence/label;end=min(self.end,time.monotonic()+30);hard_end=min(self.end,end+2)
+        output_cap=self.output_cap
+        layout=dict(command=base.with_suffix('.command.json'),whole=base.with_suffix('.whole.json'),
+            stdout=base.with_suffix('.stdout'),stderr=base.with_suffix('.stderr'),trace=base.with_suffix('.trace'),
+            origin=base.with_suffix('.origins.json'),transient=base.with_suffix('.transient-data.json'),summary=None)
+    base.parent.mkdir(parents=True,exist_ok=True)
     if reference:base.mkdir(mode=0o700,exist_ok=False)
-    trace_read=trace_write=None
-    actual=list(argv);pass_fds=()
+    trace_read=trace_write=None;actual=list(argv);pass_fds=()
     if tool:
         trace_read,trace_write=os.pipe2(os.O_CLOEXEC);pass_fds=(trace_write,)
-        pipe_stat=os.fstat(trace_read);trace_identity=(pipe_stat.st_dev,pipe_stat.st_ino,pipe_stat.st_mode)
+        st=os.fstat(trace_read);trace_identity=(st.st_dev,st.st_ino,st.st_mode)
         actual=['/usr/bin/strace','-f','-qq','-y','-s','4096','-e','trace='+TRACE_SURFACE,'-o','/proc/self/fd/'+str(trace_write)]+actual
-    end=min(self.end,time.monotonic()+30)
     supervisor_notice('command',end=end)
-    spec=dict(argv=actual,logical_argv=argv,cwd=str(self.target),env=self.env,command_end=end,cleanup=2,live_combined_output=self.output_cap,shared_origin=self.start,shared_end=self.end,tool_origin_trace=tool,trace_capture='OWN PIPE; never uncontrolled regular file')
-    self.budget.document(command_path,spec,'pair')
-    self.budget.reserve([whole_path],'pair',65536)
+    spec=dict(argv=actual,logical_argv=argv,cwd=str(self.target),env=self.env,command_end=end,cleanup=2,
+        live_combined_output=output_cap,shared_origin=self.start,shared_end=self.end,tool_origin_trace=tool,
+        trace_capture='OWN PIPE; never uncontrolled regular file')
+    if reference:spec.update(hard_end=hard_end,separate_caps=layout['caps'],semantic_validation_before_idle=True)
+    self.budget.document(layout['command'],spec,'pair');self.budget.reserve([layout['whole']],'pair',65536)
     if tool:
-        self.budget.reserve([base.with_suffix('.origins.json')],'origin',16777216)
-        self.budget.reserve([base.with_suffix('.transient-data.json')],'transient',1048576)
+        self.budget.reserve([layout['origin']],'origin',16777216)
+        self.budget.reserve([layout['transient']],'transient',1048576)
     out=bytearray();err=bytearray();trace=bytearray();failure=None;partial=False;total=0
+    buffers=(out,err,trace);allocations={};rawfiles={};handles={}
     if reference:
-        if tool:raise RuntimeError('CurrentReferenceTraceWriterUnclosed')
-        rawpaths=[base/'stdout-summary.raw',base/'stderr.raw']
-        out_allocation,out_handles=self.budget.raw_group([rawpaths[0]],'construction_raw',8192)
-        err_allocation,err_handles=self.budget.raw_group([rawpaths[1]],'construction_raw',16384)
-        handles={**out_handles,**err_handles}
-        rawfiles={id(out):handles[rawpaths[0]],id(err):handles[rawpaths[1]]}
-        allocations={id(out):out_allocation,id(err):err_allocation}
+        for index,name in enumerate(('stdout','stderr','trace')):
+            if layout[name] is None:continue
+            kind=layout['stdout_kind'] if name=='stdout' else 'construction_raw'
+            group,opened=self.budget.raw_group([layout[name]],kind,layout['caps'][index])
+            handles.update(opened);allocations[id(buffers[index])]=group;rawfiles[id(buffers[index])]=opened[layout[name]]
     else:
-        rawpaths=[base.with_suffix(suffix) for suffix in ('.stdout','.stderr','.trace')]
-        allocation,handles=self.budget.raw_group(rawpaths,'construction_raw',self.output_cap)
-        rawfiles={id(buf):handles[base.with_suffix(suffix)] for buf,suffix in ((out,'.stdout'),(err,'.stderr'),(trace,'.trace'))}
-        allocations={id(buf):allocation for buf in (out,err,trace)}
-    file_limit=33554432 if label.endswith('venv') else 2097152
-    def file_ceiling():resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
+        group,handles=self.budget.raw_group([layout[n] for n in ('stdout','stderr','trace')],'construction_raw',output_cap)
+        for buffer,name in zip(buffers,('stdout','stderr','trace')):
+            allocations[id(buffer)]=group;rawfiles[id(buffer)]=handles[layout[name]]
+    def file_ceiling():
+        cap=33554432 if label.endswith('venv') else 2097152
+        resource.setrlimit(resource.RLIMIT_FSIZE,(cap,cap))
+    p=None;sel=None
     try:
-        p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
-    except BaseException as error:
-        if trace_write is not None:os.close(trace_write)
-        if trace_read is not None:os.close(trace_read)
-        for handle in rawfiles.values():handle.close()
-        receipt=dict(**spec,exit=None,failure='PopenFailure:'+type(error).__name__,combined_retained_bytes=0,partial_prefix=False,unretained_suffix=None,child_started=False)
-        self.budget.document(whole_path,receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(whole_path)
-        supervisor_notice('abort')
-        raise RuntimeError('PreparationPopenFailure') from None
-    if trace_write is not None:os.close(trace_write)
-    sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,out);sel.register(p.stderr,selectors.EVENT_READ,err)
-    if trace_read is not None:sel.register(trace_read,selectors.EVENT_READ,trace)
-    try:
-        while sel.get_map() or p.poll() is None:
+        p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
+        if trace_write is not None:os.close(trace_write);trace_write=None
+        sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,out);sel.register(p.stderr,selectors.EVENT_READ,err)
+        if trace_read is not None:sel.register(trace_read,selectors.EVENT_READ,trace)
+        while sel.get_map() or p.poll()is None:
             if time.monotonic()>=end:raise RuntimeError('PreparationCommandDeadline')
             self.check()
             for key,_ in sel.select(.01):
-                slot=allocations[id(key.data)]
-                remaining=min(self.output_cap-total,slot['maximum']-slot['used'])
+                group=allocations[id(key.data)];remaining=min(output_cap-total,group['maximum']-group['used'])
                 fd=key.fileobj if isinstance(key.fileobj,int) else key.fileobj.fileno()
                 raw=os.read(fd,min(4096,remaining+1))
                 if not raw:sel.unregister(key.fileobj);continue
-                kept=raw[:remaining]
-                # Reserve shared remaining BEFORE retaining in either RAM or
-                # durable raw prefix. The extra detection byte is not kept.
-                self.budget.retain(slot,key.data,rawfiles[id(key.data)],raw)
-                total=sum(v['used'] for v in {id(v):v for v in allocations.values()}.values())
-                if len(raw)>remaining:
-                    partial=True;raise RuntimeError('PreparationLiveOutputBound')
+                self.budget.retain(group,key.data,rawfiles[id(key.data)],raw)
+                total=sum(g['used'] for g in {id(g):g for g in allocations.values()}.values())
+                if len(raw)>remaining:partial=True;raise RuntimeError('PreparationLiveOutputBound')
         p.wait(timeout=max(.001,min(1,end-time.monotonic())))
-    except BaseException as e:failure=error_tag(e)
+    except BaseException as error:failure=error_tag(error)
     finally:
-        if p.poll() is None:
+        if p is not None and p.poll()is None:
             p.terminate()
             try:p.wait(timeout=.25)
             except subprocess.TimeoutExpired:p.kill();p.wait(timeout=.25)
-        sel.close();p.stdout.close();p.stderr.close()
+        if sel is not None:sel.close()
+        if p is not None:p.stdout.close();p.stderr.close()
+        if trace_write is not None:os.close(trace_write)
         if trace_read is not None:os.close(trace_read)
-        for f in rawfiles.values():f.close()
-        total=sum(v['used'] for v in {id(v):v for v in allocations.values()}.values())
-        receipt=dict(**spec,exit=p.returncode,failure=failure,combined_retained_bytes=total,partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None)
-        self.budget.document(whole_path,receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(whole_path)
-    if failure or p.returncode:
-        supervisor_notice('abort')
-        raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
-    supervisor_notice('idle')
-    if tool:
-        capture=object.__new__(_RunCapture)
-        launch=Path(argv[0]).resolve()
-        same(launch,self.expected['files'][str(launch)])
-        same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
-        _CAPTURES[capture]=dict(owner=self,trace_path=str(base.with_suffix('.trace')),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),tracer_pin=self.expected['files']['/usr/bin/strace'],tracer_pid=p.pid,pipe_identity=trace_identity,source_helper_sha256=self.expected['files'][str(Path(__file__).resolve())]['sha256'])
-        self.tool_origins(base.with_suffix('.trace'),label,capture)
-    self.check()
-    return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
+        for handle in handles.values():handle.close()
+        total=sum(g['used'] for g in {id(g):g for g in allocations.values()}.values())
+        receipt=dict(**spec,exit=None if p is None else p.returncode,failure=failure,combined_retained_bytes=total,
+            partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None,child_started=p is not None)
+        if not reference:
+            self.budget.document(layout['whole'],receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(layout['whole'])
+    try:
+        if failure or p is None or p.returncode:
+            raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
+        if not reference:supervisor_notice('idle')
+        if tool:
+            capture=object.__new__(_RunCapture);launch=Path(argv[0]).resolve()
+            same(launch,self.expected['files'][str(launch)]);same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
+            facts=dict(owner=self,trace_path=str(layout['trace']),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),
+                launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),
+                tracer_pin=self.expected['files']['/usr/bin/strace'],tracer_pid=p.pid,pipe_identity=trace_identity,
+                source_helper_sha256=self.expected['files'][str(Path(__file__).resolve())]['sha256'])
+            if reference:facts.update(reference_label=label,origin_path=str(layout['origin']),transient_path=str(layout['transient']),semantic_end=end)
+            _CAPTURES[capture]=facts;self.tool_origins(layout['trace'],label,capture)
+        self.check()
+        if reference:
+            if time.monotonic()>=end:raise RuntimeError('CurrentReferenceSemanticDeadline')
+            group,opened=self.budget.raw_group([layout['summary']],'construction_raw',8192)
+            summary=(json.dumps(dict(status='RAW_CAPTURE_AND_SEMANTIC_ORIGIN_VALIDATION_OBSERVED',stdout=dict(path=str(layout['stdout']),**pin(layout['stdout'])),
+                stderr=dict(path=str(layout['stderr']),**pin(layout['stderr']))),sort_keys=True,separators=(',',':'))+'\n').encode('ascii')
+            summary_buffer=bytearray()
+            try:self.budget.retain(group,summary_buffer,opened[layout['summary']],summary)
+            finally:opened[layout['summary']].close()
+            del summary_buffer,summary
+            if time.monotonic()>=end:raise RuntimeError('CurrentReferenceSemanticDeadline')
+            receipt['semantic_validation']='OBSERVED';supervisor_notice('idle')
+        return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
+    except BaseException as error:
+        if reference:receipt.update(failure=error_tag(error),semantic_validation='FAILED_OR_UNKNOWN',partial_prefix=True,unretained_suffix='UNKNOWN')
+        supervisor_notice('abort');raise
+    finally:
+        if reference:
+            self.budget.document(layout['whole'],receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(layout['whole'])
+            self.semantic_end=None
 
 _CURRENT_BOOTSTRAP = None
 _CURRENT_OWNER = None
 
 
 def _current_writer_groups():
-    """Exact reviewed 197 writers; source grammar, never a decoded policy.
+    """Exact reviewed 205 writers; source grammar, never a decoded policy.
 
     Source: current-context design ca9b16e498fa5fe2c4a4b560de8860783
     e45bf9b741edb9c016d55f208210a8f. All caps/classes are unchanged.
     """
+    for name,kind,cap in (('command.json','pair',65536),('process.json','pair',65536),
+            ('stdout.raw','construction_raw',262144),('stderr.raw','construction_raw',16384),('trace.raw','construction_raw',262144),
+            ('stdout-summary.raw','construction_raw',8192),('origins.json','origin',16777216),('transient-data.json','transient',1048576)):
+        yield dict(kind=kind,reserved_bytes=cap,paths=(str(Path('/tmp/wordling-WP70-current-test-qualification-v2/reference/HDR01')/name),))
     for kind,cap,paths in (
         ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.command.json',)),
         ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.whole.json',)),
@@ -3830,7 +3898,7 @@ def _current_begin_session(module):
     source=Path(__file__).resolve().parent.parent;repository=source.parents[3]
     groups=tuple(_current_writer_groups())
     names=[name for row in groups for name in row['paths']]
-    if len(names)!=197 or len(set(names))!=197:raise RuntimeError('CurrentClosed197Writers')
+    if len(names)!=205 or len(set(names))!=205:raise RuntimeError('CurrentClosed205Writers')
     fd=os.open(directory/'expected-inputs.json.gz',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
     try:
         identity=os.fstat(fd)
@@ -3843,6 +3911,7 @@ def _current_begin_session(module):
         value.phase_results={};value.used=set();value.budget=None;value.claimed=set();value.arena=_CampaignArena()
         value.arena.hold('current-parent-state',524288)
         value.frozen_disposable=None;value.candidate=None;value.nonce=os.urandom(32).hex();value.source_accepted=False
+        value.case_rows={};value.owner_negative=False;value.mutant_citations=None;value.data_written=False
         module._LIVE_SESSIONS.add(value);module._SESSION_STARTED=True
         _current_session_inputs(value)
         return value
@@ -3894,15 +3963,38 @@ def _current_session_claim(session,book,paths,kind,maximum):
     # The parent book cannot consume a child's capture/deployment reservation.
     parent=(any('/owners/' in str(p) or '/cli-admin/' in str(p) or '/cli-healthy/' in str(p) for p in paths)
         or all('/decisions/' in str(p) for p in paths)
-        or all(str(p) in {str(Path('/tmp/wordling-WP70-current-test-qualification-v2/cold')/('COLD0'+str(i)+'.json')) for i in range(1,7)} for p in paths))
+        or all(str(p) in {str(Path('/tmp/wordling-WP70-current-test-qualification-v2/cold')/('COLD0'+str(i)+'.json')) for i in range(1,7)} for p in paths)
+        or all(str(p) in {str(Path('/tmp/wordling-WP70-current-test-qualification-v2/data')/name) for name in ('validator-results.json','MUTANT01.json','MUTANT02.json','MUTANT03.json','MUTANT04.json')} for p in paths))
     if not parent or row['kind']!=kind or type(maximum)is not int or not 0<=maximum<=row['reserved_bytes'] or index in session.claimed:
         raise RuntimeError('CurrentOwnerWriterSpentOrScope')
     session.claimed.add(index)
     return book._reserve_actual_group(paths,kind,row['reserved_bytes'])
 
 
+def _current_owner_negative_command():
+    child="import os,sys,time;fd=int(sys.argv[1]);os.write(fd,b'CURRENT_OWNER_CHILD_READY');os.close(fd);time.sleep(20)"
+    # The actual inherited control pipe remains open in the harmless child;
+    # EOF therefore witnesses cleanup of more than the killed coordinator.
+    body=("import os,subprocess,time;control=int(os.environ['WORDLING_PREPARATION_CONTROL_FD']);"
+        "r,w=os.pipe2(os.O_CLOEXEC);p=subprocess.Popen("+repr([str(BASE),'-I','-B','-c',child])+"+[str(w)],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,pass_fds=(w,control),start_new_session=False);"
+        "os.close(w);token=os.read(r,25);os.close(r);"
+        "assert token==b'CURRENT_OWNER_CHILD_READY';st=os.fstat(control);"
+        "message=('{\"event\":\"owner-negative-ready\",\"child\":%d,\"dev\":%d,\"ino\":%d}\\n'%(p.pid,st.st_dev,st.st_ino)).encode('ascii');"
+        "assert len(message)<=256;assert os.write(control,message)==len(message);time.sleep(20)")
+    return [str(BASE),'-I','-B','-c',body]
+
+
+def _current_owner_negative(session):
+    session.check()
+    if (not _actual_current_session(session) or session.stage!='REFERENCE_ACCEPTED'
+            or 'reference' not in session.phase_results or not session.phase_results['reference']['cleanup_qualified']):
+        raise RuntimeError('CurrentOwnerPositiveControlRequired')
+    return sys.modules['runtime_qualification_supervisor'].supervise_current_phase(session,'owner-negative')
+
+
 def _current_phase_command(session,name):
     session.check()
+    if name=='owner-negative':return _current_owner_negative_command()
     if name not in ('reference','disposable','final'):raise RuntimeError('CurrentGroupPhase')
     sha=session.manifest['sources'][str(Path(__file__).resolve())]['sha256']
     return [str(BASE),'-I','-B',str(Path(__file__).resolve()),'--current-phase',name,sha]
@@ -3927,10 +4019,12 @@ def _current_terminal_tool_checks(context,interpreter,inventory):
         # Failure custody was reserved BEFORE the terminal call. No failed
         # context is checked, resumed, refunded, or used to reserve new work.
         preparation.finished=True
+        _current_terminal_case(context,preparation,'failed')
         preparation.budget.document(failure_path,dict(status='EXPECTED_TERMINAL_VALIDATOR_REFUSAL',
             error='UnsupportedRelativeOrUnknownExec',actual_commands=10,context_permanently_failed=True,
             frozen_inventory=dict(path=str(frozen_path),**frozen_pin),whole_preparation_succeeded=False),
             'failure',pre_reserved=True)
+        _current_emit_cases(context.root,'disposable')
         return 2
     context.fail('CurrentMissingToolNegativeRefusal')
     raise RuntimeError('CurrentMissingToolNegativeRefusal')
@@ -4158,18 +4252,24 @@ def _current_phase_entry(phase,source_sha):
     try:
         if phase=='reference':
             _current_reference_capture(root)
+            _current_emit_cases(root,'reference')
             return 0
         # The exact accepted phase came from the live source-owned parent ACK;
         # it cannot be selected by an expected-data field or argv alone.
         context=module._produce_current_context(root,root.state)
+        constructor_witness=_current_disposable_before_bind(context) if phase=='disposable' else None
         preparation=Preparation(context.target,context.evidence,root.expected,origin=context.start,earlier_end=context.end,current_test=context)
+        if phase=='disposable':_current_disposable_after_bind(context,preparation,constructor_witness)
         from controller_deployment import deploy
         interpreter,inventory=deploy(root.source,root.repository,context.target,context.evidence/'deployment',context=preparation)
         context.freeze_deployment(interpreter,inventory)
         preparation._release_metadata_after_deploy_frame()
         if phase=='disposable':
             return _current_terminal_tool_checks(context,interpreter,inventory)
+        context.check(preparation)
         context.finish()
+        _current_terminal_case(context,preparation,'finished')
+        _current_emit_cases(root,'final')
         return 0
     except BaseException:
         root.fail('CurrentPhaseFailure');raise
@@ -4178,14 +4278,58 @@ def _current_phase_entry(phase,source_sha):
         root.channel.close();os.close(root.parentfd)
 
 
+def _current_collect_phase_cases(session,phase):
+    expected={'reference':set(range(6,16)),'disposable':{1,2,3,4,5,16},'final':{16}}
+    if phase not in expected:raise RuntimeError('CurrentCasePhase')
+    path=Path('/tmp/wordling-WP70-current-test-qualification-v2/owners')/('reference-probe' if phase=='reference' else phase)/'stdout.raw'
+    if path.is_symlink() or path.stat().st_size>8192:raise RuntimeError('CurrentPhaseSummaryBound')
+    with path.open('rb') as stream:raw=stream.read(8193)
+    if len(raw)>8192:raise RuntimeError('CurrentPhaseSummaryBound')
+    value=bounded_json_loads(raw,8192)
+    if (type(value)is not dict or set(value)!={'schema','phase','nonce','cases'}
+            or value['schema']!='wordling.current-phase-cases/v1' or value['phase']!=phase
+            or value['nonce']!=session.nonce or type(value['cases'])is not dict
+            or set(value['cases'])!={str(i) for i in expected[phase]}):raise RuntimeError('CurrentPhaseCaseFrame')
+    for key,row in value['cases'].items():
+        if type(row)is not dict or row.get('status')!='PASS' or row.get('positive_control')is not True or type(row.get('guard'))is not str:
+            raise RuntimeError('CurrentPhaseCaseOutcome')
+        measure_json(row,1024)
+        if key=='16':
+            kind='failed' if phase=='disposable' else 'finished'
+            if row.get('witness',{}).get('terminal')!=kind:raise RuntimeError('CurrentActualTerminalCase')
+            target=session.case_rows.setdefault('16',dict(status='PASS',positive_control=True,witnesses={}))
+            if kind in target['witnesses']:raise RuntimeError('CurrentTerminalWitnessOnce')
+            target['witnesses'][kind]=row
+        else:
+            if key in session.case_rows:raise RuntimeError('CurrentParentCaseOnce')
+            session.case_rows[key]=row
+    if len(session.case_rows)>16 or measure_json(session.case_rows,24576)>24575:raise RuntimeError('CurrentParentCaseBound')
+
+
+def _current_qualification_data16(session):
+    session.check()
+    if set(session.case_rows)!={str(i) for i in range(1,17)} or set(session.case_rows['16']['witnesses'])!={'failed','finished'}:
+        raise RuntimeError('CurrentAllSixteenCasesRequired')
+    if session.owner_negative is not True or session.mutant_citations is None:raise RuntimeError('CurrentOwnerAndSourceMutantsRequired')
+    if session.data_written:raise RuntimeError('CurrentCaseAggregateOnce')
+    path=Path('/tmp/wordling-WP70-current-test-qualification-v2/data/validator-results.json')
+    path.parent.mkdir(mode=0o700,exist_ok=True)
+    _current_session_budget(session).document(path,dict(schema='wordling.current-actual-case-results/v1',
+        status='OBSERVED_REQUIRES_INDEPENDENT_REVIEW',cases=session.case_rows,
+        source_mutants=session.mutant_citations,owner_negative=True,telemetry_is_not_authority=True),'control')
+    session.data_written=True
+
+
 def _current_phase_completion(session,name,result):
     if not _actual_current_session(session) or _CURRENT_PHASE_COMPLETIONS.pop(id(result),None)!=(session,name,result):
         raise RuntimeError('CurrentActualPhaseCompletionRequired')
     if not result.get('cleanup_qualified') or result.get('census_unknown') or result.get('partial_prefix'):
         raise RuntimeError('CurrentPhaseCleanupUnknown')
+    if name in ('reference','disposable','final'):_current_collect_phase_cases(session,name)
     if name=='reference':session.stage='REFERENCE_PENDING_ACCEPTANCE'
     elif name=='disposable':session.stage='DISPOSABLE_FROZEN_OWNER_FINISHED'
     elif name=='final':session.stage='CANDIDATE_PENDING_ACCEPTANCE'
+    elif name=='owner-negative':session.owner_negative=True
     elif name=='admin':session.stage='CLI_ADMIN_FINISHED'
     elif name=='healthy':session.stage='SPENT_OR_FAILED';session.finished=True
     else:raise RuntimeError('CurrentPhaseScope')
@@ -4343,7 +4487,7 @@ def _current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha):
     root.failed=False;root.finished=False;root.expected=None;root.selection=None;root.capacity=None
     root.groups=();root.budget=None;root.arena=_CampaignArena();root.contexts=[];root.sequence=0
     root.proof=None;root.source=Path(__file__).resolve().parent.parent;root.repository=root.source.parents[3]
-    root.frozen_disposable=None;root.candidate=None;root.used_stages=set()
+    root.frozen_disposable=None;root.candidate=None;root.used_stages=set();root.case_rows={};root.case_reads=0
     module._CURRENT_ROOT=root;module._LIVE_ROOTS.add(root)
     _current_live_boundary(root)
     return root
@@ -4439,12 +4583,13 @@ def _current_reference_capture(root):
     owner.expected=root.expected;owner.env=dict(PATH='/usr/bin:/bin',HOME=str(owner.target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1')
     owner.budget=budget;owner.calls=[];owner.call_paths=[]
     owner.start=context.start;owner.end=min(root.whole_end,owner.start+300)
-    owner.output_cap=24576;owner.current_test=context
+    owner.output_cap=278528;owner.current_test=context;owner.semantic_end=None
     module._LIVE_REFERENCE_OWNERS.add(owner)
     try:
         # REF02 is the canonical nonexecuting complete source preflight. Its
         # OS classification remains a review obligation, not a free tool run.
         context.verify_tools(root.expected)
+        _current_reference_record_cases(context)
         before=time.monotonic()
         (owner.evidence/'REF02').mkdir(mode=0o700,exist_ok=False)
         budget.document(owner.evidence/'REF02/command.json',dict(operation='canonical-current-input-preflight',tool_executed=False),'pair')
@@ -4457,11 +4602,13 @@ def _current_reference_capture(root):
         # The ordinary engine enforces the separately funded summary channels.
         # A larger observation refuses; it cannot silently create a new writer.
         result=_capture_command(owner,[str(BASE),'-I','-B','-c',probe(False)],'REF01',False)
-        observation=context.arena.decode('current-reference-probe',result.stdout,8192)
-        compare_observation(observation,BASE,root.expected,{},False)
-        budget.document(owner.evidence/'base-observation.json',observation,'origin')
+        observation=context.arena.decode('current-reference-probe',result.stdout,262144)
+        compare_observation(observation,BASE,root.expected,{},False,reference_owner=owner)
         del observation,result
         context.arena.release('current-reference-probe')
+        header_argv=['/usr/bin/cc','-std=c11','-O2','-static','-Wall','-Wextra','-Werror','-E','-dD','-v','-H',str(root.source/'tests/harmless_fixture.c')]
+        header=_capture_command(owner,header_argv,'HDR01',True)
+        del header
         durable=root.repository/'docs/research/continuation/test-runtime-qualification-v2/reference/expected-inputs.json.gz'
         durable.parent.mkdir(mode=0o700,exist_ok=True)
         context.arena.hold('current-reference-durable',2097152)
@@ -4478,9 +4625,19 @@ def _current_reference_capture(root):
         del part,buffer
         context.arena.release('current-reference-durable')
         if pin(durable)!=pin(owner.evidence/'expected-inputs.json.gz'):raise RuntimeError('CurrentDurableReferenceChanged')
+        summary_path=owner.evidence/'reference-summary.json'
+        before_claim=(frozenset(context.claimed),len(budget.slots),tuple((k,tuple(v)) for k,v in budget.classes.items()))
+        try:budget.reserve([summary_path],'misc',65537)
+        except RuntimeError as error:_current_exact_refusal(error,'CurrentWriterSpentOrCap')
+        else:raise RuntimeError('CurrentDATA15Accepted')
+        after_claim=(frozenset(context.claimed),len(budget.slots),tuple((k,tuple(v)) for k,v in budget.classes.items()))
+        if before_claim!=after_claim:raise RuntimeError('CurrentDATA15RefusalMutatedBook')
         budget.document(owner.evidence/'reference-summary.json',dict(status='UNACCEPTED_CURRENT_REFERENCE',
             source_seed_was_unaccepted=True,fresh_public_input_check=True,REF01='OBSERVED',REF02='NONEXECUTING_SOURCE_CHECK',
             durable_payload=dict(path=str(durable),**pin(durable)),permission_granted=False),'misc')
+        group=budget.slots[summary_path]
+        if group['kind']!='misc' or group['maximum']!=65536 or not 0<group['used']<=65536:raise RuntimeError('CurrentDATA15ActualClaimControl')
+        _current_case_record(root,15,'CurrentWriterSpentOrCap',witness=dict(refusal_mutated_book=False,later_actual_claim=True))
         names=('expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','base-observation.json','capture-source-manifest.json','reference-summary.json')
         budget.document(owner.evidence/'seal.json',dict(schema='wordling.current-reference-seal/v2',complete=True,
             members={name:dict(**pin(owner.evidence/name),**rights(owner.evidence/name)) for name in names}),'custody')
@@ -4493,40 +4650,216 @@ def _current_reference_capture(root):
         module._LIVE_REFERENCE_OWNERS.discard(owner)
 
 
-def _current_preflight_inputs(context):
-    """The canonical V2 filesystem branch; lexical metadata is never followed."""
+def _current_closed_members_equal(root,observed,wanted):
+    if observed!=wanted:raise RuntimeError('ClosedInputSet:'+root)
+
+
+def _current_link_observation_equal(name,observed,wanted):
+    if not observed['is_symlink'] or observed['text']!=wanted['target'] or observed['rights']!=wanted['rights']:
+        raise RuntimeError('ChangedLink:'+name)
+
+
+def _current_directory_observation_equal(name,observed,wanted):
+    if observed['is_symlink'] or not observed['is_dir'] or observed['rights']!=wanted:
+        raise RuntimeError('ChangedDirectory:'+name)
+
+
+def _current_deadline_projection(origin,end,now):
+    if any(type(v) not in (int,float) or not math.isfinite(v) for v in (origin,end,now)) or not 0<origin<end:
+        raise RuntimeError('CurrentDeadlineProjection')
+    if now>=end:raise RuntimeError('CurrentTestStageOrDeadline')
+
+
+def _current_exact_refusal(error,wanted):
+    if type(error)is not RuntimeError or str(error)!=wanted:raise RuntimeError('CurrentWrongCaseGuard:'+wanted) from error
+
+
+def _current_case_record(root,number,guard,*,witness=None):
+    module=sys.modules.get('current_test_qualification')
+    if module is None or type(root)is not module._RootBoundary or root not in module._LIVE_ROOTS or root is not module._CURRENT_ROOT:
+        raise RuntimeError('CurrentCaseActualPhaseRequired')
+    if type(number)is not int or not 1<=number<=16 or number in root.case_rows:raise RuntimeError('CurrentCaseOnce')
+    row=dict(status='PASS',guard=guard,positive_control=True)
+    if witness is not None:row['witness']=witness
+    measure_json(row,1024)
+    root.case_rows[number]=row
+
+
+def _current_case_read_charge(root,amount):
+    if type(amount)is not int or amount<0 or root.case_reads+amount>17179869184:raise RuntimeError('CurrentCaseReadBound')
+    root.case_reads+=amount
+
+
+def _current_reference_record_cases(context):
+    context.check();root=context.root;e=context.expected;s=context.selection
+    check_selection_records(e,s)
+    bad=dict(s,schema='wordling.tool-selection/WRONG')
+    try:check_selection_records(e,bad)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentToolSelectionSchema')
+    else:raise RuntimeError('CurrentDATA06Accepted')
+    _current_case_record(root,6,'CurrentToolSelectionSchema')
+    pairs=s['opaque_cache_pairs']
+    if not pairs:raise RuntimeError('CurrentDATA12RequiredOpaquePair')
+    copy_pairs=list(pairs);copy_pairs[0]=dict(pairs[0],body_source_equivalence=True)
+    bad=dict(s,opaque_cache_pairs=copy_pairs)
+    try:check_selection_records(e,bad)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentToolCacheEquivalence')
+    else:raise RuntimeError('CurrentDATA12Accepted')
+    _current_case_record(root,12,'CurrentToolCacheEquivalence')
+    del bad,copy_pairs
+    providers=dict(s['approved_providers']);providers['scripts/reference/startup_family/lifetime.py']='eba8382f5101bfa464d4c30e19ea5183f3bb6469'
+    bad=dict(s,approved_providers=providers)
+    try:check_selection_records(e,bad)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentProviderProvenance')
+    else:raise RuntimeError('CurrentDATA13Accepted')
+    _current_case_record(root,13,'CurrentProviderProvenance')
+    row=e['files'][str(BASE)]
+    _current_case_read_charge(root,2*row['size']);same(BASE,row)
+    try:same(BASE,dict(row,mode=row['mode']^0o100))
+    except RuntimeError as error:_current_exact_refusal(error,'ChangedRights:'+str(BASE))
+    else:raise RuntimeError('CurrentDATA09Accepted')
+    _current_case_record(root,9,'ChangedRights:'+str(BASE))
     context.check()
-    expected=context.expected
+    now=time.monotonic();_current_deadline_projection(context.start,context.end,now)
+    earlier_origin=now-1.;earlier_end=now-.5
+    try:_current_deadline_projection(earlier_origin,earlier_end,now)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestStageOrDeadline')
+    else:raise RuntimeError('CurrentDATA14Accepted')
+    context.check()
+    _current_case_record(root,14,'CurrentTestStageOrDeadline',witness=dict(DATA_origin=earlier_origin,DATA_end=earlier_end,observed_now=now,live_clock_changed=False))
+
+
+def _current_disposable_before_bind(context):
+    context.check();e=context.expected;root=context.root
+    receipt=check_selection_records(e,context.selection)
+    try:Preparation(context.target,context.evidence,e,current_test=receipt)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestIdentity')
+    else:raise RuntimeError('CurrentDATA01Accepted')
+    try:Preparation(context.target,context.evidence,e,current_test=context,campaign=False)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestMixedPurpose')
+    else:raise RuntimeError('CurrentDATA03Accepted')
+    context.context(context.target,context.evidence,e,context.start,context.end)
+    wrong=Path('/tmp/wordling-WP70-current-test-qualification-v2/disposable-WRONG-NOT-ALLOCATED')
+    try:context.context(wrong,context.evidence,e,context.start,context.end)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentPreparationConstructor')
+    else:raise RuntimeError('CurrentDATA04Accepted')
+    # The genuine constructor that immediately follows is DATA01/03's positive
+    # control. These observations are not published until it actually succeeds.
+    return ('CurrentTestIdentity','CurrentTestMixedPurpose','CurrentPreparationConstructor')
+
+
+def _current_disposable_after_bind(context,preparation,witness):
+    import copy
+    context.check(preparation)
+    for number,guard in zip((1,3,4),witness):_current_case_record(context.root,number,guard)
+    guards=[]
+    for operation in ('copy','deepcopy','serialization-hook'):
+        try:
+            if operation=='copy':copy.copy(context)
+            elif operation=='deepcopy':copy.deepcopy(context)
+            else:context.__reduce__()
+        except TypeError as error:
+            wanted='CurrentTestContextNotSerializable' if operation=='serialization-hook' else 'CurrentTestContextNotCopyable'
+            if str(error)!=wanted:raise RuntimeError('CurrentDATA02WrongGuard') from error
+            guards.append(wanted)
+        else:raise RuntimeError('CurrentDATA02Accepted')
+    raw=bounded_json_loads(json.dumps(check_selection_records(context.expected,context.selection)))
+    try:_require_current_test(raw)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestIdentity')
+    else:raise RuntimeError('CurrentDATA02RestoredActor')
+    context.check(preparation)
+    _current_case_record(context.root,2,'CurrentTestContextNotCopyable/CurrentTestContextNotSerializable',witness=dict(actual_hooks=guards,deserialized_DATA='CurrentTestIdentity'))
+    args=(preparation,context.root.source,context.root.repository,context.target,context.evidence/'deployment')
+    context.deployment(*args)
+    wrong=Path('/tmp/wordling-WP70-current-test-qualification-v2/source-WRONG-NOT-ALLOCATED')
+    try:context.deployment(preparation,wrong,*args[2:])
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentDeploymentBinding')
+    else:raise RuntimeError('CurrentDATA05Accepted')
+    _current_case_record(context.root,5,'CurrentDeploymentBinding')
+
+
+def _current_terminal_case(context,preparation,kind):
+    if kind not in ('failed','finished') or getattr(context,kind)is not True:raise RuntimeError('CurrentDATA16ActualTerminal')
+    try:context.check(preparation)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestIdentity')
+    else:raise RuntimeError('CurrentDATA16ContextAccepted')
+    try:preparation.check()
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestIdentity')
+    else:raise RuntimeError('CurrentDATA16PreparationAccepted')
+    try:admit_capacity(context.expected,context.evidence,current_test=context)
+    except RuntimeError as error:_current_exact_refusal(error,'CurrentTestIdentity')
+    else:raise RuntimeError('CurrentDATA16AdmissionAccepted')
+    _current_case_record(context.root,16,'CurrentTestIdentity',witness=dict(terminal=kind,actual_context=True,actual_preparation=True,new_admission_refused=True))
+
+
+def _current_emit_cases(root,phase):
+    expected={'reference':set(range(6,16)),'disposable':{1,2,3,4,5,16},'final':{16}}
+    if phase not in expected or set(root.case_rows)!=expected[phase]:raise RuntimeError('CurrentPhaseCaseSet')
+    value=dict(schema='wordling.current-phase-cases/v1',phase=phase,nonce=root.nonce,cases={str(k):v for k,v in root.case_rows.items()})
+    size=measure_json(value,8192)
+    raw=(json.dumps(value,sort_keys=True,separators=(',',':'))+'\n').encode('ascii')
+    if len(raw)!=size+1 or len(raw)>8192:raise RuntimeError('CurrentPhaseCaseSummaryBound')
+    offset=0
+    while offset<len(raw):
+        wrote=os.write(1,raw[offset:])
+        if wrote<=0:raise RuntimeError('CurrentPhaseCaseSummaryWrite')
+        offset+=wrote
+
+
+def _current_preflight_inputs(context):
+    """Canonical V2 filesystem preflight; metadata aliases are never followed."""
+    context.check();root=context.root;expected=context.expected
     check_selection_records(expected,context.selection)
     allnames=set(expected['files'])|set(expected['links'])|set(expected['directories'])
-    for root in expected['closed_roots']:
-        directory=Path(root)
-        observed=set()
+    for name in expected['closed_roots']:
+        directory=Path(name);observed=set()
         for p in directory.rglob('*'):
             context.check()
             if len(observed)>=24576:raise RuntimeError('CurrentClosedInputCardinality')
             observed.add(str(p))
-        if observed!={n for n in allnames if Path(n).is_relative_to(directory) and n!=root}:
-            raise RuntimeError('ClosedInputSet:'+root)
-    for root,names in expected['tool_startup_hook_sets'].items():
-        if sorted(str(p) for p in Path(root).glob('*.pth'))!=names:
-            raise RuntimeError('ToolStartupHookSet')
+        wanted={n for n in allnames if Path(n).is_relative_to(directory) and n!=name}
+        _current_closed_members_equal(name,observed,wanted)
+        if root.state=='REFERENCE_RUNNING' and 7 not in root.case_rows and observed:
+            # Small real-observation branch: the full equality above already
+            # passed; these projections keep only one actual required member.
+            selected=min(observed);projection={selected};_current_closed_members_equal(name,projection,projection)
+            try:_current_closed_members_equal(name,projection|{'/DATA/EXTRA-NOT-A-FILESYSTEM-PROBE'},projection)
+            except RuntimeError as error:_current_exact_refusal(error,'ClosedInputSet:'+name)
+            else:raise RuntimeError('CurrentDATA07Accepted')
+            _current_case_record(root,7,'ClosedInputSet:'+name,witness=dict(actual_member=selected,full_positive_count=len(observed),projection=True))
+            try:_current_closed_members_equal(name,set(),projection)
+            except RuntimeError as error:_current_exact_refusal(error,'ClosedInputSet:'+name)
+            else:raise RuntimeError('CurrentDATA08Accepted')
+            _current_case_record(root,8,'ClosedInputSet:'+name,witness=dict(actual_member=selected,projection=True))
+    for name,names in expected['tool_startup_hook_sets'].items():
+        if sorted(str(p) for p in Path(name).glob('*.pth'))!=names:raise RuntimeError('ToolStartupHookSet')
     for name,row in expected['files'].items():
+        _current_case_read_charge(root,row['size'])
+        if Path(name).stat().st_size!=row['size']:raise RuntimeError('ChangedInput:'+name)
         same(name,row);context.check()
     for name,row in expected['links'].items():
-        p=Path(name)
-        if not p.is_symlink() or os.readlink(p)!=row['target'] or rights(p)!=row['rights']:
-            raise RuntimeError('ChangedLink:'+name)
+        p=Path(name);is_link=p.is_symlink()
+        observed=dict(is_symlink=is_link,text=os.readlink(p) if is_link else None,rights=rights(p))
+        _current_link_observation_equal(name,observed,row)
+        if root.state=='REFERENCE_RUNNING' and 10 not in root.case_rows:
+            bad=dict(row,rights=dict(row['rights'],mode=row['rights']['mode']^0o100))
+            try:_current_link_observation_equal(name,observed,bad)
+            except RuntimeError as error:_current_exact_refusal(error,'ChangedLink:'+name)
+            else:raise RuntimeError('CurrentDATA10Accepted')
+            _current_case_record(root,10,'ChangedLink:'+name,witness=dict(nonexecuted_target_not_followed=row['role']=='NONEXECUTED_METADATA'))
         if row['role']!='NONEXECUTED_METADATA':
-            # Pure grammar already proved exactly one declared regular target.
             target=Path(row['resolved'])
             if target.is_symlink():raise RuntimeError('CurrentAliasTargetChanged')
-            same(target,expected['files'][str(target)])
+            _current_case_read_charge(root,expected['files'][str(target)]['size']);same(target,expected['files'][str(target)])
         context.check()
     for name,row in expected['directories'].items():
-        p=Path(name)
-        if p.is_symlink() or not p.is_dir() or rights(p)!=row:
-            raise RuntimeError('ChangedDirectory:'+name)
+        p=Path(name);is_link=p.is_symlink();observed=dict(is_symlink=is_link,is_dir=False if is_link else p.is_dir(),rights=rights(p))
+        _current_directory_observation_equal(name,observed,row)
+        if root.state=='REFERENCE_RUNNING' and 11 not in root.case_rows:
+            try:_current_directory_observation_equal(name,observed,dict(row,mode=row['mode']^0o100))
+            except RuntimeError as error:_current_exact_refusal(error,'ChangedDirectory:'+name)
+            else:raise RuntimeError('CurrentDATA11Accepted')
+            _current_case_record(root,11,'ChangedDirectory:'+name)
     context.check()
 
 
@@ -4612,19 +4945,48 @@ def strict_layout(interpreter,expected_files=None):
     return rows
 
 
-def compare_observation(observation,interpreter,expected,installed,project=False):
+def _current_reference_startup_inputs(owner,interpreter,expected,installed,project):
+    module=sys.modules.get('current_test_qualification')
+    if (module is None or not module._actual_reference_owner(owner) or expected is not owner.expected
+            or Path(interpreter)!=BASE or installed!={} or project is not False):raise RuntimeError('CurrentGenuineReferenceObservation')
+    owner.check()
+    if owner.env!=dict(PATH='/usr/bin:/bin',HOME=str(owner.target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1'):
+        raise RuntimeError('CurrentReferenceStartupEnvironment')
+    site=PREFIX/'lib/python3.12/site-packages'
+    hook=str(site/'distutils-precedence.pth')
+    row=expected['files'].get(hook)
+    if row is None or {k:row[k] for k in ('size','sha256')}!=dict(size=151,sha256='2638ce9e2500e572a5e0de7faed6661eb569d1b696fcba07b0dd223da5f5d224'):
+        raise RuntimeError('CurrentReferenceDefaultHookPin')
+    tools={r['path'] for r in owner.root.selection['new_tool_records']}
+    allowed={str(site/'_distutils_hack/__init__.py'),str(site/'_distutils_hack/__pycache__/__init__.cpython-312.pyc')}
+    if hook not in tools or any(name not in expected['files'] or name not in tools for name in allowed):
+        raise RuntimeError('CurrentReferenceDefaultHookToolRole')
+    same(hook,row)
+    for name in allowed:same(name,expected['files'][name])
+    # Exact opaque object bytes only. No pyc header establishes source-body
+    # equivalence and no TOOL package enters the candidate runtime allowlist.
+    return allowed
+
+
+def compare_observation(observation,interpreter,expected,installed,project=False,*,reference_owner=None):
+    reference_startup=None if reference_owner is None else _current_reference_startup_inputs(reference_owner,interpreter,expected,installed,project)
     if type(observation) is not dict or len(observation.get('modules',{}))>2048 or len(observation.get('maps',{}))>512:raise RuntimeError('ObservationCardinality')
     v=Path(interpreter).parent.parent;site=v/'lib/python3.12/site-packages'
     wanted_path=[str(PREFIX/'lib/python312.zip'),str(PREFIX/'lib/python3.12'),str(PREFIX/'lib/python3.12/lib-dynload'),str(site)]
     if observation['sys_path']!=wanted_path:raise RuntimeError('ExactOrderedSysPath')
     if observation['version']!=[3,12,14] or observation['executable']!=str(interpreter) or observation['prefix']!=str(v) or observation['exec_prefix']!=str(v) or observation['base_prefix']!=str(PREFIX) or observation['base_exec_prefix']!=str(PREFIX):raise RuntimeError('RuntimePrefix')
     expected_flags=dict(debug=0,inspect=0,interactive=0,optimize=0,dont_write_bytecode=1,no_user_site=1,no_site=0,ignore_environment=1,verbose=0,bytes_warning=0,quiet=0,hash_randomization=1,isolated=1,dev_mode=False,utf8_mode=0,warn_default_encoding=0,safe_path=True,int_max_str_digits=4300)
-    if observation['flags']!=expected_flags or not observation['default_excepthook'] or any(observation['customize'].values()) or not all(observation['features'].values()):raise RuntimeError('RuntimeStartup')
+    if reference_startup is None:
+        if observation['flags']!=expected_flags or not observation['default_excepthook'] or any(observation['customize'].values()) or not all(observation['features'].values()):raise RuntimeError('RuntimeStartup')
+    elif (observation['flags']!=expected_flags or not observation['default_excepthook']
+            or observation['customize']!={'sitecustomize':False,'usercustomize':False,'_distutils_hack':True}
+            or not all(observation['features'].values())):raise RuntimeError('CurrentReferenceStartup')
     for module,fields in observation['modules'].items():
         for key,x in fields.items():
             if not x['exists']:continue
             name=x['path']
             if name in installed:same(name,installed[name])
+            elif reference_startup is not None and module=='_distutils_hack' and name in reference_startup:same(name,expected['files'][name])
             elif name in expected['files'] and Path(name).is_relative_to(PREFIX/'lib/python3.12') and not Path(name).is_relative_to(PREFIX/'lib/python3.12/site-packages'):same(name,expected['files'][name])
             else:raise RuntimeError('UnexpectedModuleOrigin:'+module+':'+name)
             target=installed.get(name,expected['files'].get(name))

@@ -59,7 +59,8 @@ class _CurrentSession:
     __slots__ = ('source', 'repository', 'manifest', 'capacity', 'groups',
         'whole_origin', 'whole_end', 'stage', 'failed', 'finished', 'active',
         'expected_fd', 'expected_identity', 'phase_results', 'used', 'budget',
-        'claimed', 'arena', 'frozen_disposable', 'candidate', 'nonce', 'source_accepted')
+        'claimed', 'arena', 'frozen_disposable', 'candidate', 'nonce', 'source_accepted',
+        'case_rows', 'owner_negative', 'mutant_citations', 'data_written')
 
     def __new__(cls):
         raise TypeError('CurrentFixedApplicationEntryOnly')
@@ -95,13 +96,15 @@ class _CurrentSession:
         self.check()
         if not self.source_accepted:
             raise RuntimeError('CurrentIndependentSourceAcceptanceRequired')
-        wanted = {'reference': 'SOURCE_ACCEPTED_NO_CLOCK',
+        wanted = {'reference': 'SOURCE_ACCEPTED_NO_CLOCK', 'owner-negative': 'REFERENCE_ACCEPTED',
             'disposable': 'REFERENCE_ACCEPTED', 'final': 'COLD_ARTIFACT_CHECKS',
             'admin': 'CANDIDATE_ACCEPTED', 'healthy': 'CLI_ADMIN_FINISHED'}
         if name not in wanted or self.stage != wanted[name] or name in self.used or self.active is not None:
             raise RuntimeError('CurrentApplicationPhaseOrder')
-        if name == 'final' and 'cold' not in self.phase_results:
-            raise RuntimeError('CurrentColdChecksRequired')
+        if name == 'disposable' and not self.owner_negative:
+            raise RuntimeError('CurrentOwnerNegativeRequiredBeforeDisposable')
+        if name == 'final' and ('cold' not in self.phase_results or not self.owner_negative or self.mutant_citations is None):
+            raise RuntimeError('CurrentColdOwnerMutantsRequired')
         if self.whole_origin is None:
             self.whole_origin = time.monotonic()
             self.whole_end = self.whole_origin + 1200
@@ -111,7 +114,7 @@ class _CurrentSession:
             self.failed = True
             raise RuntimeError('CurrentCanonicalSupervisorNotLoaded')
         try:
-            result = supervisor.supervise_current_phase(self, name)
+            result = _q()._current_owner_negative(self) if name == 'owner-negative' else supervisor.supervise_current_phase(self, name)
             # Only the canonical helper's actual retained-owner completion may
             # produce this private phase record, never a parsed success dict.
             _q()._current_phase_completion(self, name, result)
@@ -153,6 +156,7 @@ class _CurrentSession:
         self.check()
         if self.stage != 'CANDIDATE_PENDING_ACCEPTANCE' or 'final' not in self.phase_results:
             raise RuntimeError('CurrentCandidateAcceptanceOrder')
+        _q()._current_qualification_data16(self)
         _q()._current_session_acceptance(self, 'final')
         self.stage = 'CANDIDATE_ACCEPTED'
 
@@ -178,7 +182,7 @@ class _RootBoundary:
     __slots__ = ('channel', 'parentfd', 'peer', 'nonce', 'source_sha', 'state',
         'whole_origin', 'whole_end', 'phase_end', 'failed', 'finished', 'expected', 'selection',
         'capacity', 'groups', 'budget', 'arena', 'contexts', 'sequence', 'proof',
-        'source', 'repository', 'frozen_disposable', 'candidate', 'used_stages')
+        'source', 'repository', 'frozen_disposable', 'candidate', 'used_stages', 'case_rows', 'case_reads')
 
     def __new__(cls):
         raise TypeError('CurrentLiveBootstrapOnly')
@@ -250,9 +254,14 @@ class _CurrentContext:
         if not _actual_context(self) or self.failed or self.finished:
             raise RuntimeError('CurrentTestIdentity')
         root = _require_live_root_boundary(self.root)
-        if root.state != self.stage or time.monotonic() >= self.end:
+        if root.state != self.stage:
             self.fail('CurrentTestStageOrDeadline')
             raise RuntimeError('CurrentTestStageOrDeadline')
+        try:
+            _q()._current_deadline_projection(self.start, self.end, time.monotonic())
+        except RuntimeError:
+            self.fail('CurrentTestStageOrDeadline')
+            raise
         if preparation is not None:
             q = _q()
             if (type(preparation) is not q.Preparation or preparation is not self.preparation
@@ -528,7 +537,7 @@ def _actual_reference_owner(value):
 class _ReferenceOwner:
     """Distinct genuine reference owner; never a fabricated Preparation."""
     __slots__ = ('root', 'target', 'evidence', 'expected', 'env', 'budget',
-        'calls', 'call_paths', 'start', 'end', 'output_cap', 'current_test')
+        'calls', 'call_paths', 'start', 'end', 'output_cap', 'current_test', 'semantic_end')
 
     def __new__(cls):
         raise TypeError('CurrentReferenceOwnerProducerOnly')
@@ -537,7 +546,7 @@ class _ReferenceOwner:
         if not _actual_reference_owner(self):
             raise RuntimeError('CurrentReferenceOwnerIdentity')
         self.root.check()
-        if self.root.state != 'REFERENCE_RUNNING' or time.monotonic() >= self.end:
+        if self.root.state != 'REFERENCE_RUNNING' or time.monotonic() >= min(self.end, self.semantic_end if self.semantic_end is not None else self.end):
             raise RuntimeError('CurrentReferenceDeadline')
 
     def tool_origins(self, path, label, capture=None):
