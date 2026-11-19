@@ -1,0 +1,130 @@
+{
+  "evidence_kind": "ROOT_DELIBERATE_SYNTHETIC_GTK_DISPATCH_ONLY",
+  "attempt": "SMOKE03",
+  "command": {
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/tmp/wordling-classic-key-test-prototype/smoke_own_window.py"
+    ],
+    "source_hashes": {
+      "classic_key_test.py": "e3ba328f3e0cfbc19041c88c3db47afa0974278f16ae117d4ac8c9c466744e12",
+      "smoke_own_window.py": "ac5cd8ebf84e3114e1026d433cd82c2fab5b1ae4bc726f59a736c0b2fc3bdb18"
+    },
+    "scope": "OWN_WINDOW_SYNTHETIC_GTK_DISPATCH_NO_PHYSICAL_ACCEPTANCE"
+  },
+  "execution": {
+    "actual_exit": 0,
+    "elapsed_seconds": 1.9807526100194082,
+    "timeout": false,
+    "stdout_bytes": 2247,
+    "stderr_bytes": 186,
+    "stdout_sha256": "2d7224293cd4ee953b6b26610f6b19a895c417a42c3209f221e82f503f54823d",
+    "stderr_sha256": "7f053460f51d7fe79a1f6388ffeac13bc1a2e51a114e83cb4ada00d74bd6217b",
+    "physical_key_delivery": "NOT_TESTED"
+  },
+  "observed": {
+    "result": "PASS_SYNTHETIC_SMOKE_ONLY",
+    "physical_key_delivery": "NOT_TESTED",
+    "checks": [
+      {
+        "check": "default_OFF",
+        "result": "PASS"
+      },
+      {
+        "check": "actual_capture_1",
+        "result": "PASS"
+      },
+      {
+        "check": "visible_Release_signal",
+        "result": "PASS"
+      },
+      {
+        "check": "actual_capture_3",
+        "result": "PASS"
+      },
+      {
+        "check": "synthetic_GTK_CtrlAltG_toplevel_target",
+        "result": "PASS",
+        "observed_receipts": [
+          {
+            "handler": "Window",
+            "phase": "press",
+            "state": 33554444,
+            "control_alt": true,
+            "send_event": true,
+            "active": true,
+            "focused_vte": true,
+            "event_window": "toplevel"
+          },
+          {
+            "handler": "Window",
+            "phase": "release",
+            "state": 33554444,
+            "control_alt": true,
+            "send_event": true,
+            "active": true,
+            "focused_vte": true,
+            "event_window": "toplevel"
+          }
+        ]
+      },
+      {
+        "check": "actual_capture_5",
+        "result": "PASS"
+      },
+      {
+        "check": "synthetic_GTK_CtrlAltG_focused_VTE_target",
+        "result": "PASS",
+        "observed_receipts": [
+          {
+            "handler": "Window",
+            "phase": "press",
+            "state": 33554444,
+            "control_alt": true,
+            "send_event": true,
+            "active": true,
+            "focused_vte": true,
+            "event_window": "toplevel"
+          },
+          {
+            "handler": "Window",
+            "phase": "release",
+            "state": 33554444,
+            "control_alt": true,
+            "send_event": true,
+            "active": true,
+            "focused_vte": true,
+            "event_window": "toplevel"
+          }
+        ]
+      },
+      {
+        "check": "actual_capture_7",
+        "result": "PASS"
+      },
+      {
+        "check": "hide_unmap_release",
+        "result": "PASS"
+      },
+      {
+        "check": "close_cleanup_child_exited_and_pidfd_closed",
+        "result": "PASS"
+      }
+    ],
+    "synthetic_transport": "GTK_main_do_event_only; native_X11_XI2_delivery_NOT_TESTED",
+    "elapsed_seconds": 1.876
+  },
+  "limitations": {
+    "physical_key_delivery": "NOT_TESTED",
+    "native_X11_XI2_delivery": "NOT_TESTED",
+    "independent_native_window_targets": "NOT_PROVEN; both intended widget targets report event_window=toplevel; apparently shared GdkWindow",
+    "mouse_release": "synthetic clicked signal only; physical mouse NOT_TESTED",
+    "focus_pointer_timer_release": "NOT_TESTED"
+  },
+  "child_shutdown": "VTE child-exit observed, wait_status=1 after test shutdown; not a normal application-exit success claim",
+  "session_diagnostics": "session-dj7c5zu8/special-keys.jsonl",
+  "session_diagnostics_sha256": "548239a48278065c6143af17b539fede2e6eba57ae466f38b8366dbe16d95e53",
+  "smoke01_smoke02_failures": "preserved unchanged with custody files in history",
+  "recording_step_gui_or_capture_started": false
+}
