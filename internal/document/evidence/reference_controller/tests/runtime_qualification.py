@@ -512,6 +512,72 @@ def _current_data_path(value):
     return value
 
 
+def _current_role_frames_data(expected, selection):
+    """Canonical V2 role-frame consistency only, never live-role admission."""
+    def right_shape(row):
+        return (type(row) is dict and set(row)=={'mode','uid','gid'}
+            and all(type(row[k]) is int and 0<=row[k]<2**64 for k in row)
+            and row['mode']<=0o7777)
+    links=expected['links'];directories=expected['directories'];roots=expected['closed_roots']
+    if type(links) is not dict or len(links)>24576 or type(directories) is not dict or len(directories)>24576:
+        raise RuntimeError('CurrentReferenceAliasSchema')
+    if type(roots) is not list or len(roots)>512 or len(set(roots))!=len(roots):
+        raise RuntimeError('CurrentReferenceRootSchema')
+    for root in roots:_current_data_path(root)
+    for name,row in directories.items():
+        _current_data_path(name)
+        if not right_shape(row) or name in expected['files']:raise RuntimeError('CurrentReferenceDirectorySchema')
+    runtime=set()
+    for field in ('runtime_elf','runtime_mapped_data'):
+        rows=expected[field]
+        if type(rows) is not list:raise RuntimeError('CurrentToolSelectionSchema')
+        runtime.update(rows)
+    new=selection['new_tool_records']
+    if type(new) is not list:raise RuntimeError('CurrentToolSelectionSchema')
+    tools={row['path'] for row in new if type(row) is dict and type(row.get('path')) is str}
+    for name,row in links.items():
+        _current_data_path(name)
+        if (type(row) is not dict or set(row)!={'target','resolved','rights','role','resolution'}
+                or type(row['target']) is not str or not row['target'].isascii()
+                or not 0<len(row['target'])<=4096 or chr(0) in row['target']
+                or not right_shape(row['rights'])
+                or row['role'] not in ('RUNTIME_ALIAS','TOOL_ALIAS','NONEXECUTED_METADATA')
+                or row['resolution'] not in ('CAPTURED_SINGLE_HOP','LEXICAL_ONLY_NO_FOLLOW')
+                or name in expected['files'] or name in directories):
+            raise RuntimeError('CurrentReferenceAliasSchema')
+        resolved=_current_data_path(row['resolved'])
+        lexical=os.path.normpath(row['target'] if row['target'].startswith('/') else os.path.join(os.path.dirname(name),row['target']))
+        if lexical!=resolved:raise RuntimeError('CurrentReferenceAliasBinding')
+        if row['role']=='RUNTIME_ALIAS':
+            if resolved not in expected['files']:raise RuntimeError('CurrentRuntimeAliasTarget')
+            if resolved not in runtime or resolved in tools:raise RuntimeError('CurrentRuntimeAliasRole')
+            if row['resolution']!='CAPTURED_SINGLE_HOP':raise RuntimeError('CurrentRuntimeAliasResolution')
+        elif row['role']=='TOOL_ALIAS':
+            if resolved not in expected['files'] or resolved not in tools or resolved in runtime:
+                raise RuntimeError('CurrentToolAliasTarget')
+            if row['resolution']!='CAPTURED_SINGLE_HOP':raise RuntimeError('CurrentToolAliasResolution')
+        elif row['resolution']!='LEXICAL_ONLY_NO_FOLLOW':
+            raise RuntimeError('CurrentMetadataAliasResolution')
+    hooks=expected['tool_startup_hook_sets']
+    if type(hooks) is not dict or len(hooks)>64:raise RuntimeError('CurrentToolHookSchema')
+    for root,names in hooks.items():
+        _current_data_path(root)
+        if type(names) is not list or len(names)>64 or len(set(names))!=len(names):
+            raise RuntimeError('CurrentToolHookSchema')
+        for name in names:
+            _current_data_path(name)
+            if os.path.dirname(name)!=root or not name.endswith('.pth') or name not in expected['files']:
+                raise RuntimeError('CurrentToolHookSchema')
+    aliases=selection['shell_aliases']
+    if type(aliases) is not list or len(aliases)>64:raise RuntimeError('CurrentToolSelectionSchema')
+    for alias in aliases:
+        if type(alias) is not dict or set(alias)!={'logical','text','resolved','rights'}:
+            raise RuntimeError('CurrentToolAliasSchema')
+        row=links.get(alias['logical'])
+        if row is None or row['role']!='TOOL_ALIAS' or any(alias[k]!=row[v] for k,v in (('text','target'),('resolved','resolved'),('rights','rights'))):
+            raise RuntimeError('CurrentToolAliasSchema')
+
+
 def _current_selection_data(expected, selection):
     """Record consistency for UNACCEPTED DATA; no file/role/owner is inspected."""
     ek = {'schema', 'disposition', 'files', 'links', 'directories', 'closed_roots',
@@ -551,6 +617,7 @@ def _current_selection_data(expected, selection):
     measure_json(roles, 8388608)
     if _current_data_digest(roles) != selection['roles_sha256']:
         raise RuntimeError('CurrentReferenceRoleDigest')
+    _current_role_frames_data(expected, selection)
     for key in ('runtime_elf', 'runtime_mapped_data'):
         rows = expected[key]
         if (type(rows) is not list or len(rows) > 512 or len(set(rows)) != len(rows)
