@@ -1,0 +1,159 @@
+{
+  "schema": "wordling.wp108-source-census-observed-precode-RED/v1",
+  "execution_base_commit": "f0282090c5c68412c04a0f1b9beb299288fa27e4",
+  "test_postimages": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 65303,
+      "sha256": "db897a7c6e51d7402f0b81acfcf13656478d28b535d0577cbe3da9bde01c82e2"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 14851,
+      "sha256": "6c665b7cd539f8dc64f10632be86e437440b67a2f8265585e7a8b62af9684e82"
+    }
+  },
+  "actual_commands": [
+    {
+      "case_id": "CENSUS-POSITIVE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_existing_directory_metadata_positive_control"
+      ],
+      "actual_exit": 0,
+      "classification": "OBSERVED_EXISTING_DIRECTORY_POSITIVE",
+      "elapsed_seconds": 0.09138259396422654,
+      "wait4": {
+        "user_seconds": 0.064107,
+        "system_seconds": 0.015031999999999998,
+        "maxrss_kib": 30072,
+        "minor_faults": 5443,
+        "major_faults": 1,
+        "inblock": 16,
+        "oublock": 0,
+        "voluntary_context_switches": 4,
+        "involuntary_context_switches": 2
+      },
+      "streams": {
+        "stdout": {
+          "raw_size": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_path": "stdout.raw.gz",
+          "gzip_pin": {
+            "size": 20,
+            "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+          },
+          "exact_roundtrip": true
+        },
+        "stderr": {
+          "raw_size": 98,
+          "raw_sha256": "2299339565fdc7c4fedeb54e99b181ba53b821f77194926422cc7df3301ba0ee",
+          "gzip_path": "stderr.raw.gz",
+          "gzip_pin": {
+            "size": 51,
+            "sha256": "dbf5e69d525cc6091951882163eac15bd1b5aa9b8a4ca7d41dfd35d043eb3047"
+          },
+          "exact_roundtrip": true
+        }
+      },
+      "source_inputs_equal": true,
+      "raw_separate_caps": {
+        "stdout": 262144,
+        "stderr": 16384
+      }
+    },
+    {
+      "case_id": "CENSUS-RED",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_existing_item_boundary_requires_census_membership_not_bare_metadata"
+      ],
+      "actual_exit": 1,
+      "classification": "OBSERVED_GENUINE_SOURCE_CENSUS_MEMBERSHIP_RED",
+      "elapsed_seconds": 0.0899999690009281,
+      "wait4": {
+        "user_seconds": 0.063953,
+        "system_seconds": 0.014953,
+        "maxrss_kib": 30128,
+        "minor_faults": 5446,
+        "major_faults": 0,
+        "inblock": 0,
+        "oublock": 0,
+        "voluntary_context_switches": 3,
+        "involuntary_context_switches": 2
+      },
+      "streams": {
+        "stdout": {
+          "raw_size": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_path": "stdout.raw.gz",
+          "gzip_pin": {
+            "size": 20,
+            "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+          },
+          "exact_roundtrip": true
+        },
+        "stderr": {
+          "raw_size": 1008,
+          "raw_sha256": "1623462f97e7a91af5a6653087796ab0a555f9d21a3c4cedabecc9eb872acbd3",
+          "gzip_path": "stderr.raw.gz",
+          "gzip_pin": {
+            "size": 467,
+            "sha256": "2191113f9f853c579606baa98b257ff3f7ab9113e1d8c6e48d342969a230f067"
+          },
+          "exact_roundtrip": true
+        }
+      },
+      "source_inputs_equal": true,
+      "raw_separate_caps": {
+        "stdout": 262144,
+        "stderr": 16384
+      }
+    }
+  ],
+  "causality": "Existingcanonical _StaticInventory.item accepted syntheticcensus_root as bareOBSERVED_UNACCEPTED_METADATA withoutmembership. SingleassertIn(census,row,SOURCE_CENSUS_MEMBERSHIP_REQUIRED) failed,1FAIL/0ERROR. This precedes all newhelperAPI/digestassertions; missingAPI/import/type/resourcefailure NOTobserved. Existingdirectorypositive passedfirst.",
+  "source_reader": {
+    "size": 36404,
+    "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a",
+    "production_unchanged": true
+  },
+  "raw_RED": {
+    "size": 1008,
+    "sha256": "1623462f97e7a91af5a6653087796ab0a555f9d21a3c4cedabecc9eb872acbd3",
+    "gzip_size": 467,
+    "exact_byte_roundtrip": true
+  },
+  "writer_files": 9,
+  "writer_allocation": "Reviewedexactprecode9:6streams/process+capture-source+summary+SHA256SUMS; noadditionalattempt/file. ROOTcausalreceiptseparateallocatedfile notcreatedhere.",
+  "test_runs": 2,
+  "full83_or_newhelpers_or_mutants_run": false,
+  "reference_or_public_census_or_PREP_TEST_P_CONTROL_Original_Mac_actions": false,
+  "current_context_created": false,
+  "clock_started": false,
+  "generate_Op_closed": false,
+  "purpose": "TESTONLY observedREDcheckpoint; no WP108/source/operationalacceptance"
+}

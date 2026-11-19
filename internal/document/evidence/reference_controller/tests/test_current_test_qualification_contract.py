@@ -103,7 +103,7 @@ class StaticReaderStructuralTests(unittest.TestCase):
                      'execv', 'execve', 'spawnv', 'Popen', 'run', 'check_output'}
         calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
         self.assertEqual([n.func.attr for n in calls if isinstance(n.func, ast.Attribute)
-            and n.func.attr in forbidden and not (n.func.attr == 'run' and isinstance(n.func.value, ast.Call)
+            and n.func.attr in forbidden - {'scandir'} and not (n.func.attr == 'run' and isinstance(n.func.value, ast.Call)
                 and isinstance(n.func.value.func, ast.Name) and n.func.value.func.id == '_StaticInventory')], [])
         self.assertEqual([n.func.id for n in calls if isinstance(n.func, ast.Name) and n.func.id in {'eval', 'exec', 'compile', '__import__'}], [])
 
@@ -165,6 +165,38 @@ class Static02PlanStructuralTests(unittest.TestCase):
         for name, owner, wanted in STATIC04_CONSERVED_AST_PINS:
             node = function(tree, name, owner)
             self.assertEqual(hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest(), wanted)
+
+
+
+
+class SourceCensusStructuralTests(unittest.TestCase):
+    def test_old_item_body_tail_and_all_STATIC_caps_are_preserved(self):
+        tree = source_tree('current_test_qualification.py')
+        node = function(tree, 'item', '_StaticInventory')
+        self.assertIsInstance(node.body[0], ast.If)
+        self.assertEqual(hashlib.sha256(ast.dump(ast.Module(body=node.body[1:], type_ignores=[]),
+            include_attributes=False).encode()).hexdigest(), '31860b3484248e348b6f68559a6a64b8e87f47d3b9a23c2dfd8e85d197b5ecb1')
+        self.assertIn('census_root', ast.unparse(node.body[0]))
+
+    def test_only_one_bounded_directory_scanner_is_present(self):
+        tree = source_tree('current_test_qualification.py')
+        scanner = function(tree, '_census_scan_directory')
+        allowed = {id(n) for n in ast.walk(scanner)}
+        scans = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Attribute) and n.func.attr == 'scandir']
+        self.assertEqual(len(scans), 1)
+        self.assertTrue(all(id(n) in allowed for n in scans))
+        self.assertIn('CensusDirectoryEntryBound', ast.unparse(scanner))
+        self.assertIn('CensusMemoryBound', ast.unparse(scanner))
+
+    def test_fixed_census_entrypoint_cannot_accept_arbitrary_paths_or_spawn(self):
+        tree = source_tree('current_test_qualification.py')
+        node = function(tree, 'closure_source_census')
+        self.assertEqual(node.args.args + node.args.posonlyargs + node.args.kwonlyargs, [])
+        self.assertIsNone(node.args.vararg)
+        self.assertIsNone(node.args.kwarg)
+        self.assertEqual(group_signal_calls(node), [])
+        self.assertNotIn('CurrentContext(', ast.unparse(node))
 
 
 if __name__ == "__main__":

@@ -912,5 +912,230 @@ class Static04InterpreterGraphDataTests(unittest.TestCase):
                 self.refused(scenario)
 
 
+
+
+class SourceCensusDataTests(unittest.TestCase):
+    """SOURCE-only census DATA. Initial RED invokes the already-existing item API.
+
+    All /DATA paths below are synthetic. Actual descriptor controls use only one
+    owned TemporaryDirectory under /tmp, remove it on exit, and never call main.
+    New pure helper tests run only AFTER those helpers exist; missing APIs are setup.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.c = canonical_current_data()
+
+    def fixture(self):
+        import stat
+        from types import SimpleNamespace
+        c = self.c
+        directory = SimpleNamespace(st_dev=1, st_ino=1, st_mode=stat.S_IFDIR | 0o700,
+            st_uid=1000, st_gid=1000, st_size=0, st_mtime_ns=1, st_ctime_ns=1)
+        regular = SimpleNamespace(st_dev=1, st_ino=2, st_mode=stat.S_IFREG | 0o600,
+            st_uid=1000, st_gid=1000, st_size=3, st_mtime_ns=1, st_ctime_ns=1)
+        name = '/DATA/census'
+        plan = dict(id='SOURCE_CENSUS01', declared_logical_aliases=[],
+            declared_exact_ancestor_metadata=['/', '/DATA', name],
+            declared_metadata_only_directories=[name], declared_ELF_seed_files=[],
+            declared_nonexecuted_loader_data_files=[],
+            fixed_item_order=[dict(kind='census_root', path=name)],
+            census_options=dict(disposition='UNACCEPTED_SYNTHETIC_SOURCE_DATA',
+                roots=[name], records=8, reads=65536, output=4096, operations=1024,
+                deadline=30, depth=2, working=65536))
+        with mock.patch.object(c.time, 'monotonic', return_value=0):
+            inv = c._StaticInventory(plan, 0)
+        emitted = []
+        inv._census_emit = emitted.append  # lower DATA sink, never a live actor/role
+        def path_info(path, open_file=False, *, open_directory=False):
+            if path == name:
+                return directory, 70 if open_directory else None, name, []
+            if path == name + '/member.bin':
+                return regular, 71 if open_file else None, path, []
+            raise c.Incomplete('SYNTHETIC_UNLISTED:' + path)
+        class Scan:
+            def __enter__(self): return iter([SimpleNamespace(name='member.bin')])
+            def __exit__(self, *args): return False
+        stack = __import__('contextlib').ExitStack()
+        stack.enter_context(mock.patch.object(c.time, 'monotonic', return_value=0))
+        stack.enter_context(mock.patch.object(inv, 'path_info', side_effect=path_info))
+        stack.enter_context(mock.patch.object(c.os, 'scandir', side_effect=lambda fd: Scan()))
+        stack.enter_context(mock.patch.object(c.os, 'read', side_effect=[b'abc']))
+        stack.enter_context(mock.patch.object(c.os, 'fstat', side_effect=lambda fd: directory if fd == 70 else regular))
+        stack.enter_context(mock.patch.object(c.os, 'stat', side_effect=lambda path, **kw: regular if path == 'member.bin' else directory))
+        stack.enter_context(mock.patch.object(c.os, 'readlink', side_effect=AssertionError('UNDECLARED_SYNTHETIC_READLINK')))
+        stack.enter_context(mock.patch.object(c.os, 'close'))
+        stack.enter_context(mock.patch.object(c.os, 'open', side_effect=AssertionError('UNDECLARED_SYNTHETIC_OPEN')))
+        return inv, emitted, stack, name
+
+    def test_existing_directory_metadata_positive_control(self):
+        inv, rows, stack, name = self.fixture()
+        with stack:
+            row = inv.item(dict(kind='directory', path=name))
+        self.assertEqual(row['status'], 'OBSERVED_UNACCEPTED_METADATA')
+        self.assertEqual(row['path'], name)
+        self.assertEqual(rows, [])
+
+    def test_existing_item_boundary_requires_census_membership_not_bare_metadata(self):
+        inv, rows, stack, name = self.fixture()
+        with stack:
+            row = inv.item(dict(kind='census_root', path=name))
+        self.assertIn('census', row, 'SOURCE_CENSUS_MEMBERSHIP_REQUIRED')
+        self.assertEqual(row['census']['records'], 1)
+        self.assertEqual(row['census']['file_bytes'], 3)
+        # Literal canonical membership preimage, independently derived from
+        # this synthetic one-member fixture before any production postimage.
+        membership_preimage = b'{"gid":1000,"mode":384,"name":"member.bin","sha256":"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad","size":3,"type":"file","uid":1000}\n'
+        self.assertEqual(hashlib.sha256(membership_preimage).hexdigest(),
+            'fb686eb8a388c35e3a7f8f760fe4f976ef6948664fccd9b8a3de8ae9bbf83db2')
+        self.assertTrue(row['census']['membership_complete'])
+        self.assertEqual(row['census']['membership_sha256'],
+            'fb686eb8a388c35e3a7f8f760fe4f976ef6948664fccd9b8a3de8ae9bbf83db2')
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['path'], name + '/member.bin')
+        self.assertEqual(rows[0]['sha256'], hashlib.sha256(b'abc').hexdigest())
+        self.assertFalse(row['permission_granted'])
+        self.assertFalse(row['reference_qualification'])
+
+    def test_postcode_regular_hash_read_charge_precedes_actual_io(self):
+        inv, rows, stack, name = self.fixture()
+        inv.plan['census_options']['reads'] = 2
+        with stack, mock.patch.object(self.c.os, 'read', side_effect=AssertionError('UNCHARGED_READ')):
+            with self.assertRaisesRegex(self.c.GlobalStop, '^CensusReadBound$'):
+                inv.item(dict(kind='census_root', path=name))
+        self.assertEqual(rows, [])
+
+    def test_postcode_no_ambient_alias_or_parent_search(self):
+        for text in ('/DATA/OUTSIDE', '../OUTSIDE'):
+            with self.subTest(text=text):
+                result = self.c.census_alias_data('/DATA/census/link', text,
+                    ['/DATA/census'], [])
+                self.assertEqual(result['status'], 'INCOMPLETE_UNLISTED_CENSUS_ALIAS')
+                self.assertFalse(result['follow'])
+
+    def test_postcode_parent_and_membership_snapshots_are_both_required(self):
+        baseline = dict(dev=1, ino=1, mode=0o700, uid=1000, gid=1000, size=0, mtime_ns=1, ctime_ns=1)
+        for changed in ('inode', 'names'):
+            before, after = copy.deepcopy(baseline), copy.deepcopy(baseline)
+            if changed == 'inode': after['ino'] = 2
+            row = self.c.census_snapshot_data(before, after, ['member.bin'],
+                ['other.bin'] if changed == 'names' else ['member.bin'])
+            self.assertEqual(row['status'], 'INCOMPLETE_UNSTABLE_CENSUS')
+            self.assertFalse(row['stable_identity'])
+
+    def test_postcode_package_zero_multiple_and_foreign_names_never_select_first(self):
+        for names in ([], ['pip-1.dist-info', 'pip-2.dist-info'], ['pipper-1.dist-info']):
+            with self.subTest(names=names):
+                row = self.c.census_package_data('pip', names)
+                self.assertEqual(row['status'], 'INCOMPLETE_PACKAGE_SELECTION')
+                self.assertIsNone(row['selected'])
+        self.assertEqual(self.c.census_package_data('pip', ['pip-1.dist-info'])['selected'], 'pip-1.dist-info')
+
+    def test_postcode_literal_header_and_unknown_macro_are_distinct(self):
+        positive = self.c.census_header_data(b'#include <sys/socket.h>\n#include "local.h"\n')
+        self.assertEqual(positive['tokens'], ['sys/socket.h', 'local.h'])
+        self.assertFalse(positive['unresolved'])
+        for raw in (b'#include HEADER\n', b'#include "../escape.h"\n', b'#include <' + b'x' * 4097 + b'>\n'):
+            self.assertTrue(self.c.census_header_data(raw)['unresolved'])
+
+    def test_postcode_record_work_and_memory_bounds_are_independent(self):
+        for key, error in (('records', 'CensusRecordBound'), ('operations', 'CensusOperationBound'),
+                           ('working', 'CensusMemoryBound')):
+            inv, rows, stack, name = self.fixture()
+            inv.plan['census_options'][key] = 0
+            with stack:
+                with self.assertRaisesRegex(self.c.GlobalStop, '^' + error + '$'):
+                    inv.item(dict(kind='census_root', path=name))
+
+    def test_postcode_output_bound_and_failed_sink_preserve_no_false_success(self):
+        inv, rows, stack, name = self.fixture()
+        inv.plan['census_options']['output'] = 1
+        with stack:
+            with self.assertRaisesRegex(self.c.GlobalStop, '^CensusOutputBound$'):
+                inv.item(dict(kind='census_root', path=name))
+        self.assertEqual(rows, [])
+        inv, rows, stack, name = self.fixture()
+        inv._census_emit = mock.Mock(side_effect=OSError('OWNED_SYNTHETIC_SINK_FAILURE'))
+        with stack:
+            with self.assertRaisesRegex(OSError, 'OWNED_SYNTHETIC_SINK_FAILURE'):
+                inv.item(dict(kind='census_root', path=name))
+
+    def actual_fixture(self):
+        import tempfile
+        task = tempfile.TemporaryDirectory(prefix='wordling-wp108-source-census-FD-', dir='/tmp')
+        self.addCleanup(task.cleanup)
+        tree = Path(task.name) / 'tree'
+        tree.mkdir(mode=0o700)
+        (tree / 'member.bin').write_bytes(b'abc')
+        return tree
+
+    def owned_census(self, tree, rows):
+        # Same canonical lower item API with a smaller source-DATA plan, no
+        # production-only test hook, context, main or fixed public plan load.
+        ancestors = [str(x) for x in reversed(tree.parents)] + [str(tree)]
+        plan = dict(id='SOURCE_CENSUS01', declared_logical_aliases=[],
+            declared_exact_ancestor_metadata=ancestors,
+            declared_metadata_only_directories=[str(tree)],
+            declared_ELF_seed_files=[], declared_nonexecuted_loader_data_files=[],
+            fixed_item_order=[dict(kind='census_root', path=str(tree))],
+            census_options=dict(disposition='UNACCEPTED_SYNTHETIC_SOURCE_DATA',
+                roots=[str(tree)], records=8, reads=65536, output=4096,
+                operations=4096, deadline=30, depth=2, working=65536))
+        inv = self.c._StaticInventory(plan, 0)
+        inv._census_emit = rows.append
+        return inv.item(dict(kind='census_root', path=str(tree)))
+
+    def test_postcode_owned_real_FD_hash_membership_and_cleanup(self):
+        tree = self.actual_fixture()
+        # This lower canonical DATA helper accepts only a held owned fixture root,
+        # not a current context/reference. Production fixed plan is never loaded.
+        rows = []
+        result = self.owned_census(tree, rows)
+        self.assertEqual(result['census']['records'], 1)
+        self.assertEqual(rows[0]['sha256'], hashlib.sha256(b'abc').hexdigest())
+        self.assertFalse(result['permission_granted'])
+        self.assertFalse(result['reference_qualification'])
+        self.assertFalse(self.c._actual_context(result))
+
+    def test_postcode_owned_real_FD_symlink_never_follows_external_target(self):
+        tree = self.actual_fixture()
+        (tree / 'link').symlink_to('../OUTSIDE')
+        rows = []
+        result = self.owned_census(tree, rows)
+        links = [r for r in rows if r['path'].endswith('/link')]
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0]['status'], 'INCOMPLETE_UNLISTED_CENSUS_ALIAS')
+        self.assertFalse(links[0]['follow'])
+        self.assertFalse(result['reference_qualification'])
+
+    def test_postcode_owned_real_FD_parent_swap_is_refused(self):
+        tree = self.actual_fixture()
+        real_open = self.c.os.open
+        changed = False
+        def swap(path, flags, *args, **kwargs):
+            nonlocal changed
+            if path == 'member.bin':
+                self.assertTrue(flags & self.c.os.O_NOFOLLOW, 'CENSUS_MEMBER_NOFOLLOW_REQUIRED')
+            if path == 'member.bin' and not changed:
+                changed = True
+                (tree / 'member.bin').rename(tree / 'old.bin')
+                (tree / 'member.bin').symlink_to('../OUTSIDE')
+            return real_open(path, flags, *args, **kwargs)
+        rows = []
+        with mock.patch.object(self.c.os, 'open', side_effect=swap):
+            result = self.owned_census(tree, rows)
+        self.assertTrue(changed)
+        self.assertEqual(result['status'], 'INCOMPLETE')
+        self.assertFalse(result['permission_granted'])
+        self.assertFalse(any(r.get('sha256') == hashlib.sha256(b'OUTSIDE').hexdigest() for r in rows))
+
+    def test_postcode_census_receipt_remains_unaccepted_and_ops_blocked(self):
+        self.assertEqual(self.c.current_status()['live_contexts'], 0)
+        with self.assertRaisesRegex(TypeError, 'CurrentTestGenuineProducerUnavailable'):
+            self.c._CurrentContext()
+        for name in ('capture_reference', 'prepare_disposable', 'prepare_final', 'test_admin', 'test_healthy'):
+            with self.assertRaisesRegex(RuntimeError, 'CurrentTestExecutionClosureUnresolved'):
+                getattr(self.c, name)()
+
+
 if __name__ == "__main__":
     unittest.main()
