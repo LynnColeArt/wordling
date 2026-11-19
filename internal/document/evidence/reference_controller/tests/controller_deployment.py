@@ -28,6 +28,15 @@ def static_elf(path):
     assert all(struct.unpack_from('<I',raw,offset+i*size)[0]!=3 for i in range(count)), 'dynamic interpreter not allowed'
 
 
+def _review_payload_pin(name,source,wanted,declared_size):
+    """One canonical source pin check, shared by finite and ordinary DATA paths."""
+    if (type(wanted)is not dict or set(wanted)!={'size','sha256'} or type(wanted['size'])is not int
+            or not 0<=wanted['size']<=1048576 or type(wanted['sha256'])is not str or len(wanted['sha256'])!=64):
+        raise RuntimeError('WheelExpectedPayloadPin')
+    if pin(source)!=wanted or declared_size!=wanted['size']:
+        raise RuntimeError('WheelReviewedPayload:'+name)
+
+
 def _campaign_review_wheel(wheel,expected_payloads,context):
     """Bounded wheel-copy frame; every binary/CSV/ZipInfo dies on return."""
     if len(expected_payloads)!=22:raise RuntimeError('CampaignPayloadCardinality')
@@ -39,7 +48,7 @@ def _campaign_review_wheel(wheel,expected_payloads,context):
         if len(names)>32 or len(names)!=len(set(names)) or set(names)!=set(expected_payloads)|metadata:raise RuntimeError('WheelClosedMemberSet')
         for info in z.infolist():context.guard_wheel_member(info,record=info.filename==dist+'/RECORD')
         for name,(source,wanted) in expected_payloads.items():
-            if pin(source)!=wanted or z.getinfo(name).file_size!=wanted['size']:raise RuntimeError('WheelReviewedPayload:'+name)
+            _review_payload_pin(name,source,wanted,z.getinfo(name).file_size)
             with source.open('rb') as original,z.open(name) as member:
                 while True:
                     left=original.read(16384);right=member.read(16384)
@@ -164,7 +173,7 @@ def review_wheel(wheel,expected_payloads,context=None):
         names=z.namelist()
         if len(names)!=len(set(names)) or set(names)!=set(expected_payloads)|metadata:raise RuntimeError('WheelClosedMemberSet')
         for name,(source,wanted) in expected_payloads.items():
-            if pin(source)!=wanted or z.getinfo(name).file_size!=wanted['size']:raise RuntimeError('WheelReviewedPayload:'+name)
+            _review_payload_pin(name,source,wanted,z.getinfo(name).file_size)
             with source.open('rb') as original,z.open(name) as member:
                 while True:
                     left=original.read(16384);right=member.read(16384)

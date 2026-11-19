@@ -348,7 +348,12 @@ def measure_json(value,maximum):
 
 class EvidenceBudget:
     """Narrow fixed-source evidence allocation, never product/issuer authority."""
-    def __init__(self,roots,baseline_bytes=0,baseline_files=0,earlier_document_cap=None,campaign=None,qualification=None,*,current_test=None):
+    def __init__(self,roots,baseline_bytes=0,baseline_files=0,earlier_document_cap=None,campaign=None,qualification=None,*,current_test=None,current_owner=None):
+        if current_owner is not None:
+            if current_test is not None or campaign is not None or qualification is not None or not _actual_current_session(current_owner):raise RuntimeError('CurrentActualOwnerBudgetRequired')
+            current_owner.check()
+            if (tuple(Path(p).absolute() for p in roots)!=(Path('/tmp/wordling-WP70-current-test-qualification-v2'),current_owner.repository/'docs/research/continuation/test-runtime-qualification-v2')
+                    or baseline_bytes!=current_owner.capacity['E_bytes'] or baseline_files!=current_owner.capacity['E_files'] or earlier_document_cap is not None):raise RuntimeError('CurrentOwnerBudgetConstructor')
         if current_test is not None:
             if campaign is not None or qualification is not None:
                 raise RuntimeError('CurrentTestMixedPurpose')
@@ -358,7 +363,7 @@ class EvidenceBudget:
         self.roots=tuple(Path(p).absolute() for p in roots)
         self.base_bytes=baseline_bytes;self.base_files=baseline_files
         self.classes={k:[0,0] for k in CLASS_LIMITS};self.slots={};self.groups={}
-        self._campaign_book=None;self._qualification_book=None;self._current_test_book=None
+        self._campaign_book=None;self._qualification_book=None;self._current_test_book=None;self._current_owner_book=current_owner
         if current_test is not None:
             current_test.install(self)
             self._current_test_book=current_test
@@ -376,6 +381,7 @@ class EvidenceBudget:
         return p
     def reserve(self,paths,kind,maximum):
         paths=tuple(self._path(p) for p in paths)
+        if self._current_owner_book is not None:return _current_session_claim(self._current_owner_book,self,paths,kind,maximum)
         if self._current_test_book is not None:return self._current_test_book.claim(self,paths,kind,maximum)
         if self._campaign_book is not None:return self._campaign_book.claim(paths,kind,maximum)
         if self._qualification_book is not None:return self._qualification_book.claim(self,paths,kind,maximum)
@@ -423,7 +429,7 @@ class EvidenceBudget:
         allocation['used']+=written+1
         if self._campaign_book is not None:self._campaign_book.document_done(p)
     def raw_group(self,paths,kind,maximum,shared=None):
-        if self._current_test_book is not None and shared is not None:raise RuntimeError('CurrentTestNoSharedAugmentation')
+        if (self._current_test_book is not None or self._current_owner_book is not None) and shared is not None:raise RuntimeError('CurrentTestNoSharedAugmentation')
         if _R5_REG_CURRENT is not None and shared is not None:raise RuntimeError('FixedReviewOwnerNoSharedAugmentation')
         if self._campaign_book is not None:
             return self._campaign_book.raw(tuple(self._path(p) for p in paths),kind,maximum,shared)
@@ -848,7 +854,10 @@ def admit_capacity(expected,root,campaign=None,slot=None,*,qualification=None,cu
 def _trace_allocation_bound(raw):
     size=len(raw.encode('utf8'));n=min(16384,raw.count('\n'))
     charge=size+2048*n+8*size+16*(size//3)+524288+46137344+8388608+16777216+1048576
-    if charge>OWNED_MEMORY_LIMIT:raise RuntimeError('PreparedMemoryCharge')
+    module=sys.modules.get('current_test_qualification')
+    current=module is not None and module._CURRENT_ROOT is not None and module._CURRENT_ROOT in module._LIVE_ROOTS
+    limit=OWNED_MEMORY_LIMIT-1048576 if current else OWNED_MEMORY_LIMIT
+    if charge>limit:raise RuntimeError('PreparedMemoryCharge')
     return charge
 
 
@@ -3380,8 +3389,12 @@ class Preparation:
             current=_require_current_test(self.current_test)
             current.capture_admission(self,argv,label,tool)
             try:return _capture_command(self,argv,label,tool)
-            except BaseException:
-                current.fail('CurrentCaptureFailed');supervisor_notice('abort');raise
+            except BaseException as error:
+                current.fail('CurrentCaptureFailed')
+                terminal=(label=='tool-negative' and tool is True and current.capture_index==10
+                    and type(error)is RuntimeError and str(error)=='UnsupportedRelativeOrUnknownExec')
+                if not terminal:supervisor_notice('abort')
+                raise
         if self.campaign is not None:return self._run_campaign(argv,label,tool)
         return _capture_command(self,argv,label,tool)
 
@@ -3628,12 +3641,577 @@ _CURRENT_BOOTSTRAP = None
 _CURRENT_OWNER = None
 
 
+def _current_writer_groups():
+    """Exact reviewed 197 writers; source grammar, never a decoded policy.
+
+    Source: current-context design ca9b16e498fa5fe2c4a4b560de8860783
+    e45bf9b741edb9c016d55f208210a8f. All caps/classes are unchanged.
+    """
+    for kind,cap,paths in (
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/venv.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-before.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-before.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-before.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-before.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-before.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/stdlib-before.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/stdlib-before.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/stdlib-before.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/stdlib-before.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/stdlib-before.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compile.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/wheel.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/install.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-after.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-after.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-after.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-after.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/qualify-literal-after.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/origins.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/origins.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/origins.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/origins.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/origins.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-positive.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.transient-data.json',)),
+        ('build', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/build-freeze.json',)),
+        ('compiled', 16384, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/compiled-data-before-wheel.json',)),
+        ('inventory', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/deployment-inventory.json',)),
+        ('deployment', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/deployment.json',)),
+        ('misc', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/whole.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/venv.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-before.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-before.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-before.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-before.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-before.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/stdlib-before.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/stdlib-before.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/stdlib-before.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/stdlib-before.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/stdlib-before.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compile.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/wheel.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.trace')),
+        ('origin', 16777216, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.origins.json',)),
+        ('transient', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/install.transient-data.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-after.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-after.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-after.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-after.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/qualify-literal-after.trace')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/origins.command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/origins.whole.json',)),
+        ('construction_raw', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/origins.stdout', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/origins.stderr', '/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/origins.trace')),
+        ('build', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/build-freeze.json',)),
+        ('compiled', 16384, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/compiled-data-before-wheel.json',)),
+        ('inventory', 4194304, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/deployment-inventory.json',)),
+        ('deployment', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/deployment.json',)),
+        ('misc', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/whole.json',)),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/disposable/whole.json',)),
+        ('custody', 98304, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/disposable/stdout.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/disposable/stderr.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/disposable/control.raw')),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/final/whole.json',)),
+        ('custody', 98304, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/final/stdout.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/final/stderr.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/final/control.raw')),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/reference-probe/whole.json',)),
+        ('custody', 98304, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/reference-probe/stdout.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/reference-probe/stderr.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/reference-probe/control.raw')),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/owner-negative/whole.json',)),
+        ('custody', 98304, ('/tmp/wordling-WP70-current-test-qualification-v2/owners/owner-negative/stdout.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/owner-negative/stderr.raw', '/tmp/wordling-WP70-current-test-qualification-v2/owners/owner-negative/control.raw')),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-admin/owner/whole.json',)),
+        ('custody', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-admin/owner/stdout.raw', '/tmp/wordling-WP70-current-test-qualification-v2/cli-admin/owner/stderr.raw', '/tmp/wordling-WP70-current-test-qualification-v2/cli-admin/owner/control.raw')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-admin/command.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-admin/checked-report.json',)),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-healthy/owner/whole.json',)),
+        ('custody', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-healthy/owner/stdout.raw', '/tmp/wordling-WP70-current-test-qualification-v2/cli-healthy/owner/stderr.raw', '/tmp/wordling-WP70-current-test-qualification-v2/cli-healthy/owner/control.raw')),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-healthy/command.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cli-healthy/checked-report.json',)),
+        ('input', 1572864, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/expected-inputs.json.gz',)),
+        ('input', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/source-binding.json',)),
+        ('input', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/capacity.json',)),
+        ('control', 1048576, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/tool-selection.json',)),
+        ('control', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/reference-roots.json',)),
+        ('origin', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/base-observation.json',)),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/seal.json',)),
+        ('custody', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/capture-source-manifest.json',)),
+        ('misc', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/reference-summary.json',)),
+        ('custody', 1572864, ('/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/reference/expected-inputs.json.gz',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cold/COLD01.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cold/COLD02.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cold/COLD03.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cold/COLD04.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cold/COLD05.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/cold/COLD06.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/data/MUTANT01.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/data/MUTANT02.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/data/MUTANT03.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/data/MUTANT04.json',)),
+        ('control', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/data/validator-results.json',)),
+        ('failure', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.failure.json',)),
+        ('review', 65536, ('/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/reference-acceptance.json',)),
+        ('review', 65536, ('/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/disposable-disposition.json',)),
+        ('review', 65536, ('/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/candidate-acceptance.json',)),
+        ('review', 65536, ('/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/final-review.json',)),
+        ('aggregate', 1048576, ('/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/qualification-summary.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF01/command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF01/process.json',)),
+        ('construction_raw', 8192, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF01/stdout-summary.raw',)),
+        ('construction_raw', 16384, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF01/stderr.raw',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF02/command.json',)),
+        ('pair', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF02/process.json',)),
+        ('construction_raw', 8192, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF02/stdout-summary.raw',)),
+        ('construction_raw', 16384, ('/tmp/wordling-WP70-current-test-qualification-v2/reference/REF02/stderr.raw',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/reference-acceptance/independent-review.md',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/reference-acceptance/combined-checks.json',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/disposable-disposition/independent-review.md',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/disposable-disposition/combined-checks.json',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/candidate-acceptance/independent-review.md',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/candidate-acceptance/combined-checks.json',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/final-review/independent-review.md',)),
+        ('review', 262144, ('/tmp/wordling-WP70-current-test-qualification-v2/review/final-review/combined-checks.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/decisions/REF01.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/decisions/REF02.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/decisions/PREP01.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/decisions/PREP02.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/decisions/CLI01.json',)),
+        ('control', 65536, ('/tmp/wordling-WP70-current-test-qualification-v2/decisions/CLI02.json',)),
+    ):
+        yield dict(kind=kind,reserved_bytes=cap,paths=paths)
+
+
+_CURRENT_PHASE_COMPLETIONS = {}
+
+
+def _actual_current_session(value):
+    module=sys.modules.get('current_test_qualification')
+    return module is not None and type(value)is module._CurrentSession and value in module._LIVE_SESSIONS
+
+
+def _current_begin_session(module):
+    """Fixed trusted application entry. It creates no child context or clock."""
+    if module is not sys.modules.get('current_test_qualification') or module._LIVE_SESSIONS or module._SESSION_STARTED:
+        raise RuntimeError('CurrentSoleApplicationSession')
+    manifest=_current_manifest(pin(Path(__file__).resolve())['sha256'],'admin')
+    directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
+    for name in (directory.parent,directory):
+        row=name.lstat()
+        if not stat.S_ISDIR(row.st_mode) or row.st_uid!=os.getuid() or stat.S_IMODE(row.st_mode)!=0o700:raise RuntimeError('CurrentPrivateSourceNamespace')
+    capacity_path=directory/'capacity.json'
+    if capacity_path.is_symlink() or capacity_path.stat().st_size>65536:raise RuntimeError('CurrentParentCapacityInputBound')
+    with capacity_path.open('rb') as stream:raw=stream.read(65537)
+    if len(raw)>65536:raise RuntimeError('CurrentParentCapacityInputBound')
+    text,charge=_json_prepared(raw,65536)
+    if charge>524288:raise RuntimeError('CurrentParentCapacityCharge')
+    capacity=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+    del raw,text
+    check_reference_shape(capacity)
+    source=Path(__file__).resolve().parent.parent;repository=source.parents[3]
+    groups=tuple(_current_writer_groups())
+    names=[name for row in groups for name in row['paths']]
+    if len(names)!=197 or len(set(names))!=197:raise RuntimeError('CurrentClosed197Writers')
+    fd=os.open(directory/'expected-inputs.json.gz',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    try:
+        identity=os.fstat(fd)
+        if not stat.S_ISREG(identity.st_mode) or not 0<identity.st_size<=1572864:raise RuntimeError('CurrentExpectedReadOnlyFD')
+        value=object.__new__(module._CurrentSession)
+        value.source=source;value.repository=repository;value.manifest=manifest;value.capacity=capacity;value.groups=tuple(groups)
+        value.whole_origin=None;value.whole_end=None;value.stage='SOURCE_ACCEPTED_NO_CLOCK'
+        value.failed=False;value.finished=False;value.active=None
+        value.expected_fd=fd;value.expected_identity=(identity.st_dev,identity.st_ino,identity.st_size,identity.st_mtime_ns,identity.st_ctime_ns)
+        value.phase_results={};value.used=set();value.budget=None;value.claimed=set();value.arena=_CampaignArena()
+        value.arena.hold('current-parent-state',524288)
+        value.frozen_disposable=None;value.candidate=None;value.nonce=os.urandom(32).hex();value.source_accepted=False
+        module._LIVE_SESSIONS.add(value);module._SESSION_STARTED=True
+        _current_session_inputs(value)
+        return value
+    except BaseException:
+        os.close(fd);raise
+
+
+def _current_source_acceptance(session):
+    if not _actual_current_session(session) or session.whole_origin is not None:
+        raise RuntimeError('CurrentSourceAcceptanceIdentity')
+    current=_current_manifest(session.manifest['sources'][str(Path(__file__).resolve())]['sha256'],'admin')
+    if current!=session.manifest:raise RuntimeError('CurrentSourceClosureChanged')
+    directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
+    for name,row in current['inputs'].items():same(directory/name,row)
+    session.check()
+
+
+def _current_session_inputs(session):
+    if not _actual_current_session(session):raise RuntimeError('CurrentApplicationSessionIdentity')
+    if session.expected_fd is None or os.get_inheritable(session.expected_fd):raise RuntimeError('CurrentExpectedReadOnlyFD')
+    row=os.fstat(session.expected_fd)
+    named=os.stat('/tmp/wordling-WP70-current-test-qualification-v2/reference/expected-inputs.json.gz',follow_symlinks=False)
+    if (named.st_dev,named.st_ino)!=(row.st_dev,row.st_ino) or (row.st_dev,row.st_ino,row.st_size,row.st_mtime_ns,row.st_ctime_ns)!=session.expected_identity:
+        session.failed=True;raise RuntimeError('CurrentExpectedFDChanged')
+    # Whole class limits remain authoritative even though only a finite subset
+    # is consumed in any one phase. OTHER baseline is included in capacity.
+    if (session.capacity['E_bytes']+sum(r[0] for r in CLASS_LIMITS.values())>EVIDENCE_LIMIT
+            or session.capacity['E_files']+sum(r[1] for r in CLASS_LIMITS.values())>EVIDENCE_FILES):
+        raise RuntimeError('EvidenceFutureEnvelopeFit')
+
+
+def _current_session_budget(session):
+    session.check()
+    if not session.source_accepted or session.whole_origin is None:raise RuntimeError('CurrentWholeClockRequired')
+    if session.budget is None:
+        _current_capacity_proof(session)
+        roots=[Path('/tmp/wordling-WP70-current-test-qualification-v2'),session.repository/'docs/research/continuation/test-runtime-qualification-v2']
+        session.budget=EvidenceBudget(roots,session.capacity['E_bytes'],session.capacity['E_files'],current_owner=session)
+        session.capacity=dict(E_bytes=session.capacity['E_bytes'],E_files=session.capacity['E_files'])
+    return session.budget
+
+
+def _current_session_claim(session,book,paths,kind,maximum):
+    session.check()
+    if book is not session.budget:raise RuntimeError('CurrentOwnerBudgetIdentity')
+    matches=[(i,row) for i,row in enumerate(session.groups) if tuple(Path(n) for n in row['paths'])==paths]
+    if len(matches)!=1:raise RuntimeError('CurrentClosedOwnerWriter')
+    index,row=matches[0]
+    # The parent book cannot consume a child's capture/deployment reservation.
+    parent=(any('/owners/' in str(p) or '/cli-admin/' in str(p) or '/cli-healthy/' in str(p) for p in paths)
+        or all('/decisions/' in str(p) for p in paths)
+        or all(str(p) in {str(Path('/tmp/wordling-WP70-current-test-qualification-v2/cold')/('COLD0'+str(i)+'.json')) for i in range(1,7)} for p in paths))
+    if not parent or row['kind']!=kind or type(maximum)is not int or not 0<=maximum<=row['reserved_bytes'] or index in session.claimed:
+        raise RuntimeError('CurrentOwnerWriterSpentOrScope')
+    session.claimed.add(index)
+    return book._reserve_actual_group(paths,kind,row['reserved_bytes'])
+
+
+def _current_phase_command(session,name):
+    session.check()
+    if name not in ('reference','disposable','final'):raise RuntimeError('CurrentGroupPhase')
+    sha=session.manifest['sources'][str(Path(__file__).resolve())]['sha256']
+    return [str(BASE),'-I','-B',str(Path(__file__).resolve()),'--current-phase',name,sha]
+
+
+def _current_terminal_tool_checks(context,interpreter,inventory):
+    context.check(context.preparation)
+    if context.stage!='DISPOSABLE_PREPARING' or context.capture_index!=8 or context.inventory_frozen is not inventory:
+        raise RuntimeError('CurrentTerminalToolStage')
+    frozen_path=context.evidence/'deployment/deployment-inventory.json'
+    frozen_pin=dict(**pin(frozen_path),**rights(frozen_path))
+    preparation=context.preparation
+    preparation.run(['/usr/bin/python3','-I','-B','-c','pass'],'tool-positive',tool=True)
+    failure_path=context.evidence/'tool-negative.failure.json'
+    preparation.budget.reserve([failure_path],'failure',65536)
+    body="import os;os.execve('venv/bin/python',('venv/bin/python','-I','-B','-c','pass'),{'LANG':'C.UTF-8','LC_ALL':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1'})"
+    try:
+        preparation.run(['/usr/bin/python3','-I','-B','-c',body],'tool-negative',tool=True)
+    except RuntimeError as error:
+        if str(error)!='UnsupportedRelativeOrUnknownExec' or not context.failed or not context.root.failed:
+            raise
+        # Failure custody was reserved BEFORE the terminal call. No failed
+        # context is checked, resumed, refunded, or used to reserve new work.
+        preparation.finished=True
+        preparation.budget.document(failure_path,dict(status='EXPECTED_TERMINAL_VALIDATOR_REFUSAL',
+            error='UnsupportedRelativeOrUnknownExec',actual_commands=10,context_permanently_failed=True,
+            frozen_inventory=dict(path=str(frozen_path),**frozen_pin),whole_preparation_succeeded=False),
+            'failure',pre_reserved=True)
+        return 2
+    context.fail('CurrentMissingToolNegativeRefusal')
+    raise RuntimeError('CurrentMissingToolNegativeRefusal')
+
+
+def _current_disposable_completion(session,result):
+    if result['exit']!=2:raise RuntimeError('CurrentTerminalNegativeExit')
+    path=Path('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/tool-negative.failure.json')
+    if path.is_symlink() or path.stat().st_size>65536:raise RuntimeError('CurrentTerminalFailureCustody')
+    value=bounded_json_loads(path.read_bytes(),65536)
+    if (set(value)!={'status','error','actual_commands','context_permanently_failed','frozen_inventory','whole_preparation_succeeded'}
+            or value['status']!='EXPECTED_TERMINAL_VALIDATOR_REFUSAL' or value['error']!='UnsupportedRelativeOrUnknownExec'
+            or value['actual_commands']!=10 or value['context_permanently_failed']is not True or value['whole_preparation_succeeded']is not False):
+        raise RuntimeError('CurrentTerminalFailureCustody')
+    row=value['frozen_inventory'];wanted=Path('/tmp/wordling-WP70-current-test-qualification-v2/disposable/receipts/deployment/deployment-inventory.json')
+    if row['path']!=str(wanted):raise RuntimeError('CurrentFrozenDisposablePath')
+    same(wanted,row)
+    fd=os.open(wanted,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    session.frozen_disposable=dict(fd=fd,pin={k:row[k] for k in ('size','sha256','mode','uid','gid')})
+
+
+def _current_final_completion(session,result):
+    if result['exit']!=0 or not result['cleanup_qualified']:raise RuntimeError('CurrentFinalOwnerRequired')
+    path=Path('/tmp/wordling-WP70-current-test-qualification-v2/final/receipts/deployment/deployment-inventory.json')
+    if path.is_symlink():raise RuntimeError('CurrentFinalInventoryAlias')
+    row=dict(**pin(path),**rights(path))
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    if session.candidate is not None:os.close(fd);raise RuntimeError('CurrentCandidateOnce')
+    session.candidate=dict(fd=fd,pin=row)
+
+
+def _current_session_runtime(session,name):
+    session.check()
+    if name not in ('disposable','final'):raise RuntimeError('CurrentRuntimeSlot')
+    record=session.frozen_disposable if name=='disposable' else session.candidate
+    if record is None:raise RuntimeError('CurrentFrozenRuntimeRequired')
+    path=Path('/tmp/wordling-WP70-current-test-qualification-v2')/name/'receipts/deployment/deployment-inventory.json'
+    same(path,record['pin'])
+    fd=record['fd'];before=os.fstat(fd);named=os.stat(path,follow_symlinks=False)
+    if (before.st_dev,before.st_ino)!=(named.st_dev,named.st_ino) or before.st_size>65536:
+        raise RuntimeError('CurrentParentInventoryBound')
+    session.arena.hold('current-parent-inventory',524288)
+    raw=os.pread(fd,65537,0)
+    text,charge=_json_prepared(raw,65536)
+    if charge>524288:raise RuntimeError('CurrentParentInventoryCharge')
+    inventory=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+    del raw,text
+    if (os.fstat(fd)!=before or type(inventory)is not dict or not 0<len(inventory)<=1024):raise RuntimeError('CurrentFrozenInventoryChanged')
+    return Path('/tmp/wordling-WP70-current-test-qualification-v2')/name/'venv/bin/python',inventory
+
+
+def _current_cold_artifacts(session):
+    interpreter,inventory=_current_session_runtime(session,'disposable')
+    cold_end=min(session.whole_end,time.monotonic()+90)
+    qroot=Path('/tmp/wordling-WP70-current-test-qualification-v2');venv=interpreter.parent.parent
+    preflight(interpreter,inventory)
+    specs=(('COLD01',venv/'lib/python3.12/site-packages/current-inert.pth','new',b'# inert\n','VenvCacheOrCustomization:'),
+        ('COLD02',venv/'lib/python3.12/site-packages/current-inert.pyc','new',b'inert','VenvCacheOrCustomization:'),
+        ('COLD03',venv/'lib64','link',b'OTHER','VenvSymlink'),
+        ('COLD04',interpreter,'flip',b'', 'CopiedAlias:'),
+        ('COLD05',venv/'pyvenv.cfg','cfg',b'', 'ExactVenvConfig'),
+        ('COLD06',venv/'lib/python3.12/site-packages/reference_controller/errors.py','append',b'\n# current qualification inert poison\n','ChangedInput:'))
+    budget=_current_session_budget(session)
+    for case,path,operation,payload,wanted in specs:
+        session.check()
+        if time.monotonic()>=cold_end:raise RuntimeError('CurrentColdSharedDeadline')
+        preflight(interpreter,inventory)
+        fd=None;original=None;original_link=None;reason=None;created=False
+        try:
+            if operation=='new':
+                fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o644)
+                created=True
+                if os.write(fd,payload)!=len(payload):raise RuntimeError('CurrentPoisonWrite')
+                os.close(fd);fd=None
+            elif operation=='link':
+                if not path.is_symlink() or os.readlink(path)!='lib':raise RuntimeError('CurrentPoisonLinkBaseline')
+                original_link='lib';path.unlink();os.symlink('OTHER',path)
+            else:
+                fd=os.open(path,os.O_RDWR|os.O_NOFOLLOW|os.O_CLOEXEC)
+                original=os.fstat(fd)
+                if operation=='flip':
+                    payload=os.pread(fd,1,original.st_size-1)
+                    if len(payload)!=1:raise RuntimeError('CurrentPoisonByte')
+                    if os.pwrite(fd,bytes([payload[0]^1]),original.st_size-1)!=1:raise RuntimeError('CurrentPoisonWrite')
+                elif operation=='cfg':
+                    payload=os.pread(fd,4097,0)
+                    if len(payload)>4096 or payload.count(b'version = 3.12.14')!=1:raise RuntimeError('CurrentPoisonConfigBaseline')
+                    changed=payload.replace(b'version = 3.12.14',b'version = 3.12.13')
+                    if os.pwrite(fd,changed,0)!=len(changed):raise RuntimeError('CurrentPoisonWrite')
+                else:
+                    if os.pwrite(fd,payload,original.st_size)!=len(payload):raise RuntimeError('CurrentPoisonWrite')
+            try:preflight(interpreter,inventory)
+            except RuntimeError as error:reason=str(error)
+            if reason is None or not reason.startswith(wanted):raise RuntimeError('CurrentColdCausalRefusal')
+        finally:
+            if operation=='new':
+                if created:path.unlink()
+            elif operation=='link' and original_link is not None:
+                if path.is_symlink():path.unlink()
+                os.symlink(original_link,path)
+            elif fd is not None and original is not None:
+                if operation=='flip':os.pwrite(fd,payload,original.st_size-1)
+                elif operation=='cfg':os.pwrite(fd,payload,0)
+                os.ftruncate(fd,original.st_size);os.fchmod(fd,stat.S_IMODE(original.st_mode))
+            if fd is not None:os.close(fd)
+        preflight(interpreter,inventory)
+        if time.monotonic()>=cold_end:raise RuntimeError('CurrentColdSharedDeadline')
+        folder=qroot/'cold';folder.mkdir(mode=0o700,exist_ok=True)
+        budget.document(folder/(case+'.json'),dict(status='CANONICAL_REFUSAL_AND_RESTORED',reason=reason,context_reopened=False),'control')
+    return dict(status='SIX_COLD_ARTIFACT_CHECKS_OBSERVED',preparation_reopened=False)
+
+
+def _current_check_cli_report(session,kind,result):
+    session.check()
+    path=Path(result['raw_channels']['stdout.raw']['path'])
+    if path.is_symlink() or path.stat().st_size>32768:raise RuntimeError('CurrentCLIReportBound')
+    session.arena.hold('current-cli-report',524288)
+    with path.open('rb') as stream:raw=stream.read(32769)
+    if len(raw)>32768:raise RuntimeError('CurrentCLIReportBound')
+    lines=raw.splitlines()
+    if len(lines)>16:raise RuntimeError('CurrentCLIReportLines')
+    reports=[]
+    for line in lines:
+        if not line.startswith(b'{'):raise RuntimeError('CurrentCLIReportFraming')
+        text,charge=_json_prepared(line,32768)
+        if charge>524288:raise RuntimeError('CurrentCLIReportCharge')
+        value=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+        del text
+        if type(value)is not dict:raise RuntimeError('CurrentCLIReportShape')
+        reports.append(value)
+    if len(reports)!=1:raise RuntimeError('CurrentExactlyOneCLIReport')
+    report=reports[0]
+    if kind=='admin':
+        if report.get('status')!='TEST_STORE_CREATED' or report.get('generation')!='wp70-current-v2':
+            raise RuntimeError('CurrentAdminObservation')
+        checked=dict(status='TEST_STORE_CREATED',generation='wp70-current-v2')
+    else:
+        if (report.get('status')!='TEST_LEAF_COMPLETE' or report.get('test_only')is not True
+                or report.get('original_qualification')is not False or report.get('run_leaf')is not True
+                or report.get('leaf')!='TEST-current-v2-healthy' or report.get('positive_absence')is not True
+                or report.get('physical_released')is not True or report.get('notified')is not True
+                or report.get('failure')is not None):raise RuntimeError('CurrentHealthyObservation')
+        containment=report.get('containment')
+        if type(containment)is not dict or containment.get('closed')is not True or containment.get('physical_qualified_release')is not True or containment.get('unresolved_safety_hold')is not False:
+            raise RuntimeError('CurrentHealthyContainment')
+        outputs=report.get('outputs')
+        if type(outputs)is not list or len(outputs)!=2:raise RuntimeError('CurrentTwoDerivedOutputs')
+        key=hashlib.sha256()
+        for text in ('wordling.spent-ticket/v1','wordling.TEST.ledger/v1','wp70-current-v2','current-v2-healthy'):
+            part=text.encode('ascii');key.update(len(part).to_bytes(4,'big')+part)
+        basename=key.hexdigest()[:48]
+        wanted=(dict(name=basename+'.bin',size=30737,sha256='5c4f6cf4c1edca4e6b497e1f72f98c24df84fb35928aa72a4dadc9facc60460b'),
+            dict(name=basename+'.empty',size=0,sha256='e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'))
+        for row,expected in zip(outputs,wanted):
+            if type(row)is not dict or any(row.get(k)!=v for k,v in expected.items()) or row.get('full_expected_bytes')is not True or row.get('durable_readback')is not True:
+                raise RuntimeError('CurrentDerivedExpectedOutputs')
+            output=Path('/tmp/wordling-reference-TEST-current-v2-ledger')/expected['name']
+            if pin(output)!={k:expected[k] for k in ('size','sha256')}:raise RuntimeError('CurrentPublishedExpectedBytes')
+        master=Path('/tmp/wordling-WP70-current-test-qualification-v2/final/venv/lib/python3.12/site-packages/reference_controller/testdata/master.bin')
+        if pin(master)!=dict(size=30720,sha256='34b81ed8f1988543570657c6abb4d190dbfe975394596778c746572f3ffdc3b2'):
+            raise RuntimeError('CurrentMasterChanged')
+        checked=dict(status='TEST_LEAF_COMPLETE',source_expected_outputs=True,master_unchanged=True,positive_absence=True)
+    del report,reports,value,lines,line,raw
+    return checked
+
+
+def _current_session_cli(session,kind):
+    global _CURRENT_OWNER
+    if not _actual_current_session(session) or kind not in ('admin','healthy') or _CURRENT_OWNER is not None:
+        raise RuntimeError('CurrentActualApplicationCLI')
+    session.check()
+    interpreter,inventory=_current_session_runtime(session,'final');preflight(interpreter,inventory)
+    del inventory
+    session.arena.release('current-parent-inventory')
+    owner=object.__new__(_CurrentOwner)
+    owner.root=session;owner.context=None;owner.kind=kind;owner.aborted=False
+    owner.start=time.monotonic_ns();owner.end=min(int(session.whole_end*1000000000),owner.start+32000000000);owner.traffic_end=owner.end-2000000000
+    source_sha=session.manifest['sources'][str(Path(__file__).resolve())]['sha256']
+    owner.manifest=_current_manifest(source_sha,kind)
+    base=Path('/tmp/wordling-WP70-current-test-qualification-v2')/('cli-admin' if kind=='admin' else 'cli-healthy')
+    owner.descriptor=dict(root=str(base/'workspace'),evidence=str(base),nonce=owner.manifest['nonce'])
+    owner.arena=_CampaignArena();owner.arena.hold('current-owner-live',1048576)
+    owner.budget=_current_session_budget(session);_CURRENT_OWNER=owner
+    try:
+        result=sys.modules['runtime_qualification_supervisor']._supervise_owner(owner,source_sha)
+        if (result['root_exit']!=0 or not result['coordinator_reaped_last'] or not result['kernel_no_children_observed']
+                or result['own_children_remaining']!=[] or result['signal_identity_unknown']
+                or not result['cleanup_qualified'] or result['partial_prefix']):raise RuntimeError('CurrentCLISettlementUnknown')
+        checked=_current_check_cli_report(session,kind,result)
+        session.arena.release('current-cli-report')
+        if time.monotonic_ns()>=owner.end:raise RuntimeError('CurrentCLIOverallDeadline')
+        owner.budget.document(base/'checked-report.json',dict(status='OBSERVED_NOT_RELEASE_APPROVAL',kind=kind,cleanup_qualified=True,checked=checked),'control')
+        if time.monotonic_ns()>=owner.end:raise RuntimeError('CurrentCLIOverallDeadline')
+        _CURRENT_PHASE_COMPLETIONS[id(result)]=(session,kind,result)
+        return result
+    except BaseException:
+        session.failed=True;raise
+    finally:_CURRENT_OWNER=None
+
+
+def _current_parent_bootstrap(session,phase,channel,child,end):
+    if not _actual_current_session(session) or session.active is not child:
+        raise RuntimeError('CurrentActualPhaseChild')
+    limit=min(int(end*1000000000),time.monotonic_ns()+2000000000)
+    value,fd,raw=_campaign_recv(channel,(child.pid,os.getuid(),os.getgid()),limit,False,256)
+    sha=session.manifest['sources'][str(Path(__file__).resolve())]['sha256']
+    if fd is not None or value!=dict(k='H',n=session.nonce,q=sha):raise RuntimeError('CurrentActualPhaseHELLO')
+    ack=dict(k='h',n=session.nonce,p=phase,o=session.whole_origin,w=session.whole_end,e=end)
+    sent=_campaign_send(channel,ack,limit,maximum=256)
+    return dict(child_frame=raw.decode('ascii'),owner_frame=sent.decode('ascii'),actual_credentials=[child.pid,os.getuid(),os.getgid()],private_source_relation=True)
+
+
+def _current_phase_entry(phase,source_sha):
+    import importlib.util
+    if phase not in ('reference','disposable','final'):raise RuntimeError('CurrentFinitePhase')
+    path=Path(__file__).with_name('current_test_qualification.py')
+    # Canonical source-only loader; never consult a cache or ordinary sys.path.
+    if sys.pycache_prefix is not None or any((path.parent/'__pycache__').glob('current_test_qualification.*.pyc')):
+        raise RuntimeError('CurrentCachedCoordinatorExcluded')
+    spec=importlib.util.spec_from_file_location('current_test_qualification',path)
+    if spec is None or type(spec.loader).__name__!='SourceFileLoader':raise RuntimeError('CurrentCanonicalCoordinatorLoader')
+    module=importlib.util.module_from_spec(spec);sys.modules['current_test_qualification']=module;spec.loader.exec_module(module)
+    root=_current_bootstrap(module,source_sha)
+    _current_load_reference(root)
+    try:
+        if phase=='reference':
+            _current_reference_capture(root)
+            return 0
+        # The exact accepted phase came from the live source-owned parent ACK;
+        # it cannot be selected by an expected-data field or argv alone.
+        context=module._produce_current_context(root,root.state)
+        preparation=Preparation(context.target,context.evidence,root.expected,origin=context.start,earlier_end=context.end,current_test=context)
+        from controller_deployment import deploy
+        interpreter,inventory=deploy(root.source,root.repository,context.target,context.evidence/'deployment',context=preparation)
+        context.freeze_deployment(interpreter,inventory)
+        preparation._release_metadata_after_deploy_frame()
+        if phase=='disposable':
+            return _current_terminal_tool_checks(context,interpreter,inventory)
+        context.finish()
+        return 0
+    except BaseException:
+        root.fail('CurrentPhaseFailure');raise
+    finally:
+        root.finished=True;module._LIVE_ROOTS.discard(root)
+        root.channel.close();os.close(root.parentfd)
+
+
+def _current_phase_completion(session,name,result):
+    if not _actual_current_session(session) or _CURRENT_PHASE_COMPLETIONS.pop(id(result),None)!=(session,name,result):
+        raise RuntimeError('CurrentActualPhaseCompletionRequired')
+    if not result.get('cleanup_qualified') or result.get('census_unknown') or result.get('partial_prefix'):
+        raise RuntimeError('CurrentPhaseCleanupUnknown')
+    if name=='reference':session.stage='REFERENCE_PENDING_ACCEPTANCE'
+    elif name=='disposable':session.stage='DISPOSABLE_FROZEN_OWNER_FINISHED'
+    elif name=='final':session.stage='CANDIDATE_PENDING_ACCEPTANCE'
+    elif name=='admin':session.stage='CLI_ADMIN_FINISHED'
+    elif name=='healthy':session.stage='SPENT_OR_FAILED';session.finished=True
+    else:raise RuntimeError('CurrentPhaseScope')
+
+
+def _current_session_acceptance(session,name):
+    session.check()
+    if name not in ('reference','disposable','final') or name not in session.phase_results or session.active is not None:
+        raise RuntimeError('CurrentAcceptanceActualOwnerRequired')
+    # This direct method call on the surviving application object is the
+    # decision. Saved review JSON is custody DATA, never its replacement.
+    key={'reference':'REF01','disposable':'PREP01','final':'PREP02'}[name]
+    budget=_current_session_budget(session)
+    folder=Path('/tmp/wordling-WP70-current-test-qualification-v2/decisions');folder.mkdir(mode=0o700,exist_ok=True)
+    budget.document(folder/(key+'.json'),
+        dict(stage=name,decision='ACCEPTED_BY_LIVE_APPLICATION_ROOT',whole_origin=session.whole_origin,whole_end=session.whole_end),'control')
+
+
 class _CurrentOwner:
     """One separately deliberate current CLI owner, never a Campaign or Case."""
     __slots__=('root','context','kind','start','end','traffic_end','manifest','descriptor','arena','budget','aborted')
     def __new__(cls):raise TypeError('CurrentOwnerPrivateProducerOnly')
     def fatal(self,reason):
-        self.aborted=True;self.root.fail(reason)
+        self.aborted=True
+        if _actual_current_session(self.root):self.root.failed=True
+        else:self.root.fail(reason)
 
 
 def _actual_current_owner(value):
@@ -3647,13 +4225,15 @@ def _current_manifest(source_sha,kind):
     source_path=directory/'capture-source-manifest.json'
     if source_path.is_symlink() or source_path.stat().st_size>65536:raise RuntimeError('CurrentCaptureSourceBound')
     source=bounded_json_loads(source_path.read_bytes(),65536)
-    if type(source)is not dict or set(source)!={'schema','sources','closure'} or source['schema']!='wordling.current-source-manifest/v2':
+    if type(source)is not dict or set(source)!={'schema','sources','closure','inputs'} or source['schema']!='wordling.current-source-manifest/v2':
         raise RuntimeError('CurrentSourceManifestSchema')
     tests=Path(__file__).resolve().parent
     members={str(tests/n) for n in ('runtime_qualification.py','controller_deployment.py','runtime_qualification_supervisor.py','current_test_qualification.py')}
     if type(source['sources'])is not dict or set(source['sources'])!=members or source['sources'][str(Path(__file__).resolve())]['sha256']!=source_sha:
         raise RuntimeError('CurrentExactFourSourceMembers')
     for name,row in source['sources'].items():same(name,row)
+    seed_names={'expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json'}
+    if type(source['inputs'])is not dict or set(source['inputs'])!=seed_names:raise RuntimeError('CurrentSourceInputMembership')
     required={'roles','argv','writers','joint_memory','native_descendants','clock','cases','startup'}
     if type(source['closure'])is not dict or set(source['closure'])!=required or any(source['closure'][k]is not True for k in required):
         raise RuntimeError('CurrentSourceClosureIncomplete')
@@ -3676,7 +4256,7 @@ def _current_command(manifest,role,index,trace=-1):
     argv=[str(interpreter),'-I','-B','-m','reference_controller']
     testroot='/tmp/wordling-reference-TEST-current-v2'
     if kind=='admin':argv+=['test-admin','--root',testroot,'--generation','wp70-current-v2']
-    else:argv+=['test-leaf','--root',testroot,'--generation','wp70-current-v2','--grant-id','current-v2-healthy','--scenario','healthy']
+    else:argv+=['test-leaf','--root',testroot,'--generation','wp70-current-v2','--grant-id','current-v2-healthy','--leaf','TEST-current-v2-healthy','--scenario','healthy']
     return dict(argv=argv,cwd=str(folder/'workspace'),env=env,fsize=2097152)
 
 
@@ -3684,48 +4264,6 @@ def _current_gate_args(kind,source_sha,role,index,seq,release,nonce,end,control=
     if kind not in ('admin','healthy') or role not in ('root','slot') or (role,index,seq)not in (('root',0,0),('slot',1,1)):
         raise RuntimeError('CurrentGateScope')
     return [str(BASE),'-I','-B',str(Path(__file__).resolve()),'--current-gate',kind,source_sha,role,str(index),str(seq),str(release),nonce,str(end),str(control),'-1','CLOSED']
-
-
-def _current_owner_admission(root,kind):
-    global _CURRENT_OWNER
-    module=sys.modules.get('current_test_qualification')
-    if module is None or module._require_live_root_boundary(root)is not root or _CURRENT_OWNER is not None:
-        raise RuntimeError('CurrentActualRootOwnerOnce')
-    before='CANDIDATE_ACCEPTED' if kind=='admin' else 'CLI_ADMIN_FINISHED'
-    after='CLI_ADMIN_ONCE' if kind=='admin' else 'CLI_HEALTHY_ONCE'
-    root.advance(before,after)
-    context=module._produce_current_context(root,after)
-    value=object.__new__(_CurrentOwner)
-    value.root=root;value.context=context;value.kind=kind;value.aborted=False
-    value.start=time.monotonic_ns();value.end=min(int(root.whole_end*1000000000),value.start+32000000000);value.traffic_end=value.end-2000000000
-    value.manifest=_current_manifest(pin(Path(__file__).resolve())['sha256'],kind)
-    value.descriptor=dict(root=str(context.target/'workspace'),evidence=str(context.target),nonce=value.manifest['nonce'])
-    value.arena=_CampaignArena();value.arena.hold('current-owner-live',1048576)
-    value.budget=context.admit(root.expected,context.evidence)
-    _CURRENT_OWNER=value
-    return value
-
-
-def _current_cli_action(root,kind):
-    global _CURRENT_OWNER
-    module=sys.modules.get('runtime_qualification_supervisor')
-    if module is None:raise RuntimeError('CurrentCanonicalOwnerNotLoaded')
-    owner=_current_owner_admission(root,kind)
-    try:
-        result=module._supervise_owner(owner,pin(Path(__file__).resolve())['sha256'])
-        settled=(result['coordinator_reaped_last'] and result['kernel_no_children_observed']
-            and result['own_children_remaining']==[] and not result['signal_identity_unknown']
-            and result['root_exit']==0)
-        if not settled:raise RuntimeError('CurrentOwnerCleanupUnknown')
-        owner.budget.document(Path(owner.descriptor['evidence'])/'checked-report.json',dict(status='OBSERVED_PENDING_INDEPENDENT_REVIEW',kind=kind,cleanup_qualified=True),'control')
-        owner.context.finished=True
-        sys.modules['current_test_qualification']._LIVE_CONTEXTS.remove(owner.context)
-        root.state='CLI_ADMIN_FINISHED' if kind=='admin' else 'SPENT_OR_FAILED'
-        if kind=='healthy':root.finished=True
-        return result
-    except BaseException:
-        owner.fatal('CurrentCLIOrOwnerFailure');raise
-    finally:_CURRENT_OWNER=None
 
 
 def _current_cli_coordinator(kind,source_sha):
@@ -3801,7 +4339,7 @@ def _current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha):
     _CURRENT_BOOTSTRAP=None
     root=object.__new__(module._RootBoundary)
     root.channel=channel;root.parentfd=parentfd;root.peer=peer;root.nonce=nonce;root.source_sha=source_sha
-    root.state='SOURCE_ACCEPTED_NO_CLOCK';root.whole_origin=None;root.whole_end=None
+    root.state='SOURCE_ACCEPTED_NO_CLOCK';root.whole_origin=None;root.whole_end=None;root.phase_end=None
     root.failed=False;root.finished=False;root.expected=None;root.selection=None;root.capacity=None
     root.groups=();root.budget=None;root.arena=_CampaignArena();root.contexts=[];root.sequence=0
     root.proof=None;root.source=Path(__file__).resolve().parent.parent;root.repository=root.source.parents[3]
@@ -3828,7 +4366,19 @@ def _current_bootstrap(module,source_sha):
             raise RuntimeError('CurrentOwnerChannel')
         peer=(parent,os.getuid(),os.getgid())
         _CURRENT_BOOTSTRAP=(channel,parentfd,peer,nonce,source_sha)
-        return _current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha)
+        root=_current_bind_bootstrap(module,channel,parentfd,peer,nonce,source_sha)
+        handshake_end=time.monotonic_ns()+2000000000
+        _campaign_send(channel,dict(k='H',n=nonce,q=source_sha),handshake_end,maximum=256)
+        ack,received,raw=_campaign_recv(channel,peer,handshake_end,False,256)
+        if (received is not None or set(ack)!={'k','n','p','o','w','e'} or ack['k']!='h' or ack['n']!=nonce
+                or ack['p'] not in ('reference','disposable','final')
+                or any(type(ack[k]) not in (int,float) or not math.isfinite(ack[k]) for k in ('o','w','e'))
+                or not ack['o']<time.monotonic()<ack['e']<=ack['w']<=ack['o']+1200):
+            raise RuntimeError('CurrentActualPhaseACK')
+        root.state={'reference':'REFERENCE_RUNNING','disposable':'DISPOSABLE_PREPARING','final':'FINAL_PREPARING'}[ack['p']]
+        root.whole_origin=ack['o'];root.whole_end=ack['w'];root.phase_end=ack['e']
+        return root
+
     except BaseException:
         _CURRENT_BOOTSTRAP=None;channel.close();os.close(parentfd);raise
 
@@ -3836,14 +4386,22 @@ def _current_bootstrap(module,source_sha):
 def _current_load_reference(root):
     """Decode only the fixed public reference, never candidate-produced DATA."""
     root.check();directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
-    seal_path=directory/'seal.json'
-    if seal_path.is_symlink() or seal_path.stat().st_size>65536:raise RuntimeError('CurrentReferenceSealBound')
-    seal=bounded_json_loads(seal_path.read_bytes(),65536)
-    names={'expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','base-observation.json','capture-source-manifest.json','reference-summary.json'}
-    if (type(seal)is not dict or set(seal)!={'schema','members','complete'}
-            or seal['schema']!='wordling.current-reference-seal/v2' or seal['complete']is not True
-            or type(seal['members'])is not dict or set(seal['members'])!=names):
-        raise RuntimeError('CurrentCompleteReferenceSeal')
+    seed=root.state=='REFERENCE_RUNNING'
+    if seed:
+        # These are reviewed SOURCE-only seed bytes, not an already-qualified
+        # reference and not a live actor. The first qualified phase freshly
+        # checks them and their complete public input set under the whole end.
+        source=_current_manifest(root.source_sha,'admin')
+        seal=dict(schema='UNACCEPTED_SOURCE_SEED',members=source['inputs'],complete=False)
+    else:
+        seal_path=directory/'seal.json'
+        if seal_path.is_symlink() or seal_path.stat().st_size>65536:raise RuntimeError('CurrentReferenceSealBound')
+        seal=bounded_json_loads(seal_path.read_bytes(),65536)
+        names={'expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','base-observation.json','capture-source-manifest.json','reference-summary.json'}
+        if (type(seal)is not dict or set(seal)!={'schema','members','complete'}
+                or seal['schema']!='wordling.current-reference-seal/v2' or seal['complete']is not True
+                or type(seal['members'])is not dict or set(seal['members'])!=names):
+            raise RuntimeError('CurrentCompleteReferenceSeal')
     for name,row in seal['members'].items():same(directory/name,row);root.check()
     compressed=directory/'expected-inputs.json.gz'
     if compressed.stat().st_size>1572864:raise RuntimeError('CurrentCompressedExpectedBound')
@@ -3854,17 +4412,16 @@ def _current_load_reference(root):
     if charge>46137344:raise RuntimeError('CurrentExpectedMapCharge')
     expected=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
     del raw,text
-    selection=bounded_json_loads((directory/'tool-selection.json').read_bytes(),1048576)
+    selection_path=directory/'tool-selection.json'
+    if selection_path.stat().st_size>1048576:raise RuntimeError('CurrentSelectionInputBound')
+    selection=bounded_json_loads(selection_path.read_bytes(),1048576)
     check_selection_records(expected,selection)
-    capacity=bounded_json_loads((directory/'capacity.json').read_bytes(),262144)
+    capacity_path=directory/'capacity.json'
+    if capacity_path.stat().st_size>262144:raise RuntimeError('CurrentCapacityInputBound')
+    capacity=bounded_json_loads(capacity_path.read_bytes(),262144)
     root.expected=expected;root.selection=selection;root.capacity=capacity
-    design=root.repository/'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/design/source-writers-TDD-design.json'
-    same(design,dict(size=157535,sha256='ca9b16e498fa5fe2c4a4b560de8860783e45bf9b741edb9c016d55f208210a8f'))
-    plan=bounded_json_loads(design.read_bytes(),524288)
-    groups=plan['funded_runtime_groups']+[dict(paths=[r['path']],kind=r['kind'],reserved_bytes=r['reserved_bytes']) for r in plan['funded_runtime_additional_rows']]
-    if len({p for row in groups for p in row['paths']})!=197:raise RuntimeError('CurrentClosed197Writers')
-    root.groups=tuple(groups);root.proof=seal
-    del plan,seal
+    root.groups=tuple(_current_writer_groups());root.proof=seal
+    del seal
     _current_capacity_proof(root)
     return charge
 
@@ -3889,6 +4446,7 @@ def _current_reference_capture(root):
         # OS classification remains a review obligation, not a free tool run.
         context.verify_tools(root.expected)
         before=time.monotonic()
+        (owner.evidence/'REF02').mkdir(mode=0o700,exist_ok=False)
         budget.document(owner.evidence/'REF02/command.json',dict(operation='canonical-current-input-preflight',tool_executed=False),'pair')
         _current_preflight_inputs(context)
         budget.document(owner.evidence/'REF02/process.json',dict(status='OBSERVED_SOURCE_CHECK_ONLY',exit=None,tool_executed=False,elapsed=time.monotonic()-before),'pair')
@@ -3904,6 +4462,28 @@ def _current_reference_capture(root):
         budget.document(owner.evidence/'base-observation.json',observation,'origin')
         del observation,result
         context.arena.release('current-reference-probe')
+        durable=root.repository/'docs/research/continuation/test-runtime-qualification-v2/reference/expected-inputs.json.gz'
+        durable.parent.mkdir(mode=0o700,exist_ok=True)
+        context.arena.hold('current-reference-durable',2097152)
+        allocation,handles=budget.raw_group([durable],'custody',1572864)
+        buffer=bytearray()
+        try:
+            with (owner.evidence/'expected-inputs.json.gz').open('rb') as source:
+                while True:
+                    part=source.read(65536)
+                    if not part:break
+                    budget.retain(allocation,buffer,handles[durable],part)
+            handles[durable].flush();os.fsync(handles[durable].fileno())
+        finally:handles[durable].close()
+        del part,buffer
+        context.arena.release('current-reference-durable')
+        if pin(durable)!=pin(owner.evidence/'expected-inputs.json.gz'):raise RuntimeError('CurrentDurableReferenceChanged')
+        budget.document(owner.evidence/'reference-summary.json',dict(status='UNACCEPTED_CURRENT_REFERENCE',
+            source_seed_was_unaccepted=True,fresh_public_input_check=True,REF01='OBSERVED',REF02='NONEXECUTING_SOURCE_CHECK',
+            durable_payload=dict(path=str(durable),**pin(durable)),permission_granted=False),'misc')
+        names=('expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json','base-observation.json','capture-source-manifest.json','reference-summary.json')
+        budget.document(owner.evidence/'seal.json',dict(schema='wordling.current-reference-seal/v2',complete=True,
+            members={name:dict(**pin(owner.evidence/name),**rights(owner.evidence/name)) for name in names}),'custody')
         context.finished=True;module._LIVE_CONTEXTS.remove(context)
         root.advance('REFERENCE_RUNNING','REFERENCE_PENDING_ACCEPTANCE')
         return dict(status='REFERENCE_PENDING_INDEPENDENT_ACCEPTANCE',permission_granted=False)
@@ -3994,9 +4574,11 @@ def _current_preparation_command(context,argv,label,tool):
         ('deployment/wheel',True,['/usr/bin/python','-B','-m','pip','wheel','--no-deps','--no-index','--no-build-isolation','--no-cache-dir','--config-settings=--build-option=--keep-temp','--wheel-dir',str(target/'wheels'),str(build)]),
         ('deployment/install',True,['/usr/bin/python','-s','-B','-m','pip','install','--user','--root=/','--ignore-installed','--no-index','--no-deps','--no-compile','--no-cache-dir',str(wheel)]),
         ('deployment/qualify-literal-after',False,[str(interpreter),'-I','-B','-c',qualification_literal(target)]),
-        ('deployment/origins',False,[str(interpreter),'-I','-B','-c',probe(True)]))
+        ('deployment/origins',False,[str(interpreter),'-I','-B','-c',probe(True)]),
+        ('tool-positive',True,['/usr/bin/python3','-I','-B','-c','pass']),
+        ('tool-negative',True,['/usr/bin/python3','-I','-B','-c',"import os;os.execve('venv/bin/python',('venv/bin/python','-I','-B','-c','pass'),{'LANG':'C.UTF-8','LC_ALL':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1'})"]))
     index=context.capture_index
-    if index>=len(rows) or (label,tool,argv)!=rows[index]:raise RuntimeError('CurrentClosedPreparationCommand')
+    if index>=len(rows) or (index>=8 and context.stage!='DISPOSABLE_PREPARING') or (label,tool,argv)!=rows[index]:raise RuntimeError('CurrentClosedPreparationCommand')
     wanted=dict(PATH='/usr/bin:/bin',HOME=str(target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',
         PYTHONDONTWRITEBYTECODE='1',PIP_DISABLE_PIP_VERSION_CHECK='1',PIP_NO_CACHE_DIR='1',PIP_CONFIG_FILE='/dev/null',TMPDIR=str(target/'tmp'))
     if index==5:wanted['PYTHONUSERBASE']=str(environment)
@@ -4101,6 +4683,7 @@ if __name__=='__main__':
         elif sys.argv[1:2]==['--harmless-executable'] and len(sys.argv) in (5,6,7):result=_harmless_executable(int(sys.argv[2]),sys.argv[3],int(sys.argv[4]),int(sys.argv[5]) if len(sys.argv)>=6 else -1,int(sys.argv[6]) if len(sys.argv)==7 else -1)
         elif sys.argv[1:2]==['--current-gate']:result=_campaign_gate(sys.argv[3:],current_kind=sys.argv[2])
         elif sys.argv[1:2]==['--current-cli-coordinator'] and len(sys.argv)==4:result=_current_cli_coordinator(sys.argv[2],sys.argv[3])
+        elif sys.argv[1:2]==['--current-phase'] and len(sys.argv)==4:result=_current_phase_entry(sys.argv[2],sys.argv[3])
         elif sys.argv[1:2]==['--campaign-gate']:result=_campaign_gate(sys.argv[2:])
         else:result=main()
     except SystemExit as exc: result=exc.code

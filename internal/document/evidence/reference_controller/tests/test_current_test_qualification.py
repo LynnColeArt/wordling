@@ -14,6 +14,11 @@ import json
 from pathlib import Path
 import sys
 import unittest
+import tempfile
+import zipfile
+import base64
+import csv
+import io
 from unittest import mock
 
 
@@ -1214,6 +1219,26 @@ class CurrentReferenceRoleDataTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, '^CurrentReferenceAliasSchema$'):
                 self.q.check_selection_records(e, s)
 
+        # Post-RED grammar variants: digest-consistent JSON containers must
+        # reach explicit schema refusals before any set/update/dict-key use.
+        for bad in ([], {}):
+            for field, error in (('closed_roots', 'CurrentReferenceRootSchema'),
+                    ('runtime_elf', 'CurrentToolSelectionSchema'),
+                    ('tool_startup_hook_sets', 'CurrentToolHookSchema'),
+                    ('shell_aliases', 'CurrentToolAliasSchema')):
+                with self.subTest(field=field, bad=bad):
+                    e, s = self.data()
+                    if field == 'shell_aliases':
+                        s[field] = [dict(logical=bad, text='x', resolved='/DATA/tool/python',
+                            rights=dict(mode=0o777, uid=1000, gid=1000))]
+                    elif field == 'tool_startup_hook_sets':
+                        e[field] = {'/DATA/hooks': [bad]}
+                    else:
+                        e[field] = [bad]
+                    s['roles_sha256'] = digest(roles_projection(e))
+                    with self.assertRaisesRegex(RuntimeError, '^' + error + '$'):
+                        self.q.check_selection_records(e, s)
+
     def test_TOOL_endpoint_cannot_be_relabelled_runtime_alias(self):
         e, s = self.data('/DATA/tool/python')
         with self.assertRaisesRegex(RuntimeError, '^CurrentRuntimeAliasRole$'):
@@ -1230,7 +1255,54 @@ class CurrentReferenceRoleDataTests(unittest.TestCase):
         with mock.patch.object(self.q.os, 'umask', side_effect=AssertionError('PRE_ADMISSION_EFFECT')):
             with self.assertRaisesRegex(RuntimeError, '^CurrentTestIdentity$'):
                 self.q.Preparation('/DATA/final', '/DATA/evidence', e, current_test=receipt)
+            with self.assertRaisesRegex(RuntimeError, '^CurrentActualOwnerBudgetRequired$'):
+                self.q.EvidenceBudget(['/DATA/evidence'], current_owner=receipt)
 
+
+
+class CurrentWheelSourceDataTests(unittest.TestCase):
+    """Post-RED canonical shared wheel guard; two tiny owned files, no role."""
+    def test_source_pin_is_checked_before_payload_read_on_both_wheel_routes(self):
+        canonical_helper()
+        path = Path(__file__).with_name('controller_deployment.py').resolve()
+        spec = importlib.util.spec_from_file_location('controller_deployment', path)
+        self.assertEqual(type(spec.loader).__name__, 'SourceFileLoader')
+        deployment = importlib.util.module_from_spec(spec)
+        sys.modules['controller_deployment'] = deployment
+        spec.loader.exec_module(deployment)
+        payload = b'INDEPENDENT SOURCE DATA\n'
+        name = 'reference_controller/source-data.bin'
+        dist = 'wordling_reference_controller_test-0.2.0.dist-info'
+        bodies = {name: payload,
+            dist + '/METADATA': b'Name: wordling-reference-controller-test\nVersion: 0.2.0\nRequires-Python: >=3.12\n',
+            dist + '/WHEEL': b'Wheel-Version: 1.0\n',
+            dist + '/top_level.txt': b'reference_controller\n'}
+        record = io.StringIO(newline='')
+        writer = csv.writer(record, lineterminator='\n')
+        for member, body in bodies.items():
+            writer.writerow([member, 'sha256=' + base64.urlsafe_b64encode(hashlib.sha256(body).digest()).rstrip(b'=').decode('ascii'), str(len(body))])
+        writer.writerow([dist + '/RECORD', '', ''])
+        bodies[dist + '/RECORD'] = record.getvalue().encode('ascii')
+        wanted = dict(size=len(payload), sha256=hashlib.sha256(payload).hexdigest())
+        with tempfile.TemporaryDirectory(prefix='wordling-wp108-wheel-DATA-') as temporary:
+            directory = Path(temporary)
+            source = directory / 'source.bin'
+            source.write_bytes(payload)
+            wheel = directory / 'inert.whl'
+            with zipfile.ZipFile(wheel, 'w', compression=zipfile.ZIP_STORED) as archive:
+                for member, body in bodies.items():
+                    archive.writestr(member, body)
+            self.assertLess(source.stat().st_size + wheel.stat().st_size, 4096)
+            self.assertEqual(deployment.review_wheel(wheel, {name: (source, wanted)}), {name: wanted})
+            original_open = Path.open
+            def no_unfrozen_payload_read(value, *args, **kwargs):
+                if value == source:
+                    raise AssertionError('UNFROZEN_WHEEL_SOURCE_READ')
+                return original_open(value, *args, **kwargs)
+            with mock.patch.object(Path, 'open', no_unfrozen_payload_read):
+                with self.assertRaisesRegex(RuntimeError, '^WheelReviewedPayload:' + name + '$'):
+                    deployment.review_wheel(wheel, {name: (source, dict(wanted, sha256='0' * 64))})
+        self.assertFalse(directory.exists())
 
 if __name__ == "__main__":
     unittest.main()

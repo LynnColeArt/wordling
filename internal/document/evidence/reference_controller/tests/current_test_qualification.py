@@ -46,10 +46,137 @@ def _q():
     return value
 
 
+_LIVE_SESSIONS = set()
+_SESSION_STARTED = False
+
+
+class _CurrentSession:
+    """Trusted local application coordinator, distinct from every child context.
+
+    This parent retains compact phase identities and read-only artifact handles;
+    a child alone owns the decoded expected map. No serialized session exists.
+    """
+    __slots__ = ('source', 'repository', 'manifest', 'capacity', 'groups',
+        'whole_origin', 'whole_end', 'stage', 'failed', 'finished', 'active',
+        'expected_fd', 'expected_identity', 'phase_results', 'used', 'budget',
+        'claimed', 'arena', 'frozen_disposable', 'candidate', 'nonce', 'source_accepted')
+
+    def __new__(cls):
+        raise TypeError('CurrentFixedApplicationEntryOnly')
+
+    def __reduce__(self):
+        raise TypeError('CurrentSessionNotSerializable')
+
+    def __copy__(self):
+        raise TypeError('CurrentSessionNotCopyable')
+
+    def __deepcopy__(self, memo):
+        raise TypeError('CurrentSessionNotCopyable')
+
+    def check(self):
+        if type(self) is not _CurrentSession or self not in _LIVE_SESSIONS or self.failed or self.finished:
+            raise RuntimeError('CurrentApplicationSessionIdentity')
+        if self.whole_end is not None and time.monotonic() >= self.whole_end:
+            self.failed = True
+            raise RuntimeError('CurrentWholeDeadline')
+        _q()._current_session_inputs(self)
+
+    def accept_source(self):
+        self.check()
+        if self.source_accepted or self.stage != 'SOURCE_ACCEPTED_NO_CLOCK' or self.whole_origin is not None:
+            raise RuntimeError('CurrentSourceAcceptanceOnce')
+        # This direct action is independent of the SOURCE seed's JSON/hash.
+        # Its code/roles/writers/cases/memory/startup closure must already be
+        # complete; an incomplete compiler/raw plan cannot start a clock.
+        _q()._current_source_acceptance(self)
+        self.source_accepted = True
+
+    def phase(self, name):
+        self.check()
+        if not self.source_accepted:
+            raise RuntimeError('CurrentIndependentSourceAcceptanceRequired')
+        wanted = {'reference': 'SOURCE_ACCEPTED_NO_CLOCK',
+            'disposable': 'REFERENCE_ACCEPTED', 'final': 'COLD_ARTIFACT_CHECKS',
+            'admin': 'CANDIDATE_ACCEPTED', 'healthy': 'CLI_ADMIN_FINISHED'}
+        if name not in wanted or self.stage != wanted[name] or name in self.used or self.active is not None:
+            raise RuntimeError('CurrentApplicationPhaseOrder')
+        if name == 'final' and 'cold' not in self.phase_results:
+            raise RuntimeError('CurrentColdChecksRequired')
+        if self.whole_origin is None:
+            self.whole_origin = time.monotonic()
+            self.whole_end = self.whole_origin + 1200
+        self.used.add(name)
+        supervisor = sys.modules.get('runtime_qualification_supervisor')
+        if supervisor is None:
+            self.failed = True
+            raise RuntimeError('CurrentCanonicalSupervisorNotLoaded')
+        try:
+            result = supervisor.supervise_current_phase(self, name)
+            # Only the canonical helper's actual retained-owner completion may
+            # produce this private phase record, never a parsed success dict.
+            _q()._current_phase_completion(self, name, result)
+            self.phase_results[name] = result
+            return result
+        except BaseException:
+            self.failed = True
+            raise
+
+    def accept_reference(self):
+        self.check()
+        if self.stage != 'REFERENCE_PENDING_ACCEPTANCE' or 'reference' not in self.phase_results:
+            raise RuntimeError('CurrentReferenceAcceptanceOrder')
+        _q()._current_session_acceptance(self, 'reference')
+        self.stage = 'REFERENCE_ACCEPTED'
+
+    def accept_disposable(self):
+        self.check()
+        if self.stage != 'DISPOSABLE_FROZEN_OWNER_FINISHED' or 'disposable' not in self.phase_results:
+            raise RuntimeError('CurrentDisposableAcceptanceOrder')
+        _q()._current_session_acceptance(self, 'disposable')
+        self.stage = 'COLD_ARTIFACT_CHECKS'
+
+    def cold_artifacts(self):
+        self.check()
+        if self.stage != 'COLD_ARTIFACT_CHECKS' or 'cold' in self.used:
+            raise RuntimeError('CurrentColdStageOnce')
+        self.used.add('cold')
+        try:
+            result = _q()._current_cold_artifacts(self)
+            self.arena.release('current-parent-inventory')
+            self.phase_results['cold'] = result
+            return result
+        except BaseException:
+            self.failed = True
+            raise
+
+    def accept_candidate(self):
+        self.check()
+        if self.stage != 'CANDIDATE_PENDING_ACCEPTANCE' or 'final' not in self.phase_results:
+            raise RuntimeError('CurrentCandidateAcceptanceOrder')
+        _q()._current_session_acceptance(self, 'final')
+        self.stage = 'CANDIDATE_ACCEPTED'
+
+    def close(self):
+        if self.active is not None:
+            raise RuntimeError('CurrentSessionOwnerStillActive')
+        self.finished = True
+        if self.expected_fd is not None:
+            os.close(self.expected_fd)
+            self.expected_fd = None
+        for record in (self.frozen_disposable,self.candidate):
+            if record is not None:os.close(record['fd'])
+        _LIVE_SESSIONS.discard(self)
+
+
+def begin_current_test_session():
+    """One fixed local application entry; no argv/provider/JSON actor factory."""
+    return _q()._current_begin_session(sys.modules.get(__name__))
+
+
 class _RootBoundary:
     """Live coordinator relation; its constructor is never a DATA admission API."""
     __slots__ = ('channel', 'parentfd', 'peer', 'nonce', 'source_sha', 'state',
-        'whole_origin', 'whole_end', 'failed', 'finished', 'expected', 'selection',
+        'whole_origin', 'whole_end', 'phase_end', 'failed', 'finished', 'expected', 'selection',
         'capacity', 'groups', 'budget', 'arena', 'contexts', 'sequence', 'proof',
         'source', 'repository', 'frozen_disposable', 'candidate', 'used_stages')
 
@@ -258,6 +385,7 @@ class _CurrentContext:
         if self.capture_index != 8 or self.inventory_frozen is not None:
             raise RuntimeError('CurrentFreezeAfterEight')
         _q().preflight(interpreter, inventory)
+        self.arena.hold('current-frozen-inventory',2097152)
         self.inventory_frozen = inventory
         if self.stage == 'DISPOSABLE_PREPARING':
             self.root.frozen_disposable = (interpreter, inventory)
@@ -299,7 +427,7 @@ def _produce_current_context(live_root_boundary, exact_stage):
     value.root = root; value.stage = exact_stage
     value.preparation_origin = preparation_origin; value.start = preparation_origin
     value.whole_origin = root.whole_origin; value.whole_end = whole_end
-    value.end = min(preparation_origin + 120, whole_end)
+    value.end = min(preparation_origin + (300 if exact_stage == 'REFERENCE_RUNNING' else 32 if exact_stage in ('CLI_ADMIN_ONCE','CLI_HEALTHY_ONCE') else 120), whole_end, root.phase_end)
     value.preparation = None; value.failed = False; value.finished = False
     value.expected = root.expected; value.selection = root.selection
     value.budget = root.budget; value.arena = root.arena
@@ -320,7 +448,18 @@ def _operational_blocked():
     raise RuntimeError('CurrentTestExecutionClosureUnresolved')
 
 
+def _application_session():
+    if len(_LIVE_SESSIONS) == 1:
+        value = next(iter(_LIVE_SESSIONS))
+        value.check()
+        return value
+    return None
+
+
 def capture_reference():
+    session = _application_session()
+    if session is not None:
+        return session.phase('reference')
     if _CURRENT_ROOT is None:
         return _operational_blocked()
     root = _require_live_root_boundary(_CURRENT_ROOT)
@@ -351,27 +490,35 @@ def _prepare_stage(before, stage):
 
 
 def prepare_disposable():
+    session = _application_session()
+    if session is not None:
+        return session.phase('disposable')
     if _CURRENT_ROOT is None:
         return _operational_blocked()
     return _prepare_stage('REFERENCE_ACCEPTED', 'DISPOSABLE_PREPARING')
 
 
 def prepare_final():
+    session = _application_session()
+    if session is not None:
+        return session.phase('final')
     if _CURRENT_ROOT is None:
         return _operational_blocked()
     return _prepare_stage('COLD_ARTIFACT_CHECKS', 'FINAL_PREPARING')
 
 
 def test_admin():
-    if _CURRENT_ROOT is None:
+    session = _application_session()
+    if session is None:
         return _operational_blocked()
-    return _q()._current_cli_action(_require_live_root_boundary(_CURRENT_ROOT), 'admin')
+    return session.phase('admin')
 
 
 def test_healthy():
-    if _CURRENT_ROOT is None:
+    session = _application_session()
+    if session is None:
         return _operational_blocked()
-    return _q()._current_cli_action(_require_live_root_boundary(_CURRENT_ROOT), 'healthy')
+    return session.phase('healthy')
 
 
 def _actual_reference_owner(value):

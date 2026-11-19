@@ -13,6 +13,7 @@ import hashlib
 import os
 from pathlib import Path
 import selectors
+import resource
 import signal
 import socket
 import subprocess
@@ -52,8 +53,17 @@ class ControlFrames:
         return dict(bytes=len(self.pending),sha256=hashlib.sha256(self.pending).hexdigest(),contents='omitted diagnostic; literal retained control.raw is authoritative; unretained suffix UNKNOWN')
 
 
-def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,budget=None,fault=None,earlier_end=None,qualification=None):
-    if not 0<seconds<=120 or not 0<output_cap<=98304:raise ValueError('EarlierLimitsOnly')
+def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,budget=None,fault=None,earlier_end=None,qualification=None,*,current_session=None,current_phase=None):
+    if current_session is not None:
+        import runtime_qualification as q
+        if (not q._actual_current_session(current_session) or current_phase not in ('reference','disposable','final')
+                or qualification is not None or control is not None or fault is not None
+                or argv!=q._current_phase_command(current_session,current_phase)
+                or Path(receipt)!=Path('/tmp/wordling-WP70-current-test-qualification-v2/owners')/('reference-probe' if current_phase=='reference' else current_phase)
+                or budget is not current_session.budget or earlier_end is None):raise RuntimeError('CurrentExactGroupOwner')
+        current_session.check()
+    elif current_phase is not None:raise RuntimeError('CurrentGroupOwnerRequired')
+    if not 0<seconds<=(300 if current_session is not None and current_phase=='reference' else 120) or not 0<output_cap<=98304:raise ValueError('EarlierLimitsOnly')
     if control not in (None,'kill-coordinator') or fault not in (None,'census-unavailable-on-cleanup'):raise ValueError('ClosedHarmlessControl')
     origin=time.monotonic();end=origin+seconds;receipt=Path(receipt)
     if qualification is not None:
@@ -70,6 +80,7 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
     budget.reserve([receipt/'whole.json'],'custody',65536)
     allocation,raw_handles=budget.raw_group([receipt/'stdout.raw',receipt/'stderr.raw',receipt/'control.raw'],'custody',98304)
     stopped=[];old={}
+    current_parent=current_child=None;current_parentfd=None;current_bootstrap=None
     def terminate(signum,frame):stopped.append(signum)
     try:
         libc=ctypes.CDLL(None,use_errno=True)
@@ -77,12 +88,32 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
         old={n:signal.signal(n,terminate) for n in (signal.SIGTERM,signal.SIGINT)}
         read,write=os.pipe2(os.O_CLOEXEC)
         env=dict(env,WORDLING_PREPARATION_CONTROL_FD=str(write),WORDLING_PREPARATION_ORIGIN=repr(origin),WORDLING_PREPARATION_END=repr(end))
-        try:p=subprocess.Popen(argv,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=(write,),start_new_session=True)
+        inherited=(write,)
+        if current_session is not None:
+            current_parent,current_child=q._campaign_pair()
+            current_parentfd=os.pidfd_open(os.getpid(),0);os.set_inheritable(current_parentfd,False)
+            env.update(WORDLING_CURRENT_CONTROL_FD=str(current_child.fileno()),WORDLING_CURRENT_OWNER_PIDFD=str(current_parentfd),
+                WORDLING_CURRENT_OWNER=str(os.getpid()),WORDLING_CURRENT_SOURCE=current_session.manifest['sources'][str(Path(q.__file__).resolve())]['sha256'],WORDLING_CURRENT_NONCE=current_session.nonce)
+            inherited+=(current_child.fileno(),current_parentfd)
+        def current_child_limits():
+            # Child-only earlier arena; never mutate the application ROOT's
+            # interpreter limits or confer any role from an rlimit value.
+            resource.setrlimit(resource.RLIMIT_AS,(166723584,166723584))
+            resource.setrlimit(resource.RLIMIT_NOFILE,(32,32))
+            resource.setrlimit(resource.RLIMIT_FSIZE,(33554432,33554432))
+        try:p=subprocess.Popen(argv,cwd=cwd,env=env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=inherited,start_new_session=True,
+            preexec_fn=current_child_limits if current_session is not None else None)
         except BaseException:
             os.close(read);os.close(write);raise
         os.close(write)
+        if current_session is not None:
+            current_session.active=p;current_child.close();current_child=None
+            os.close(current_parentfd);current_parentfd=None
     except BaseException as error:
         for handle in raw_handles.values():handle.close()
+        for endpoint in (current_parent,current_child):
+            if endpoint is not None:endpoint.close()
+        if current_parentfd is not None:os.close(current_parentfd)
         for n,handler in old.items():signal.signal(n,handler)
         result=dict(reason='SupervisorPopenOrAdmissionFailure',diagnostic=generated_diagnostic(error,512),exit=None,cleanup_qualified=True,child_started=False)
         budget.document(receipt/'whole.json',result,'custody',pre_reserved=True)
@@ -161,6 +192,8 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
             identity_events.append(dict(event='leader_reaped_LAST',leader=p.pid,other_owned_children=[],returncode=p.returncode));return True
         return now-cleanup_start>=2
     try:
+        if current_session is not None:
+            current_bootstrap=q._current_parent_bootstrap(current_session,current_phase,current_parent,p,end)
         while True:
             now=time.monotonic()
             if cleanup_start is None:
@@ -220,15 +253,50 @@ def supervise(argv,cwd,env,receipt,seconds=120,output_cap=98304,control=None,bud
         final_children=None if census_unknown else observe_children()
         for n,handler in old.items():signal.signal(n,handler)
         sel.close();p.stdout.close();p.stderr.close();os.close(read)
+        if current_parent is not None:current_parent.close()
+        if current_session is not None:current_session.active=None
         for handle in raw_handles.values():handle.close()
         result=dict(argv=argv,cwd=str(cwd),env=env,origin=origin,end=end,elapsed=time.monotonic()-origin,reason=reason,exit=p.returncode,escalated=escalated,
             retained_bytes=allocation['used'],output_cap=output_cap,partial_prefix=partial,unretained_suffix='UNKNOWN' if partial else None,control_tail=decoder.summary(),control_raw_reference=dict(path=str(receipt/'control.raw'),**pin(receipt/'control.raw')),
             reaped=reaped,leader_identity_events=identity_events,owned_children_remaining=final_children,owned_child_census='UNKNOWN' if census_unknown else 'OBSERVED',census_diagnostic=census_diagnostic,census_fault_injected=fault is not None,kernel_no_children_observed=kernel_no_children,
             cleanup_seconds=time.monotonic()-cleanup_start,cleanup_qualified=not census_unknown and final_children==[] and not root_reserved,coordinator_reaped_last=normal_leader_last,
             unknown_cleanup_hold=census_unknown or final_children is None or bool(final_children),uncatchable_owner_kill_not_claimed=True)
+        if current_session is not None:result['current_private_bootstrap']=current_bootstrap
         budget.document(receipt/'whole.json',result,'custody',pre_reserved=True)
     return result
 
+
+
+def supervise_current_phase(session,phase):
+    """Use the established group engine only for reference/preparation.
+
+    Public CLI/P uses the separately retained direct-child owner; it can never
+    select this group cleanup path through a phase name or a receipt.
+    """
+    import runtime_qualification as q
+    if not q._actual_current_session(session):raise RuntimeError('CurrentApplicationSessionIdentity')
+    session.check()
+    if phase in ('admin','healthy'):
+        return q._current_session_cli(session,phase)
+    if phase not in ('reference','disposable','final'):raise RuntimeError('CurrentGroupPhase')
+    origin=time.monotonic();seconds=300 if phase=='reference' else 120
+    end=min(session.whole_end,origin+seconds)
+    if end-origin<=2:raise RuntimeError('CurrentCleanupReserve')
+    budget=q._current_session_budget(session)
+    receipt=Path('/tmp/wordling-WP70-current-test-qualification-v2/owners')/('reference-probe' if phase=='reference' else phase)
+    receipt.parent.mkdir(mode=0o700,exist_ok=True)
+    env=dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1')
+    result=supervise(q._current_phase_command(session,phase),session.source,env,receipt,
+        seconds=seconds,budget=budget,earlier_end=end-2,current_session=session,current_phase=phase)
+    if not result['cleanup_qualified'] or not result['coordinator_reaped_last'] or result['partial_prefix']:
+        raise RuntimeError('CurrentPhaseCleanupUnknown')
+    if phase=='disposable':
+        q._current_disposable_completion(session,result)
+    elif result['exit']!=0:raise RuntimeError('CurrentPhaseNonzero')
+    elif phase=='final':q._current_final_completion(session,result)
+    if time.monotonic()>=end:raise RuntimeError('CurrentPhaseOverallDeadline')
+    q._CURRENT_PHASE_COMPLETIONS[id(result)]=(session,phase,result)
+    return result
 
 
 def supervise_r11_qualification(source_sha,*,earlier_end=None):
@@ -586,7 +654,9 @@ def _supervise_owner(campaign,source_sha):
         spawn_attempted=True
         root=subprocess.Popen(launch,cwd=command['cwd'],env=q._campaign_gate_environment(command['env']),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
             close_fds=True,pass_fds=(release_child.fileno(),control_child.fileno()),start_new_session=True)
-        root_retained=True;release_child.close();release_child=None;control_child.close();control_child=None
+        root_retained=True
+        if current and q._actual_current_session(campaign.root):campaign.root.active=root
+        release_child.close();release_child=None;control_child.close();control_child=None
         rootfd=q._campaign_open_child(root)
         identity('root_pidfd_bound',pid=root.pid,retained_unreaped_Popen=True)
         selector=selectors.DefaultSelector();selector.register(root.stdout,selectors.EVENT_READ,'stdout.raw');selector.register(root.stderr,selectors.EVENT_READ,'stderr.raw')
@@ -594,6 +664,7 @@ def _supervise_owner(campaign,source_sha):
         send({'k':'A','n':descriptor['nonce'],'s':0,'i':0,'e':traffic_end},traffic_end,gate=True)
         release_owner.close();release_owner=None;setup_complete=True
         while first_fault is None:
+            if current:campaign.root.check()
             current=now()
             if stopped:begin_fault('CampaignOwnerSignal')
             elif current>=min(traffic_end,active_end):begin_fault('CampaignExecutionDeadline')
@@ -703,6 +774,7 @@ def _supervise_owner(campaign,source_sha):
         for handle in raw_handles.values():
             try:handle.close()
             except BaseException:partial=True
+        if current and q._actual_current_session(campaign.root):campaign.root.active=None
         qualified=(setup_complete and first_fault is None and not partial and not census_unknown and not signal_unknown
             and len(retired)==total_slots and root_reaped_last and root is not None and root.returncode==0 and kernel_no_children and now()<whole_end)
         result=dict(status='CAMPAIGN_OWNER_OBSERVED'if qualified else'UNKNOWN_CAMPAIGN_HOLD',
