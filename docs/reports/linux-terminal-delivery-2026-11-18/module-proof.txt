@@ -1,0 +1,118 @@
+$ uname -r
+7.0.0-42-generic
+exit=0
+
+$ strings /tmp/wordling-terminal-private-investigation/hid-apple.ko
+Hailuck
+Non-apple keyboard detected; function keys will default to fnmode=2 behavior
+fnmode
+parm=fnmode:Mode of fn key on Apple keyboards (0 = disabled, 1 = fkeyslast, 2 = fkeysfirst, [3] = auto, 4 = fkeysdisabled)
+parmtype=fnmode:uint
+__param_fnmode
+__param_str_fnmode
+exit=0
+
+$ objdump -dr --disassemble=apple_input_configured /tmp/wordling-terminal-private-investigation/hid-apple.ko
+
+/tmp/wordling-terminal-private-investigation/hid-apple.ko:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000130 <apple_input_configured>:
+     130:	e8 00 00 00 00       	call   135 <apple_input_configured+0x5>
+			131: R_X86_64_PLT32	__fentry__-0x4
+     135:	55                   	push   %rbp
+     136:	48 89 e5             	mov    %rsp,%rbp
+     139:	41 57                	push   %r15
+     13b:	41 56                	push   %r14
+     13d:	41 55                	push   %r13
+     13f:	49 89 fd             	mov    %rdi,%r13
+     142:	41 54                	push   %r12
+     144:	4c 8d a7 b0 1c 00 00 	lea    0x1cb0(%rdi),%r12
+     14b:	53                   	push   %rbx
+     14c:	4c 8b b7 50 19 00 00 	mov    0x1950(%rdi),%r14
+     153:	41 f6 46 08 04       	testb  $0x4,0x8(%r14)
+     158:	74 72                	je     1cc <apple_input_configured+0x9c>
+     15a:	41 8b 46 14          	mov    0x14(%r14),%eax
+     15e:	85 c0                	test   %eax,%eax
+     160:	75 6a                	jne    1cc <apple_input_configured+0x9c>
+     162:	49 8d bd d8 18 00 00 	lea    0x18d8(%r13),%rdi
+     169:	48 c7 c6 00 00 00 00 	mov    $0x0,%rsi
+			16c: R_X86_64_32S	.rodata+0x200
+     170:	e8 00 00 00 00       	call   175 <apple_input_configured+0x45>
+			171: R_X86_64_PLT32	_dev_info-0x4
+     175:	49 83 66 08 fb       	andq   $0xfffffffffffffffb,0x8(%r14)
+     17a:	31 db                	xor    %ebx,%ebx
+     17c:	48 63 f3             	movslq %ebx,%rsi
+     17f:	48 83 fe 0e          	cmp    $0xe,%rsi
+     183:	0f 83 97 00 00 00    	jae    220 <apple_input_configured+0xf0>
+     189:	4c 8b 3c dd 00 00 00 	mov    0x0(,%rbx,8),%r15
+     190:	00 
+			18d: R_X86_64_32S	.rodata+0xe00
+     191:	4c 89 ff             	mov    %r15,%rdi
+     194:	e8 00 00 00 00       	call   199 <apple_input_configured+0x69>
+			195: R_X86_64_PLT32	strlen-0x4
+     199:	4c 89 fe             	mov    %r15,%rsi
+     19c:	4c 89 e7             	mov    %r12,%rdi
+     19f:	48 89 c2             	mov    %rax,%rdx
+     1a2:	e8 00 00 00 00       	call   1a7 <apple_input_configured+0x77>
+			1a3: R_X86_64_PLT32	strncmp-0x4
+     1a7:	85 c0                	test   %eax,%eax
+     1a9:	74 43                	je     1ee <apple_input_configured+0xbe>
+     1ab:	48 83 c3 01          	add    $0x1,%rbx
+     1af:	48 83 fb 0e          	cmp    $0xe,%rbx
+     1b3:	75 c7                	jne    17c <apple_input_configured+0x4c>
+     1b5:	5b                   	pop    %rbx
+     1b6:	31 c0                	xor    %eax,%eax
+     1b8:	41 5c                	pop    %r12
+     1ba:	41 5d                	pop    %r13
+     1bc:	41 5e                	pop    %r14
+     1be:	41 5f                	pop    %r15
+     1c0:	5d                   	pop    %rbp
+     1c1:	31 d2                	xor    %edx,%edx
+     1c3:	31 f6                	xor    %esi,%esi
+     1c5:	31 ff                	xor    %edi,%edi
+     1c7:	e9 00 00 00 00       	jmp    1cc <apple_input_configured+0x9c>
+			1c8: R_X86_64_PLT32	__x86_return_thunk-0x4
+     1cc:	41 81 7d 40 2c 02 00 	cmpl   $0x22c,0x40(%r13)
+     1d3:	00 
+     1d4:	75 a4                	jne    17a <apple_input_configured+0x4a>
+     1d6:	48 c7 c6 00 00 00 00 	mov    $0x0,%rsi
+			1d9: R_X86_64_32S	.rodata+0xa
+     1dd:	4c 89 e7             	mov    %r12,%rdi
+     1e0:	e8 00 00 00 00       	call   1e5 <apple_input_configured+0xb5>
+			1e1: R_X86_64_PLT32	strcmp-0x4
+     1e5:	85 c0                	test   %eax,%eax
+     1e7:	75 91                	jne    17a <apple_input_configured+0x4a>
+     1e9:	e9 74 ff ff ff       	jmp    162 <apple_input_configured+0x32>
+     1ee:	49 8d bd d8 18 00 00 	lea    0x18d8(%r13),%rdi
+     1f5:	48 c7 c6 00 00 00 00 	mov    $0x0,%rsi
+			1f8: R_X86_64_32S	.rodata+0x250
+     1fc:	e8 00 00 00 00       	call   201 <apple_input_configured+0xd1>
+			1fd: R_X86_64_PLT32	_dev_info-0x4
+     201:	49 81 4e 08 00 08 00 	orq    $0x800,0x8(%r14)
+     208:	00 
+     209:	31 c0                	xor    %eax,%eax
+     20b:	5b                   	pop    %rbx
+     20c:	41 5c                	pop    %r12
+     20e:	41 5d                	pop    %r13
+     210:	41 5e                	pop    %r14
+     212:	41 5f                	pop    %r15
+     214:	5d                   	pop    %rbp
+     215:	31 d2                	xor    %edx,%edx
+     217:	31 f6                	xor    %esi,%esi
+     219:	31 ff                	xor    %edi,%edi
+     21b:	e9 00 00 00 00       	jmp    220 <apple_input_configured+0xf0>
+			21c: R_X86_64_PLT32	__x86_return_thunk-0x4
+     220:	48 c7 c7 00 00 00 00 	mov    $0x0,%rdi
+			223: R_X86_64_32S	.data+0x180
+     227:	e8 00 00 00 00       	call   22c <apple_input_configured+0xfc>
+			228: R_X86_64_PLT32	__ubsan_handle_out_of_bounds-0x4
+     22c:	e9 58 ff ff ff       	jmp    189 <apple_input_configured+0x59>
+
+Disassembly of section .init.text:
+
+Disassembly of section .exit.text:
+exit=0
+

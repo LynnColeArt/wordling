@@ -1,0 +1,25 @@
+$ bash -n /tmp/wordling-terminal-private-investigation/launch-private-terminal.sh
+exit=0
+
+$ /tmp/wordling-terminal-private-investigation/launch-private-terminal.sh --check
+menu-accelerator-enabled=false
+shortcuts-enabled=false
+mnemonics-enabled=false
+always-check-default-terminal=false
+exit=0
+
+$ env GSETTINGS_BACKEND=keyfile XDG_CONFIG_HOME=/tmp/wordling-terminal-private-investigation/private-config G_MESSAGES_DEBUG=GLib-GIO gsettings get org.gnome.Terminal.Legacy.Settings menu-accelerator-enabled
+(process:1848179): GLib-GIO-DEBUG: 22:51:47.519: Using cross-namespace EXTERNAL authentication (this will deadlock if server is GDBus < 2.73.3)
+(process:1848179): GLib-GIO-DEBUG: 22:51:47.521: _g_io_module_get_default: Found default implementation gvfs (GDaemonVfs) for ‘gio-vfs’
+(process:1848179): GLib-GIO-DEBUG: 22:51:47.521: _g_io_module_get_default: Found default implementation keyfile (GKeyfileSettingsBackend) for ‘gsettings-backend’
+false
+exit=0
+
+$ gsettings get org.gnome.Terminal.Legacy.Settings menu-accelerator-enabled
+true
+exit=0
+
+$ gsettings get org.gnome.Terminal.Legacy.Settings shortcuts-enabled
+true
+exit=0
+
