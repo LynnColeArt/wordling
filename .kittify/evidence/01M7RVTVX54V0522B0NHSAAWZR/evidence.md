@@ -1,0 +1,1 @@
+Adopted independently reviewed fifteen-path R1 allocation: nine source correction/full-suite receipts and six amendment files. Four reserve slots consumed, eleven added, retention1187;512MiB and all classes/runtime/candidate limits unchanged. Old5ca source and40 actual proofs preserved in Git; no fix, replay or census authorized by this planning outcome.
