@@ -229,5 +229,41 @@ class CurrentGenuineContextStructuralTests(unittest.TestCase):
         self.assertIn('preparation_origin', ast.unparse(producer))
 
 
+class CurrentFiniteRuntimeWiringStructuralTests(unittest.TestCase):
+    def test_selection_release_precedes_real_captures_and_preserves_role_index(self):
+        tree = source_tree('runtime_qualification.py')
+        reference = function(tree, '_current_reference_capture')
+        source = ast.unparse(reference)
+        self.assertLess(source.index('_current_release_selection(context)'), source.index('_capture_command(owner'))
+        phase = ast.unparse(function(tree, '_current_phase_entry'))
+        self.assertLess(phase.index('_current_release_selection(context)'), phase.index('deploy(root.source'))
+        release = ast.unparse(function(tree, '_current_release_selection'))
+        self.assertIn('new_tool_records', release)
+        self.assertIn('current-selection-index', release)
+        self.assertIn('context.selection = None', release)
+        consumer = ast.unparse(function(tree, '_consume_tool_origins'))
+        self.assertIn('_current_tool_input_role', consumer)
+
+    def test_phase_telemetry_and_owner_negative_are_integrated_canonical_calls(self):
+        tree = source_tree('runtime_qualification.py')
+        self.assertIn('_current_collect_phase_cases', ast.unparse(function(tree, '_current_phase_completion')))
+        session = source_tree('current_test_qualification.py')
+        self.assertIn('_current_qualification_data16', ast.unparse(function(session, 'accept_candidate', '_CurrentSession')))
+        negative = ast.unparse(function(source_tree('runtime_qualification_supervisor.py'), 'supervise_current_phase'))
+        self.assertIn('kill-coordinator', negative)
+        self.assertIn('killed_after_readiness', negative)
+        self.assertIn('cleanup_qualified', negative)
+        self.assertEqual(group_signal_calls(function(source_tree('runtime_qualification_supervisor.py'), '_supervise_owner')), [])
+
+    def test_reference_transport_has_single_raw_origin_and_four_helper_cache_guard(self):
+        tree = source_tree('runtime_qualification.py')
+        reference = ast.unparse(function(tree, '_current_reference_capture'))
+        self.assertNotIn("document(owner.evidence / 'base-observation.json'", reference)
+        loader = ast.unparse(function(tree, '_current_refuse_helper_caches'))
+        for name in ('runtime_qualification', 'controller_deployment', 'runtime_qualification_supervisor', 'current_test_qualification'):
+            self.assertIn(name, loader)
+        self.assertIn('_current_refuse_helper_caches', ast.unparse(function(tree, '_current_phase_entry')))
+
+
 if __name__ == "__main__":
     unittest.main()

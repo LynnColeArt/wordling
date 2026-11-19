@@ -60,7 +60,8 @@ class _CurrentSession:
         'whole_origin', 'whole_end', 'stage', 'failed', 'finished', 'active',
         'expected_fd', 'expected_identity', 'phase_results', 'used', 'budget',
         'claimed', 'arena', 'frozen_disposable', 'candidate', 'nonce', 'source_accepted',
-        'case_rows', 'owner_negative', 'mutant_citations', 'data_written')
+        'case_rows', 'owner_negative', 'mutant_citations', 'data_written',
+        'capacity_checked', 'capacity_fd', 'capacity_identity')
 
     def __new__(cls):
         raise TypeError('CurrentFixedApplicationEntryOnly')
@@ -128,6 +129,7 @@ class _CurrentSession:
         self.check()
         if self.stage != 'REFERENCE_PENDING_ACCEPTANCE' or 'reference' not in self.phase_results:
             raise RuntimeError('CurrentReferenceAcceptanceOrder')
+        _q()._current_qualification_mutants4(self)
         _q()._current_session_acceptance(self, 'reference')
         self.stage = 'REFERENCE_ACCEPTED'
 
@@ -167,6 +169,9 @@ class _CurrentSession:
         if self.expected_fd is not None:
             os.close(self.expected_fd)
             self.expected_fd = None
+        if self.capacity_fd is not None:
+            os.close(self.capacity_fd)
+            self.capacity_fd = None
         for record in (self.frozen_disposable,self.candidate):
             if record is not None:os.close(record['fd'])
         _LIVE_SESSIONS.discard(self)
@@ -314,7 +319,7 @@ class _CurrentContext:
         self.check()
         if expected is not self.expected:
             raise RuntimeError('CurrentReferenceIdentity')
-        receipt = _q().check_selection_records(expected, self.selection)
+        receipt = _q()._current_check_selection(self)
         if receipt['disposition'] != 'UNACCEPTED_VALIDATOR_DATA':
             raise RuntimeError('CurrentReferenceDataDisposition')
         _q()._current_preflight_inputs(self)

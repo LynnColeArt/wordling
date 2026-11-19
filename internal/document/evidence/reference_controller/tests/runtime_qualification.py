@@ -3578,7 +3578,9 @@ def _consume_tool_origins(self,path,label,capture=None):
         if not p.is_file():continue
         if p.is_relative_to(self.target):observed[name]=dict(**pin(p),classification='NEW_OWNED_BUILD_OUTPUT')
         elif name in self.expected['files']:
+            role=_current_tool_input_role(self,name) if self.current_test is not None else 'FROZEN_TOOL_INPUT'
             same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
+            observed[name]['classification']=role
         else:raise RuntimeError('UnclassifiedToolInput:'+name)
         if record['kind']=='exec':executed.append(name)
     write_json(origin_path,dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'))
@@ -3694,8 +3696,13 @@ def _capture_command(self,argv,label,tool=False):
             receipt['semantic_validation']='OBSERVED';supervisor_notice('idle')
         return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
     except BaseException as error:
-        if reference:receipt.update(failure=error_tag(error),semantic_validation='FAILED_OR_UNKNOWN',partial_prefix=True,unretained_suffix='UNKNOWN')
-        supervisor_notice('abort');raise
+        if reference:
+            receipt.update(failure=error_tag(error),semantic_validation='FAILED_OR_UNKNOWN',partial_prefix=True,unretained_suffix='UNKNOWN')
+            supervisor_notice('abort')
+        # The real Preparation.run wrapper classifies the one fixed terminal
+        # tool-negative. It must first preserve frozen-artifact/failure custody;
+        # every other current failure sends its own canonical abort notice.
+        raise
     finally:
         if reference:
             self.budget.document(layout['whole'],receipt,'pair',pre_reserved=True);self.calls.append(receipt);self.call_paths.append(layout['whole'])
@@ -3870,6 +3877,16 @@ def _current_writer_groups():
 
 
 _CURRENT_PHASE_COMPLETIONS = {}
+_CURRENT_SELECTION_RELEASES = {}
+_CURRENT_CAPACITY_PROOFS = {}
+
+
+def _current_refuse_helper_caches():
+    directory=Path(__file__).resolve().parent
+    for name in ('runtime_qualification','controller_deployment','runtime_qualification_supervisor','current_test_qualification'):
+        if (sys.pycache_prefix is not None or (directory/(name+'.pyc')).exists()
+                or any((directory/'__pycache__').glob(name+'.*.pyc'))):
+            raise RuntimeError('CurrentCachedHarnessHelperExcluded:'+name)
 
 
 def _actual_current_session(value):
@@ -3877,24 +3894,88 @@ def _actual_current_session(value):
     return module is not None and type(value)is module._CurrentSession and value in module._LIVE_SESSIONS
 
 
+def _current_seed_serialization_data(expected,selection,capacity,reference_roots):
+    """Pure SOURCE construction/fit, never acceptance or a context factory.
+
+    The administrative SOURCE action supplies its independently reviewed exact
+    projection of captured members. No role is inferred from a candidate, a
+    missing target, a pyc header, or a successful serialization. Every selected
+    pin is retained; an oversized selection is an explicit amendment obligation.
+    """
+    check_selection_records(expected,selection)
+    check_reference_shape(capacity)
+    if reference_roots!=capacity['canonical_reference_roots']:
+        raise RuntimeError('CurrentSeedReferenceRoots')
+    def encode(value,maximum):
+        measure_json(value,8388608)
+        count=0;result=bytearray()
+        for part in json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True).iterencode(value):
+            raw=part.encode('ascii');count+=len(raw)
+            if len(raw)>JSON_ESCAPE_PEAK or count>8388608:raise RuntimeError('CurrentSeedSerializationBound')
+            if count<=maximum:result.extend(raw)
+        if count>maximum:
+            raise RuntimeError('CurrentSeedWriterFit:'+str(count)+'>'+str(maximum))
+        result.extend(b'\n')
+        return bytes(result)
+    # Fixed public transport bounds include the final newline. The encoder
+    # refuses before opening any writer; it cannot trim TOOL/cache membership.
+    selection_raw=encode(selection,1048575)
+    selection_text,selection_charge=_json_prepared(selection_raw,1048576,True)
+    index_charge=1024+sum(2*len(row['path'])+128 for row in selection['new_tool_records'])
+    if (index_charge>1048576 or selection_charge+len(selection_raw)>8388608
+            or selection_charge+1048576>8388608):raise RuntimeError('CurrentSelectionJointCharge')
+    del selection_text
+    capacity_raw=encode(capacity,262143)
+    compressor=zlib.compressobj(9,zlib.DEFLATED,31)
+    compressed=bytearray();expected_size=0
+    for part in json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True).iterencode(expected):
+        raw=part.encode('ascii');expected_size+=len(raw)
+        if len(raw)>JSON_ESCAPE_PEAK or expected_size>8388607:raise RuntimeError('CurrentSeedSerializationBound')
+        piece=compressor.compress(raw)
+        if len(compressed)+len(piece)>1572864:raise RuntimeError('CurrentCompressedExpectedBound')
+        compressed.extend(piece)
+    piece=compressor.compress(b'\n')+compressor.flush()
+    if len(compressed)+len(piece)>1572864:raise RuntimeError('CurrentCompressedExpectedBound')
+    compressed.extend(piece);compressed=bytes(compressed)
+    parent=dict(E_bytes=capacity['E_bytes'],E_files=capacity['E_files'])
+    binding=dict(schema='wordling.current-source-binding/v2',disposition='UNACCEPTED_SOURCE_DATA',
+        source_binding=expected['source_binding'],parent_capacity=parent,
+        capacity=dict(size=len(capacity_raw),sha256=hashlib.sha256(capacity_raw).hexdigest()),
+        payload_role_pins_complete=True)
+    binding_raw=encode(binding,65535)
+    roots_raw=encode(reference_roots,65535)
+    return {'expected-inputs.json.gz':compressed,'source-binding.json':binding_raw,
+        'capacity.json':capacity_raw,'tool-selection.json':selection_raw,'reference-roots.json':roots_raw}
+
+
 def _current_begin_session(module):
     """Fixed trusted application entry. It creates no child context or clock."""
     if module is not sys.modules.get('current_test_qualification') or module._LIVE_SESSIONS or module._SESSION_STARTED:
         raise RuntimeError('CurrentSoleApplicationSession')
+    _current_refuse_helper_caches()
     manifest=_current_manifest(pin(Path(__file__).resolve())['sha256'],'admin')
     directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
     for name in (directory.parent,directory):
         row=name.lstat()
         if not stat.S_ISDIR(row.st_mode) or row.st_uid!=os.getuid() or stat.S_IMODE(row.st_mode)!=0o700:raise RuntimeError('CurrentPrivateSourceNamespace')
-    capacity_path=directory/'capacity.json'
+    capacity_path=directory/'source-binding.json'
     if capacity_path.is_symlink() or capacity_path.stat().st_size>65536:raise RuntimeError('CurrentParentCapacityInputBound')
     with capacity_path.open('rb') as stream:raw=stream.read(65537)
     if len(raw)>65536:raise RuntimeError('CurrentParentCapacityInputBound')
     text,charge=_json_prepared(raw,65536)
     if charge>524288:raise RuntimeError('CurrentParentCapacityCharge')
-    capacity=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+    binding=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
     del raw,text
-    check_reference_shape(capacity)
+    if (type(binding)is not dict or set(binding)!={'schema','disposition','source_binding','parent_capacity','capacity','payload_role_pins_complete'}
+            or binding['schema']!='wordling.current-source-binding/v2' or binding['disposition']!='UNACCEPTED_SOURCE_DATA'
+            or binding['payload_role_pins_complete']is not True):raise RuntimeError('CurrentParentCapacityProjection')
+    capacity=binding['parent_capacity']
+    if (type(capacity)is not dict or set(capacity)!={'E_bytes','E_files'}
+            or any(type(capacity[k])is not int or capacity[k]<0 for k in capacity)):
+        raise RuntimeError('CurrentParentCapacityProjection')
+    if binding['capacity']!={k:manifest['inputs']['capacity.json'][k] for k in ('size','sha256')}:
+        raise RuntimeError('CurrentParentCapacityBinding')
+    del binding
     source=Path(__file__).resolve().parent.parent;repository=source.parents[3]
     groups=tuple(_current_writer_groups())
     names=[name for row in groups for name in row['paths']]
@@ -3912,6 +3993,7 @@ def _current_begin_session(module):
         value.arena.hold('current-parent-state',524288)
         value.frozen_disposable=None;value.candidate=None;value.nonce=os.urandom(32).hex();value.source_accepted=False
         value.case_rows={};value.owner_negative=False;value.mutant_citations=None;value.data_written=False
+        value.capacity_checked=False;value.capacity_fd=None;value.capacity_identity=None
         module._LIVE_SESSIONS.add(value);module._SESSION_STARTED=True
         _current_session_inputs(value)
         return value
@@ -3926,7 +4008,46 @@ def _current_source_acceptance(session):
     if current!=session.manifest:raise RuntimeError('CurrentSourceClosureChanged')
     directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference')
     for name,row in current['inputs'].items():same(directory/name,row)
+    _current_source_capacity(session)
+    _current_source_mutant_citations(session)
     session.check()
+
+
+def _current_source_capacity(session):
+    """Direct SOURCE admission on the real application object, before clock.
+
+    Full baseline metadata is temporary SOURCE working storage, not a second
+    qualified parent map. Qualification retains only totals and the read-only
+    file descriptor; children independently run the canonical full proof.
+    """
+    if (not _actual_current_session(session) or session.whole_origin is not None
+            or session.capacity_checked or session.capacity_fd is not None):
+        raise RuntimeError('CurrentSourceCapacityOnce')
+    path=Path('/tmp/wordling-WP70-current-test-qualification-v2/reference/capacity.json')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    compact=session.capacity
+    try:
+        st=os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode) or not 0<st.st_size<=262144:raise RuntimeError('CurrentCapacityInputBound')
+        raw=os.read(fd,262145)
+        if len(raw)!=st.st_size:raise RuntimeError('CurrentCapacityShortRead')
+        text,charge=_json_prepared(raw,262144,True)
+        if charge>8388608:raise RuntimeError('CurrentSourceCapacityCharge')
+        data=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+        del raw,text
+        if {k:data[k] for k in ('E_bytes','E_files')}!=compact:raise RuntimeError('CurrentParentCapacityProjection')
+        session.capacity=data
+        _current_capacity_proof(session)
+        session.capacity=compact
+        del data
+        after=os.fstat(fd);named=path.lstat()
+        identity=lambda r:(r.st_dev,r.st_ino,r.st_size,r.st_mtime_ns,r.st_ctime_ns)
+        if identity(st)!=identity(after) or identity(after)!=identity(named):raise RuntimeError('CurrentCapacityFDChanged')
+        session.capacity_fd=fd;session.capacity_identity=identity(after);session.capacity_checked=True
+        fd=None
+    finally:
+        session.capacity=compact
+        if fd is not None:os.close(fd)
 
 
 def _current_session_inputs(session):
@@ -3936,6 +4057,12 @@ def _current_session_inputs(session):
     named=os.stat('/tmp/wordling-WP70-current-test-qualification-v2/reference/expected-inputs.json.gz',follow_symlinks=False)
     if (named.st_dev,named.st_ino)!=(row.st_dev,row.st_ino) or (row.st_dev,row.st_ino,row.st_size,row.st_mtime_ns,row.st_ctime_ns)!=session.expected_identity:
         session.failed=True;raise RuntimeError('CurrentExpectedFDChanged')
+    if session.capacity_checked:
+        row=os.fstat(session.capacity_fd)
+        named=os.stat('/tmp/wordling-WP70-current-test-qualification-v2/reference/capacity.json',follow_symlinks=False)
+        identity=lambda r:(r.st_dev,r.st_ino,r.st_size,r.st_mtime_ns,r.st_ctime_ns)
+        if identity(row)!=session.capacity_identity or identity(named)!=session.capacity_identity:
+            session.failed=True;raise RuntimeError('CurrentCapacityFDChanged')
     # Whole class limits remain authoritative even though only a finite subset
     # is consumed in any one phase. OTHER baseline is included in capacity.
     if (session.capacity['E_bytes']+sum(r[0] for r in CLASS_LIMITS.values())>EVIDENCE_LIMIT
@@ -3947,7 +4074,7 @@ def _current_session_budget(session):
     session.check()
     if not session.source_accepted or session.whole_origin is None:raise RuntimeError('CurrentWholeClockRequired')
     if session.budget is None:
-        _current_capacity_proof(session)
+        if not session.capacity_checked:raise RuntimeError('CurrentActualSourceCapacityRequired')
         roots=[Path('/tmp/wordling-WP70-current-test-qualification-v2'),session.repository/'docs/research/continuation/test-runtime-qualification-v2']
         session.budget=EvidenceBudget(roots,session.capacity['E_bytes'],session.capacity['E_files'],current_owner=session)
         session.capacity=dict(E_bytes=session.capacity['E_bytes'],E_files=session.capacity['E_files'])
@@ -4240,10 +4367,9 @@ def _current_parent_bootstrap(session,phase,channel,child,end):
 def _current_phase_entry(phase,source_sha):
     import importlib.util
     if phase not in ('reference','disposable','final'):raise RuntimeError('CurrentFinitePhase')
+    _current_refuse_helper_caches()
     path=Path(__file__).with_name('current_test_qualification.py')
     # Canonical source-only loader; never consult a cache or ordinary sys.path.
-    if sys.pycache_prefix is not None or any((path.parent/'__pycache__').glob('current_test_qualification.*.pyc')):
-        raise RuntimeError('CurrentCachedCoordinatorExcluded')
     spec=importlib.util.spec_from_file_location('current_test_qualification',path)
     if spec is None or type(spec.loader).__name__!='SourceFileLoader':raise RuntimeError('CurrentCanonicalCoordinatorLoader')
     module=importlib.util.module_from_spec(spec);sys.modules['current_test_qualification']=module;spec.loader.exec_module(module)
@@ -4260,6 +4386,7 @@ def _current_phase_entry(phase,source_sha):
         constructor_witness=_current_disposable_before_bind(context) if phase=='disposable' else None
         preparation=Preparation(context.target,context.evidence,root.expected,origin=context.start,earlier_end=context.end,current_test=context)
         if phase=='disposable':_current_disposable_after_bind(context,preparation,constructor_witness)
+        _current_release_selection(context)
         from controller_deployment import deploy
         interpreter,inventory=deploy(root.source,root.repository,context.target,context.evidence/'deployment',context=preparation)
         context.freeze_deployment(interpreter,inventory)
@@ -4274,6 +4401,8 @@ def _current_phase_entry(phase,source_sha):
     except BaseException:
         root.fail('CurrentPhaseFailure');raise
     finally:
+        for context in root.contexts:_CURRENT_SELECTION_RELEASES.pop(context,None)
+        _CURRENT_CAPACITY_PROOFS.pop(root,None)
         root.finished=True;module._LIVE_ROOTS.discard(root)
         root.channel.close();os.close(root.parentfd)
 
@@ -4318,6 +4447,86 @@ def _current_qualification_data16(session):
         status='OBSERVED_REQUIRES_INDEPENDENT_REVIEW',cases=session.case_rows,
         source_mutants=session.mutant_citations,owner_negative=True,telemetry_is_not_authority=True),'control')
     session.data_written=True
+
+
+def _current_source_mutant_citations(session):
+    """Verify scoped old DATA proofs during the direct live SOURCE decision.
+
+    This does not launch a mutant or label it a new full-module kill. The
+    independently reviewed conservation audit must bind the actual unchanged
+    guard, test, dependency and affected call path; otherwise admission stops.
+    """
+    if (not _actual_current_session(session) or session.whole_origin is not None
+            or session.mutant_citations is not None):raise RuntimeError('CurrentSourceMutantDecisionOnce')
+    base=session.repository/'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/source'
+    audit_row=session.manifest['source_mutant_audit'];audit_path=Path(audit_row['path'])
+    same(audit_path,{k:audit_row[k] for k in ('size','sha256')})
+    if audit_row['size']>131072:raise RuntimeError('CurrentSourceMutantAuditBound')
+    audit=bounded_json_loads(audit_path.read_bytes(),131072)
+    if (audit.get('schema')!='wordling.current-source-change-and-reuse/v1'
+            or audit.get('old_source_checkpoint')!='76951755be8a658ab55ea9c9ddd947a0928955ee'):
+        raise RuntimeError('CurrentSourceMutantConservation')
+    rows=audit.get('mutant_conservation')
+    ids=('EXPECTED-ADOPTION','WHEEL-DATA','PROVIDER-LABEL','OWNER-ADMISSION')
+    if type(rows)is not dict or set(rows)!=set(ids):raise RuntimeError('CurrentSourceMutantConservation')
+    manifest_path=base/'mutant-command-manifest.json'
+    same(manifest_path,dict(size=manifest_path.stat().st_size,sha256='cdb4e1f359c51ff8cffa82324edbca18ae0a73b521492259007b885e6118a702'))
+    manifest=bounded_json_loads(manifest_path.read_bytes(),65536)
+    old={r['id']:r for r in manifest['mutants']}
+    allowed={str(session.source/'tests'/n) for n in ('runtime_qualification.py','controller_deployment.py',
+        'runtime_qualification_supervisor.py','current_test_qualification.py','test_current_test_qualification.py','test_current_test_qualification_contract.py')}
+    citations={}
+    for number,key in enumerate(ids,1):
+        row=rows[key];prior=old[key]
+        if (type(row)is not dict or row.get('status')!='CONSERVE_EXACT_GUARD_TEST_AND_AFFECTED_PATH'
+                or type(row.get('units'))is not list or not 2<=len(row['units'])<=64):raise RuntimeError('CurrentSourceMutantConservation')
+        names=set()
+        for unit in row['units']:
+            if (type(unit)is not dict or set(unit)!={'path','owner','name','ast_sha256'} or unit['path'] not in allowed
+                    or type(unit['name'])is not str or unit['owner']is not None and type(unit['owner'])is not str):
+                raise RuntimeError('CurrentSourceMutantUnit')
+            path=Path(unit['path'])
+            if path.is_symlink() or path.stat().st_size>524288:raise RuntimeError('CurrentSourceMutantUnitBound')
+            tree=ast.parse(path.read_bytes());body=tree.body
+            if unit['owner']is not None:
+                owners=[n for n in body if isinstance(n,ast.ClassDef) and n.name==unit['owner']]
+                if len(owners)!=1:raise RuntimeError('CurrentSourceMutantUnit')
+                body=owners[0].body
+            matches=[n for n in body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==unit['name']]
+            if len(matches)!=1 or hashlib.sha256(ast.dump(matches[0],include_attributes=False).encode('utf8')).hexdigest()!=unit['ast_sha256']:
+                raise RuntimeError('CurrentSourceMutantAffectedPathChanged')
+            names.add((unit['owner'],unit['name']));del tree,body,matches
+        selector_owner,selector=prior['test_selector'].split('.')
+        if (prior['owner'],prior['function']) not in names or (selector_owner,selector) not in names:
+            raise RuntimeError('CurrentSourceMutantRequiredUnits')
+        for suffix,exit_code in (('CONTROL',0),('MUTANT',1)):
+            receipt_path=base/(key+'-'+suffix)/'process.json'
+            expected_pin=row.get(suffix.lower())
+            if type(expected_pin)is not dict or set(expected_pin)!={'size','sha256'}:raise RuntimeError('CurrentSourceMutantReceiptPin')
+            same(receipt_path,expected_pin)
+            receipt=bounded_json_loads(receipt_path.read_bytes(),65536)
+            if receipt.get('actual_exit')!=exit_code or receipt.get('case_id')!=key+'-'+suffix:
+                raise RuntimeError('CurrentSourceMutantActualExit')
+            stderr=bounded_gzip(receipt_path.parent/'stderr.raw.gz',16384)
+            if (suffix=='CONTROL' and (b'\nOK\n' not in stderr or b'FAILED' in stderr)
+                    or suffix=='MUTANT' and (b'FAILED (failures=1)' not in stderr or prior['causal_failure_contains'].encode('ascii') not in stderr)):
+                raise RuntimeError('CurrentSourceMutantCausalRaw')
+            del receipt,stderr
+        postimage=base/prior['postimage_path'];same(postimage,prior['postimage'])
+        citations[str(number)]=dict(id=key,status='SCOPED_SOURCE769_CAUSAL_CITATION',
+            original_checkpoint=manifest['source_checkpoint'],postimage=prior['postimage'],
+            control=row['control'],mutant=row['mutant'],conservation_audit=dict(audit_row),new_full_postimage_kill=False)
+    session.mutant_citations=citations
+
+
+def _current_qualification_mutants4(session):
+    session.check()
+    if session.stage!='REFERENCE_PENDING_ACCEPTANCE' or session.mutant_citations is None or 'mutants4' in session.used:
+        raise RuntimeError('CurrentScopedMutantsStageOnce')
+    session.used.add('mutants4');budget=_current_session_budget(session)
+    directory=Path('/tmp/wordling-WP70-current-test-qualification-v2/data');directory.mkdir(mode=0o700,exist_ok=True)
+    for number in range(1,5):
+        budget.document(directory/('MUTANT'+str(number).zfill(2)+'.json'),session.mutant_citations[str(number)],'control')
 
 
 def _current_phase_completion(session,name,result):
@@ -4369,7 +4578,7 @@ def _current_manifest(source_sha,kind):
     source_path=directory/'capture-source-manifest.json'
     if source_path.is_symlink() or source_path.stat().st_size>65536:raise RuntimeError('CurrentCaptureSourceBound')
     source=bounded_json_loads(source_path.read_bytes(),65536)
-    if type(source)is not dict or set(source)!={'schema','sources','closure','inputs'} or source['schema']!='wordling.current-source-manifest/v2':
+    if type(source)is not dict or set(source)!={'schema','sources','closure','inputs','source_mutant_audit'} or source['schema']!='wordling.current-source-manifest/v2':
         raise RuntimeError('CurrentSourceManifestSchema')
     tests=Path(__file__).resolve().parent
     members={str(tests/n) for n in ('runtime_qualification.py','controller_deployment.py','runtime_qualification_supervisor.py','current_test_qualification.py')}
@@ -4378,6 +4587,11 @@ def _current_manifest(source_sha,kind):
     for name,row in source['sources'].items():same(name,row)
     seed_names={'expected-inputs.json.gz','source-binding.json','capacity.json','tool-selection.json','reference-roots.json'}
     if type(source['inputs'])is not dict or set(source['inputs'])!=seed_names:raise RuntimeError('CurrentSourceInputMembership')
+    audit=source['source_mutant_audit']
+    wanted=str(tests.parents[4]/'docs/research/continuation/test-runtime-qualification-v2/source-stage/current-context-source/source/revision1/change-and-reuse-audit.json')
+    if type(audit)is not dict or set(audit)!={'path','size','sha256'} or audit['path']!=wanted:
+        raise RuntimeError('CurrentExactSourceMutantAudit')
+    same(wanted,{k:audit[k] for k in ('size','sha256')})
     required={'roles','argv','writers','joint_memory','native_descendants','clock','cases','startup'}
     if type(source['closure'])is not dict or set(source['closure'])!=required or any(source['closure'][k]is not True for k in required):
         raise RuntimeError('CurrentSourceClosureIncomplete')
@@ -4552,21 +4766,38 @@ def _current_load_reference(root):
     raw=bounded_gzip(compressed,8388608)
     # The source reference builder owns the independent roles/provider map.
     # This tree remains charged until the complete child context is retired.
-    text,charge=_json_prepared(raw,8388608)
+    text,charge=_json_prepared(raw,8388608,True)
     if charge>46137344:raise RuntimeError('CurrentExpectedMapCharge')
     expected=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
     del raw,text
     selection_path=directory/'tool-selection.json'
     if selection_path.stat().st_size>1048576:raise RuntimeError('CurrentSelectionInputBound')
-    selection=bounded_json_loads(selection_path.read_bytes(),1048576)
-    check_selection_records(expected,selection)
     capacity_path=directory/'capacity.json'
     if capacity_path.stat().st_size>262144:raise RuntimeError('CurrentCapacityInputBound')
-    capacity=bounded_json_loads(capacity_path.read_bytes(),262144)
-    root.expected=expected;root.selection=selection;root.capacity=capacity
+    capacity_raw=capacity_path.read_bytes()
+    text,capacity_charge=_json_prepared(capacity_raw,262144,True)
+    root.arena.hold('current-capacity-data',capacity_charge+len(capacity_raw))
+    capacity=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+    del capacity_raw,text
+    root.expected=expected;root.capacity=capacity
     root.groups=tuple(_current_writer_groups());root.proof=seal
     del seal
     _current_capacity_proof(root)
+    _CURRENT_CAPACITY_PROOFS[root]=dict(E_bytes=capacity['E_bytes'],E_files=capacity['E_files'])
+    root.capacity=_CURRENT_CAPACITY_PROOFS[root]
+    del capacity
+    root.arena.release('current-capacity-data')
+    # This map is staged only until the actual canonical consumer and its
+    # current-phase DATA controls finish. It cannot coexist with trace decode.
+    root.arena.hold('current-selection-data',8388608)
+    selection_raw=selection_path.read_bytes()
+    text,selection_charge=_json_prepared(selection_raw,1048576,True)
+    if selection_charge+len(selection_raw)>8388608:raise RuntimeError('CurrentSelectionJointCharge')
+    selection=json.loads(text,parse_constant=lambda s:(_ for _ in ()).throw(RuntimeError('JSONNonfinite')))
+    del selection_raw,text
+    root.arena.shrink('current-selection-data',selection_charge)
+    check_selection_records(expected,selection)
+    root.selection=selection
     return charge
 
 
@@ -4599,6 +4830,7 @@ def _current_reference_capture(root):
             cap=8192 if name=='stdout-summary.raw' else 16384
             allocation,handles=budget.raw_group([owner.evidence/'REF02'/name],'construction_raw',cap)
             handles[owner.evidence/'REF02'/name].close()
+        _current_release_selection(context)
         # The ordinary engine enforces the separately funded summary channels.
         # A larger observation refuses; it cannot silently create a new writer.
         result=_capture_command(owner,[str(BASE),'-I','-B','-c',probe(False)],'REF01',False)
@@ -4668,6 +4900,64 @@ def _current_deadline_projection(origin,end,now):
     if any(type(v) not in (int,float) or not math.isfinite(v) for v in (origin,end,now)) or not 0<origin<end:
         raise RuntimeError('CurrentDeadlineProjection')
     if now>=end:raise RuntimeError('CurrentTestStageOrDeadline')
+
+
+def _current_check_selection(context):
+    context.check()
+    if context.selection is not None:
+        return check_selection_records(context.expected,context.selection)
+    facts=_CURRENT_SELECTION_RELEASES.get(context)
+    if (facts is None or facts['expected'] is not context.expected or context.root.selection is not None
+            or facts['files_sha256']!=_current_data_digest(context.expected['files'])
+            or facts['roles_sha256']!=_current_data_digest({k:context.expected[k] for k in (
+                'links','directories','closed_roots','runtime_elf','runtime_mapped_data',
+                'tool_startup_hook_sets','approved_providers','source_binding')})):
+        raise RuntimeError('CurrentActualVerifiedSelectionRequired')
+    return facts['receipt']
+
+
+def _current_tool_input_role(owner,name):
+    context=_require_current_test(owner.current_test)
+    facts=_CURRENT_SELECTION_RELEASES.get(context)
+    if facts is None or facts['expected'] is not owner.expected:raise RuntimeError('CurrentVerifiedToolProjectionRequired')
+    if name in facts['tool_paths']:return 'FROZEN_TOOL_INPUT'
+    expected=context.expected
+    if name in expected['runtime_elf'] or name in expected['runtime_mapped_data']:
+        return 'FROZEN_RUNTIME_INPUT_USED_BY_TOOL'
+    p=Path(name)
+    if p.is_relative_to(PREFIX/'lib/python3.12') and not p.is_relative_to(PREFIX/'lib/python3.12/site-packages'):
+        # BASE stdlib object bytes have their own frozen runtime role, including
+        # observed caches; they do not become TOOL cache/source-equivalence.
+        return 'FROZEN_BASE_STDLIB_OBJECT_BYTES'
+    raise RuntimeError('UnclassifiedCurrentToolRole:'+name)
+
+
+def _current_release_selection(context):
+    """A genuine stage records its actual validation, then drops the full map.
+
+    A saved receipt cannot populate this registry. Its exact expected object
+    remains live in the real context; neither its role map nor its pins change.
+    A bounded path index survives; all complete pin dictionaries are dropped.
+    """
+    context.check()
+    if context in _CURRENT_SELECTION_RELEASES or context.selection is None:raise RuntimeError('CurrentSelectionReleaseOnce')
+    receipt=check_selection_records(context.expected,context.selection)
+    context.arena.hold('current-selection-index',1048576)
+    charge=1024;paths=set()
+    for row in context.selection['new_tool_records']:
+        name=row['path'];charge+=2*len(name)+128
+        if charge>1048576:raise RuntimeError('CurrentToolPathIndexCharge')
+        paths.add(name)
+    tool_paths=frozenset(paths);del paths
+    site=PREFIX/'lib/python3.12/site-packages'
+    names={str(site/'distutils-precedence.pth'),str(site/'_distutils_hack/__init__.py'),
+        str(site/'_distutils_hack/__pycache__/__init__.cpython-312.pyc')}
+    startup=frozenset(row['path'] for row in context.selection['new_tool_records'] if row['path'] in names)
+    _CURRENT_SELECTION_RELEASES[context]=dict(expected=context.expected,receipt=receipt,
+        files_sha256=receipt['files_sha256'],roles_sha256=receipt['roles_sha256'],startup_tools=startup,tool_paths=tool_paths)
+    context.root.selection=None;context.selection=None
+    context.arena.release('current-selection-data')
+    context.arena.shrink('current-selection-index',charge)
 
 
 def _current_exact_refusal(error,wanted):
@@ -4809,7 +5099,7 @@ def _current_emit_cases(root,phase):
 def _current_preflight_inputs(context):
     """Canonical V2 filesystem preflight; metadata aliases are never followed."""
     context.check();root=context.root;expected=context.expected
-    check_selection_records(expected,context.selection)
+    _current_check_selection(context)
     allnames=set(expected['files'])|set(expected['links'])|set(expected['directories'])
     for name in expected['closed_roots']:
         directory=Path(name);observed=set()
@@ -4866,6 +5156,9 @@ def _current_preflight_inputs(context):
 def _current_capacity_proof(root):
     """Check the actual complete baseline before the canonical budget allocates."""
     root.check();data=root.capacity
+    if type(data)is dict and set(data)=={'E_bytes','E_files'}:
+        if _CURRENT_CAPACITY_PROOFS.get(root)is not data:raise RuntimeError('CurrentActualCapacityProofRequired')
+        return
     check_reference_shape(data)
     base=Path(data['evidence_root']);rows=data['E_inventory']
     if len(rows)!=data['E_files'] or sum(r['bytes'] for r in rows)!=data['E_bytes']:
@@ -4957,7 +5250,10 @@ def _current_reference_startup_inputs(owner,interpreter,expected,installed,proje
     row=expected['files'].get(hook)
     if row is None or {k:row[k] for k in ('size','sha256')}!=dict(size=151,sha256='2638ce9e2500e572a5e0de7faed6661eb569d1b696fcba07b0dd223da5f5d224'):
         raise RuntimeError('CurrentReferenceDefaultHookPin')
-    tools={r['path'] for r in owner.root.selection['new_tool_records']}
+    _current_check_selection(owner.current_test)
+    facts=_CURRENT_SELECTION_RELEASES.get(owner.current_test)
+    if facts is None:raise RuntimeError('CurrentReferenceSelectionMustBeReleased')
+    tools=facts['startup_tools']
     allowed={str(site/'_distutils_hack/__init__.py'),str(site/'_distutils_hack/__pycache__/__init__.cpython-312.pyc')}
     if hook not in tools or any(name not in expected['files'] or name not in tools for name in allowed):
         raise RuntimeError('CurrentReferenceDefaultHookToolRole')

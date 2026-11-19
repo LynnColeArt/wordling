@@ -1304,5 +1304,79 @@ class CurrentWheelSourceDataTests(unittest.TestCase):
                     deployment.review_wheel(wheel, {name: (source, dict(wanted, sha256='0' * 64))})
         self.assertFalse(directory.exists())
 
+class CurrentFiniteCaseSourceDataTests(unittest.TestCase):
+    """Post-RED shared canonical predicates; no live actor or runtime probe."""
+    @classmethod
+    def setUpClass(cls):
+        cls.q = canonical_helper()
+
+    def test_shared_preflight_comparisons_have_independent_data_controls(self):
+        self.q._current_closed_members_equal('/DATA/root', {'one'}, {'one'})
+        for observed in ({'one', 'extra'}, set()):
+            with self.assertRaisesRegex(RuntimeError, '^ClosedInputSet:/DATA/root$'):
+                self.q._current_closed_members_equal('/DATA/root', observed, {'one'})
+        rights = dict(mode=0o777, uid=1000, gid=1000)
+        link = dict(target='target', rights=rights)
+        observed = dict(is_symlink=True, text='target', rights=rights)
+        self.q._current_link_observation_equal('/DATA/link', observed, link)
+        with self.assertRaisesRegex(RuntimeError, '^ChangedLink:/DATA/link$'):
+            self.q._current_link_observation_equal('/DATA/link', observed,
+                dict(link, rights=dict(rights, mode=0o677)))
+        directory = dict(is_symlink=False, is_dir=True, rights=rights)
+        self.q._current_directory_observation_equal('/DATA/directory', directory, rights)
+        with self.assertRaisesRegex(RuntimeError, '^ChangedDirectory:/DATA/directory$'):
+            self.q._current_directory_observation_equal('/DATA/directory', directory,
+                dict(rights, mode=0o677))
+        self.q._current_deadline_projection(1., 2., 1.5)
+        for now in (2., 3.):
+            with self.assertRaisesRegex(RuntimeError, '^CurrentTestStageOrDeadline$'):
+                self.q._current_deadline_projection(1., 2., now)
+        with self.assertRaisesRegex(RuntimeError, '^CurrentDeadlineProjection$'):
+            self.q._current_deadline_projection(1., float('nan'), 1.5)
+
+    def test_pure_seed_constructor_keeps_all_selected_pins_and_unaccepted_roles(self):
+        import gzip
+        e, s = v2_unaccepted_data()
+        capacity = dict(E_bytes=0, E_files=0, E_inventory=[], evidence_root='/DATA/evidence',
+            canonical_reference_roots=[])
+        payload = self.q._current_seed_serialization_data(e, s, capacity, [])
+        self.assertEqual(set(payload), {'expected-inputs.json.gz', 'source-binding.json',
+            'capacity.json', 'tool-selection.json', 'reference-roots.json'})
+        self.assertEqual(json.loads(gzip.decompress(payload['expected-inputs.json.gz'])), e)
+        self.assertEqual(json.loads(payload['tool-selection.json']), s)
+        self.assertEqual(json.loads(payload['source-binding.json'])['parent_capacity'],
+            dict(E_bytes=0, E_files=0))
+        self.assertEqual(json.loads(payload['tool-selection.json'])['disposition'], 'UNACCEPTED_VALIDATOR_DATA')
+        self.assertLessEqual(len(payload['tool-selection.json']), 1048576)
+        self.assertLessEqual(len(payload['capacity.json']), 262144)
+
+    def test_seed_constructor_refuses_overflow_without_dropping_tool_pins(self):
+        e, s = v2_unaccepted_data()
+        for number in range(5000):
+            name = '/DATA/tool/' + 'long-segment-' * 10 + str(number)
+            row = data_pin(b'')
+            e['files'][name] = row
+            s['new_tool_records'].append(dict(path=name, **row))
+        s['files_sha256'] = digest(e['files'])
+        capacity = dict(E_bytes=0, E_files=0, E_inventory=[], evidence_root='/DATA/evidence',
+            canonical_reference_roots=[])
+        before = len(s['new_tool_records'])
+        with self.assertRaisesRegex(RuntimeError, '^CurrentSeedWriterFit:'):
+            self.q._current_seed_serialization_data(e, s, capacity, [])
+        self.assertEqual(len(s['new_tool_records']), before)
+
+    def test_reference_layout_has_exact_independent_raw_caps_and_no_second_origin(self):
+        one = self.q._current_reference_layout_data('REF01')
+        header = self.q._current_reference_layout_data('HDR01')
+        self.assertEqual(one['stdout'], Path('/tmp/wordling-WP70-current-test-qualification-v2/reference/base-observation.json'))
+        self.assertEqual(one['caps'], (262144, 16384, 0))
+        self.assertEqual(header['caps'], (262144, 16384, 262144))
+        self.assertEqual(header['combined'], 540672)
+        self.assertEqual(header['trace'].name, 'trace.raw')
+        self.assertEqual(header['origin'].parent, header['trace'].parent)
+        with self.assertRaisesRegex(RuntimeError, '^CurrentFiniteReferenceCaptureLabel$'):
+            self.q._current_reference_layout_data('UNDECLARED')
+
+
 if __name__ == "__main__":
     unittest.main()
