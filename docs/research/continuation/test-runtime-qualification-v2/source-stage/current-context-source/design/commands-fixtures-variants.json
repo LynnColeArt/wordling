@@ -1,0 +1,177 @@
+{
+  "schema": "wordling.wp108-current-context-test-manifest/v1",
+  "status": "DRAFT_NOT_RUN",
+  "freeze": "6e0faee1c1401c87b89d1caf361af21bcd8cf0a0",
+  "test_postimages": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 70541,
+      "sha256": "a0f63c3bc175818379f4c42b690d2bd9e1f8e68dd089022d9f61738d7ed444cc"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 16685,
+      "sha256": "1b0f9e5215937d0d8ff781a654235f2ac444968375ce26e1a0d6af17b023fa3b"
+    }
+  },
+  "commands": [
+    {
+      "id": "CURRENT-POSITIVE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "CurrentReferenceRoleDataTests.test_existing_record_consumer_positive_control"
+      ],
+      "phase": "PRECODE_FIRST",
+      "expected_exit": 0,
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2
+    },
+    {
+      "id": "CURRENT-RED",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "CurrentReferenceRoleDataTests.test_existing_record_consumer_rejects_runtime_alias_without_captured_target"
+      ],
+      "phase": "PRECODE_SECOND",
+      "expected_exit": 1,
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2
+    },
+    {
+      "id": "CURRENT-POST-NEW",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "CurrentReferenceRoleDataTests"
+      ],
+      "phase": "POST_SOURCE",
+      "expected_exit": 0,
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2
+    },
+    {
+      "id": "CURRENT-FULL-DATA",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py"
+      ],
+      "phase": "POST_SOURCE",
+      "expected_exit": 0,
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2
+    },
+    {
+      "id": "CURRENT-FULL-AST",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "phase": "POST_SOURCE",
+      "expected_exit": 0,
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2
+    }
+  ],
+  "RED": "Actual existing q.check_selection_records digest-consistent missing-runtime-target frame currently returns UNACCEPTED; assertRaises CurrentRuntimeAliasTarget fails1FAIL0ERROR. Existing positive first, actual raw observedRED test-only commit before production. No missingAPI/import/type/setup or forged context/Preparation.",
+  "counts": {
+    "new_DATA": 8,
+    "new_AST": 3,
+    "full_DATA": 76,
+    "full_AST": 18,
+    "unique": 94,
+    "planned_SOURCE_test_launches": 13
+  },
+  "mutants": [
+    {
+      "id": "EXPECTED-ADOPTION",
+      "actual_target": "current expected/source binding guard",
+      "meaning": "Candidate-observed replacement rejected by real validator; actual source-valid fixed postimage+samepath control after implementation."
+    },
+    {
+      "id": "WHEEL-DATA",
+      "actual_target": "canonical wheel/source-data validator",
+      "meaning": "Inert synthetic wheel DATA with independent source pins, no fake live context/Preparation; exact fixture/postimage frozen before effects."
+    },
+    {
+      "id": "PROVIDER-LABEL",
+      "actual_target": "_current_selection_data provenance guard",
+      "meaning": "Wrong oldlabel/current lifetimebytes refuses CurrentProviderProvenance."
+    },
+    {
+      "id": "OWNER-ADMISSION",
+      "actual_target": "Preparation early V2 admission guard",
+      "meaning": "Raw None/V2 must fail before umask/read/allocation; disabled actual guard killed by pre-effect fence, not fabricated positive context."
+    }
+  ],
+  "fixtures": "Existing synthetic V2 files+8provider pins only; oldtinyFD cases unchanged. No positive genuine context simulated; actual owner acceptance requires real staged boundary. Structural APIs only postsource, not initialRED."
+}
