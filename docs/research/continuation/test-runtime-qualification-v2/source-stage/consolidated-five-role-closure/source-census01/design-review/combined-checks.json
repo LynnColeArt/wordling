@@ -1,0 +1,292 @@
+{
+  "schema": "wordling.wp108-SOURCE_CENSUS-independent-design-checks/v1",
+  "scope": "SCRATCH_SOURCE_TDD_COMMAND_FIXTURE_WRITER_ARITHMETIC_ONLY",
+  "packet_pins": {
+    "SHA256SUMS": {
+      "size": 489,
+      "sha256": "efa6cfaefec85eb058e9d63a3a93f3b7c5907f430682b6f7ee188c0ce008d808"
+    },
+    "reader-plan.json": {
+      "size": 25585,
+      "sha256": "36c8a705b53e6f08bc2fa52f47dea9bed731de1b7f34400ec0f079c7d24cf4c0"
+    },
+    "commands-fixtures-variants.json": {
+      "size": 14895,
+      "sha256": "63848a388d995c61962cb8b81aa6867043504e728e9fd43ca39c10b3db88de53"
+    },
+    "source-writers-TDD-design.json": {
+      "size": 141931,
+      "sha256": "1b12326a44a32334e403690d19b2c65c087f258189b9cdefae17213d7aea9293"
+    },
+    "test_current_test_qualification.py": {
+      "size": 65303,
+      "sha256": "db897a7c6e51d7402f0b81acfcf13656478d28b535d0577cbe3da9bde01c82e2"
+    },
+    "test_current_test_qualification_contract.py": {
+      "size": 14851,
+      "sha256": "6c665b7cd539f8dc64f10632be86e437440b67a2f8265585e7a8b62af9684e82"
+    }
+  },
+  "packet_total_bytes": 263054,
+  "packet_limits": "Each of six named files fits its explicit purpose reservation; prior three-file planning256KiB envelope is not applied to this six-file writer manifest.",
+  "source_freeze": "9037451df84b6d6c7b71116a88d5737b0294400b",
+  "sourcepins": [
+    {
+      "path": "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+      "size": 36404,
+      "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+      "size": 52574,
+      "sha256": "d9a7f5b13b510e9aef650c1498f4120c2265660530253ac5cffb5d4ddae38b07"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
+      "size": 13120,
+      "sha256": "16d96e83f92fb834902d1f3871592d8c930f419875f047f0a93d7ffe2af390aa"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+      "size": 251281,
+      "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    },
+    {
+      "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/reader-plan.json",
+      "size": 28339,
+      "sha256": "c2b36c986ec841628b4e834870f1f381d26ae4a569d3b849cb4612789d03271f"
+    }
+  ],
+  "original_DATA_class_AST_exact": true,
+  "old_AST_only_change": "Remove scandir from generic forbidden-call set; new mandatory scanner test limits exactly one call to canonical bounded _census_scan_directory. All other old AST classes unchanged.",
+  "old_item_tail_AST_sha256": "31860b3484248e348b6f68559a6a64b8e87f47d3b9a23c2dfd8e85d197b5ecb1",
+  "genuine_initial_RED": "Existing item(census_root) returns bare observed directory metadata; first census-field assertion is intended semantic failure. No proposed new helper/API invoked first. Not executed by reviewer.",
+  "membership_grammar": {
+    "field": "census.membership_sha256",
+    "algorithm": "SHA256 over concatenation of canonical immediate-child records, each one compactASCIIJSON object followedby exactlyone LFbyte0x0a. Empty directory digest SHA256(emptybytes). Noheader/trailer/extra whitespace.",
+    "order": "Immediatechildren sorted by unsignedASCIIbasename bytes, notfilesystemiteration order. Everybasenameexactcase/bytes, no normalization/casefold. Eachdirectoryrecord includes completedchilddirectorymembership_sha256, yielding recursiveMerkle membership; do not mistakeflatDFS streamorder forglobalrelativepathsort. Root-relative names are recorded recursively as one directrelativebasename at eachlevel; fullpath context is unambiguous throughdirectoryrecords.",
+    "encoding": "json.dumps(record,sort_keys=True,separators=(comma,colon),ensure_ascii=True), encodedASCII, thenLF. Exactallowedkeys only, intsdecimal JSONno bool/float, digest64lowerhex. nameASCII1..255bytes no slash,NUL,dot/dotdot; textASCII<=4096exactlexicalbytes no NUL.",
+    "common_fields": [
+      "name",
+      "type",
+      "mode",
+      "uid",
+      "gid"
+    ],
+    "regular_file_fields": [
+      "size",
+      "sha256"
+    ],
+    "directory_fields": [
+      "membership_sha256"
+    ],
+    "symlink_fields": [
+      "text"
+    ],
+    "type_values": [
+      "file",
+      "directory",
+      "symlink"
+    ],
+    "pin_limits": "mode0..07777, uid/gid0..2**64-1, regularsize0..67108864, hash64lowerhex. Directorysha64lowerhex. Unknownfiletypes =>INCOMPLETE, neverignored.",
+    "frame_bounds": "EachcanonicalrecordincludingLF<=32768bytes, chargedbeforeencode/hash/emit. Incrementalhashupdates<=65536bytes; existingperrowJSON<=65536/globalraw8MiB/leases16MiB applyjointly. Onecurrentrecord, nofulldirectorypreimagebuffer.",
+    "completeness": "Emit membership_complete=true +membership_sha256 only after allchildren complete/stable and held-directoryfd/name/membership snapshotchecks succeed. Ifanychild incomplete/unstable/unlistedrole or globalfault: membership_complete=false, omit finalmembership_sha256; optional membership_prefix_sha256 explicitlyprefixonly, nevercompleteidentity. A finalhash neverconveys reference/currentrole authority.",
+    "excluded_but_separately_checked": [
+      "dev/inode/mtime_ns/ctime_ns before/after identity",
+      "absolute/resolved root and child paths/ancestor identities",
+      "parent/file FDs and liveowner",
+      "status/provenance/counters/deadlines/roleflags"
+    ],
+    "identity_note": "Excludedidentityfields stillrequired bycanonicalheldFD+declaredname+directorysnapshotpostchecks; digestalone cannot prove stability, rootbinding or currentauthority.",
+    "known_synthetic_fixture": {
+      "record": {
+        "name": "member.bin",
+        "type": "file",
+        "mode": 384,
+        "uid": 1000,
+        "gid": 1000,
+        "size": 3,
+        "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      },
+      "literal_preimage_ASCII": "{\"gid\":1000,\"mode\":384,\"name\":\"member.bin\",\"sha256\":\"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\",\"size\":3,\"type\":\"file\",\"uid\":1000}\n",
+      "preimage_bytes": 154,
+      "literal_expected_SHA256": "fb686eb8a388c35e3a7f8f760fe4f976ef6948664fccd9b8a3de8ae9bbf83db2",
+      "oracle": "DerivedonlyfromfrozenSYNTHETIC /DATAfixturefacts and declaredgrammar, beforeproduction; no candidate/sourceoutput used."
+    }
+  },
+  "digest_fixture_recomputed": {
+    "bytes": 154,
+    "sha256": "fb686eb8a388c35e3a7f8f760fe4f976ef6948664fccd9b8a3de8ae9bbf83db2",
+    "literal_test_asserted": true,
+    "candidate_output_oracle": false
+  },
+  "fixed_plan_address_allocated": "docs/research/continuation/test-runtime-qualification-v2/source-stage/consolidated-five-role-closure/source-census01/design/reader-plan.json",
+  "test_methods": {
+    "test_current_test_qualification.py": 68,
+    "test_current_test_qualification_contract.py": 15
+  },
+  "unique_methods": 83,
+  "new_methods": 16,
+  "launches": {
+    "precode": 2,
+    "postcode": 3,
+    "controls": 4,
+    "mutants": 4,
+    "total": 13,
+    "physical_lower_fixture_cases": 3,
+    "physical_replays": 8
+  },
+  "source_work_units": {
+    "formula": "24576*264(parent/component+snapshot/itemunits) +262144(hash64KiBchunks for16GiB) +4096*32(headerqueue/lexicalunits) +24576*14(chargedsortingupper) +140*512(exactnativefile/graphworkupper) +65536(finalize/error/streamunits) =7362560; each actual unittype explicitlychargedbeforeoperation. Loop notcoveredbythese finitecategories is invariantstop.",
+    "result": 7362560,
+    "old_STATIC_38912_AST_preserved_requirement": true,
+    "not_measured_fit": true
+  },
+  "fixture_limit": {
+    "concurrent_roots": 1,
+    "paths_per_case": 5,
+    "created_bytes_per_case": 6,
+    "qualification_or_public_plan": false,
+    "swap_witness": "Member replacement with dangling relative symlink; O_NOFOLLOW flags assertion is source-guard witness, not parent rename or populated outside-file read proof."
+  },
+  "retention": {
+    "baseline_files": 804,
+    "phase_counts": {
+      "census-design": 9,
+      "census-precode": 10,
+      "census-source": 45,
+      "census-source-review": 12,
+      "census-source-decision": 1,
+      "census-action": 9,
+      "later-context-design": 9,
+      "later-context-precode": 10,
+      "later-context-source": 45,
+      "later-context-review": 12,
+      "retention-amendment": 9
+    },
+    "source_governance_names": 171,
+    "historical_runtime_files": 175,
+    "extra_runtime_files": 22,
+    "all_future_names_unique": 368,
+    "reserved_immediate_slots": 4,
+    "proposed_total_files": 1176,
+    "increase": 152,
+    "future_reserved_bytes": 305216512,
+    "baseline_retained_bytes_max": 231654400,
+    "unchanged_bytes_ceiling": 536870912,
+    "actual_baseline_bytes": "6135812 reported by independent capacity specialist at frozen9037451; not independently enumerated in this source review",
+    "conditional_all_bytes_if_reported_baseline_matches": 311352324,
+    "OTHERbaseline_conditions": {
+      "files_max": 2558,
+      "bytes_max": 1928265728,
+      "actual": "UNKNOWN; must be counted without omission/double-count before relevant effects"
+    },
+    "proposal_only": true
+  },
+  "canonical_classes": {
+    "count": 17,
+    "sum_files": 6506,
+    "sum_bytes": 1829830656,
+    "runtime197_perclass_totals": {
+      "pair": [
+        2752512,
+        42
+      ],
+      "construction_raw": [
+        75546624,
+        58
+      ],
+      "origin": [
+        168034304,
+        11
+      ],
+      "transient": [
+        10485760,
+        10
+      ],
+      "build": [
+        524288,
+        2
+      ],
+      "compiled": [
+        32768,
+        2
+      ],
+      "inventory": [
+        8388608,
+        2
+      ],
+      "deployment": [
+        524288,
+        2
+      ],
+      "misc": [
+        196608,
+        3
+      ],
+      "custody": [
+        3014656,
+        27
+      ],
+      "control": [
+        2752512,
+        21
+      ],
+      "input": [
+        2097152,
+        3
+      ],
+      "failure": [
+        65536,
+        1
+      ],
+      "review": [
+        2359296,
+        12
+      ],
+      "aggregate": [
+        1048576,
+        1
+      ]
+    },
+    "all_runtime_totals_fit": true,
+    "intrinsic_files": 10240,
+    "intrinsic_bytes": 4294967296,
+    "unchanged": true
+  },
+  "corrections_closed": [
+    "Exact canonical Merkle membership field/serialization and literal fixture SHA in existing boundary method",
+    "Fixed plan path points to already allocated design/reader-plan.json"
+  ],
+  "inspection_normalization_errors": [
+    "Initial audit attempted JSON decoding of plain-text SHA256SUMS; corrected to sha256sum-line parsing. No product/test execution.",
+    "Initial path audit assumed extra-runtime rows used historical plural paths; corrected singular path handling. No product/test execution."
+  ],
+  "effects": {
+    "operational_imports": 0,
+    "tests": 0,
+    "prototypes": 0,
+    "public_asset_lookups": 0,
+    "primary_index_Op_lifecycle_writes": 0,
+    "qualification_actions": 0
+  },
+  "proof_files_max": 3,
+  "separate_capacity_review_reported": {
+    "verdict": "APPROVE_CAPACITY_ONLY_CONDITIONAL",
+    "directory": "/tmp/wordling-wp108-source-census-capacity-review",
+    "independent-capacity-review.md": "5e7cb33691c0357dafef144fa31706dc1dda2225afab7629fe6a7a3fda8f5b9f",
+    "independent-capacity-review.json": "87755b50496a61c641dc19377c49e63230fb9ecbd75f9c3dcf194061ac358df7",
+    "combined-checks.json": "35a387af1411ebe4f5c414616dc62a7f39e1df0b3cdc380c50bd6760e25732f7",
+    "source": "Independent capacity specialist fixed-hash handoff; no extra public-file inspection by source reviewer"
+  }
+}

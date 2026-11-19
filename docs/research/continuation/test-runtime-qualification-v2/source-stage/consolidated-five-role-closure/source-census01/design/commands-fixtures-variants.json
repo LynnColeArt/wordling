@@ -1,0 +1,361 @@
+{
+  "schema": "wordling.wp108-source-census-test-command-manifest/v1",
+  "status": "DESIGN_ONLY_NO_RUN",
+  "freeze": "9037451df84b6d6c7b71116a88d5737b0294400b",
+  "source_before": {
+    "size": 36404,
+    "sha256": "128f42641aba00db10d245c2eebc04d8aa076fcd6f99757ff80ab362f8b8266a"
+  },
+  "test_postimages": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 65303,
+      "sha256": "db897a7c6e51d7402f0b81acfcf13656478d28b535d0577cbe3da9bde01c82e2"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 14851,
+      "sha256": "6c665b7cd539f8dc64f10632be86e437440b67a2f8265585e7a8b62af9684e82"
+    }
+  },
+  "commands": [
+    {
+      "id": "CENSUS-POSITIVE",
+      "phase": "REVIEWED_ADOPTION_BEFORE_RED",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_existing_directory_metadata_positive_control"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 0
+    },
+    {
+      "id": "CENSUS-RED",
+      "phase": "AFTER_POSITIVE_BEFORE_OBSERVED_RED_COMMIT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_existing_item_boundary_requires_census_membership_not_bare_metadata"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 1
+    },
+    {
+      "id": "CENSUS-POST-NEW",
+      "phase": "POST_SOURCE_ONLY",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 0
+    },
+    {
+      "id": "CENSUS-FULL-DATA",
+      "phase": "POST_SOURCE_ONLY",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 0
+    },
+    {
+      "id": "CENSUS-FULL-AST",
+      "phase": "POST_SOURCE_ONLY",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py"
+      ],
+      "cwd": "/home/lynn/projects/wordling",
+      "stdout": 262144,
+      "stderr": 16384,
+      "seconds": 30,
+      "cleanup": 2,
+      "expected_exit": 0
+    }
+  ],
+  "mutants": [
+    {
+      "id": "CENSUS-NOFOLLOW",
+      "guard": "Remove O_NOFOLLOW onlyonactualmemberopen; allsyntax/importsconserved",
+      "intended_cause": "CENSUS_MEMBER_NOFOLLOW_REQUIRED assertion on actual canonical member-open flags in theownedFD swapcontrol; independent post-fstat backstop may also refuse, so do not claim flags removal necessarily reads outside. Actualsourceguardassertion isclassifiedexplicitly, notOSkill.",
+      "test": "SourceCensusDataTests.test_postcode_owned_real_FD_parent_swap_is_refused",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-census-mutants/CENSUS-NOFOLLOW/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_postcode_owned_real_FD_parent_swap_is_refused"
+      ],
+      "isolation": "Actualsourcevalidfullpostimage, canonicalreporelativepathdepth, allunchangedhelpers/historicalplanfixtures/86493Btoolfixture/23protectedGitinputs; sameexactoriginalpositive beforemutant. No clonevalidator/context."
+    },
+    {
+      "id": "CENSUS-READ-CHARGE",
+      "guard": "Disable actualpre-os.read sourcecharge predicate",
+      "intended_cause": "UNCHARGED_READ syntheticIO fence isclassifiedboundarykill, notOSkill",
+      "test": "SourceCensusDataTests.test_postcode_regular_hash_read_charge_precedes_actual_io",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-census-mutants/CENSUS-READ-CHARGE/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_postcode_regular_hash_read_charge_precedes_actual_io"
+      ],
+      "isolation": "Actualsourcevalidfullpostimage, canonicalreporelativepathdepth, allunchangedhelpers/historicalplanfixtures/86493Btoolfixture/23protectedGitinputs; sameexactoriginalpositive beforemutant. No clonevalidator/context."
+    },
+    {
+      "id": "CENSUS-SNAPSHOT",
+      "guard": "Replace actualsnapshotcomparisonwithunconditionalstable",
+      "intended_cause": "wrongstable-vsINCOMPLETE assertion",
+      "test": "SourceCensusDataTests.test_postcode_parent_and_membership_snapshots_are_both_required",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-census-mutants/CENSUS-SNAPSHOT/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_postcode_parent_and_membership_snapshots_are_both_required"
+      ],
+      "isolation": "Actualsourcevalidfullpostimage, canonicalreporelativepathdepth, allunchangedhelpers/historicalplanfixtures/86493Btoolfixture/23protectedGitinputs; sameexactoriginalpositive beforemutant. No clonevalidator/context."
+    },
+    {
+      "id": "CENSUS-OUTPUT",
+      "guard": "Disable actualpre-emission JSONreservationpredicate",
+      "intended_cause": "missingCensusOutputBound assertion or exactsinkfence, notsetup",
+      "test": "SourceCensusDataTests.test_postcode_output_bound_and_failed_sink_preserve_no_false_success",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--nofile=32",
+        "--nproc=0",
+        "--fsize=65536",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-census-mutants/CENSUS-OUTPUT/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "SourceCensusDataTests.test_postcode_output_bound_and_failed_sink_preserve_no_false_success"
+      ],
+      "isolation": "Actualsourcevalidfullpostimage, canonicalreporelativepathdepth, allunchangedhelpers/historicalplanfixtures/86493Btoolfixture/23protectedGitinputs; sameexactoriginalpositive beforemutant. No clonevalidator/context."
+    }
+  ],
+  "launch_count": 13,
+  "launch_arithmetic": "2precode+3postcode+4originalcontrols+4actualsourcevalidmutants=13 explicitDATA/ASTinterpreterlaunches, notqualificationOS-casefamilylabels.",
+  "initial_RED": {
+    "existing_call": "_StaticInventory(plan,0).item({kind:census_root,path:/DATA/census})",
+    "old_behavior": "Current128fsource returnsbare OBSERVED_UNACCEPTED_METADATA directoryrow withnocensusfield andnochildread. Newfixture suppliesonlymockstat/direntries/filebytes; noactual/DATAlookup.",
+    "required": "ONE AssertionError SOURCE_CENSUS_MEMBERSHIP_REQUIRED atassertIn(census,row),1FAIL/0ERROR; missingAPI/import/TypeError/setup/resourcefailure isNOTRED.",
+    "positive": "Directexisting item(kind=directory) samefixture returnsbaremetadata andemitsnothing; runfirst unchangedsource.",
+    "chronology": "Review/adopt exacttests -> positive -> ONEexistingboundaryRED -> rawreceipt+testonlyobservedREDcommit -> Rootcausalinspection -> production. Newlynamedposthelpertests onlyafterhelpers exist, neverinitialRED.",
+    "digest": "Sameexistingmethod nowalsoassertsexactmembership_complete+literalmembership_sha256 derivedfromdeclaredone-memberbytegrammar. Oldsource stillfailsatfirstassertIn(census), unchanged genuineREDcause."
+  },
+  "fixture": {
+    "synthetic_paths": [
+      "/DATA/census",
+      "/DATA/census/member.bin"
+    ],
+    "synthetic_FDs": [
+      70,
+      71
+    ],
+    "raw": "abc",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "owned_prefix": "/tmp/wordling-wp108-source-census-FD-",
+    "owned_roots_concurrent": 1,
+    "paths_per_case_max": 5,
+    "regular_file_bytes_max": 3,
+    "total_created_bytes_per_case": 6,
+    "actual_cases": [
+      "stableFDhash/membership",
+      "externalrelativealiasrefusal",
+      "memberreplacementwithsymlinkatopen"
+    ],
+    "lower_API": "Same _StaticInventory.item withsmallerunacceptedcensus_options plan, no productiontesthook/currentcontext/fixedpublicplan load.",
+    "cleanup": "One TemporaryDirectory/addCleanup percase; exactownednamesonly, leaks/FDuncertainty fail, noambientcleanup.",
+    "fence": "Reuse priorDATAcapture/IO-fence, allowingwrite/mkdir/unlink/rename/symlink/scandir ONLYactualcurrenttest-ownedprefix andchildren. No general/tmpallow; freezeexactmodifiedcapture sourcebeforefirsttest. Source/stdlb/protected23/historicalplans onlyreads.",
+    "fsize": "65536 isexplicitSOURCEtestamendmentfromold0 forowned6-bytefixture, nottool/candidatepermission.",
+    "membership_digest_fixture": {
+      "record": {
+        "name": "member.bin",
+        "type": "file",
+        "mode": 384,
+        "uid": 1000,
+        "gid": 1000,
+        "size": 3,
+        "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      },
+      "literal_preimage_ASCII": "{\"gid\":1000,\"mode\":384,\"name\":\"member.bin\",\"sha256\":\"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\",\"size\":3,\"type\":\"file\",\"uid\":1000}\n",
+      "preimage_bytes": 154,
+      "literal_expected_SHA256": "fb686eb8a388c35e3a7f8f760fe4f976ef6948664fccd9b8a3de8ae9bbf83db2",
+      "oracle": "DerivedonlyfromfrozenSYNTHETIC /DATAfixturefacts and declaredgrammar, beforeproduction; no candidate/sourceoutput used."
+    }
+  },
+  "counts": {
+    "new_DATA": 13,
+    "old_DATA": 55,
+    "full_DATA": 68,
+    "new_AST": 3,
+    "old_AST": 12,
+    "full_AST": 15,
+    "unique": 83,
+    "new_DATA_methods": [
+      "SourceCensusDataTests.test_existing_directory_metadata_positive_control",
+      "SourceCensusDataTests.test_existing_item_boundary_requires_census_membership_not_bare_metadata",
+      "SourceCensusDataTests.test_postcode_regular_hash_read_charge_precedes_actual_io",
+      "SourceCensusDataTests.test_postcode_no_ambient_alias_or_parent_search",
+      "SourceCensusDataTests.test_postcode_parent_and_membership_snapshots_are_both_required",
+      "SourceCensusDataTests.test_postcode_package_zero_multiple_and_foreign_names_never_select_first",
+      "SourceCensusDataTests.test_postcode_literal_header_and_unknown_macro_are_distinct",
+      "SourceCensusDataTests.test_postcode_record_work_and_memory_bounds_are_independent",
+      "SourceCensusDataTests.test_postcode_output_bound_and_failed_sink_preserve_no_false_success",
+      "SourceCensusDataTests.test_postcode_owned_real_FD_hash_membership_and_cleanup",
+      "SourceCensusDataTests.test_postcode_owned_real_FD_symlink_never_follows_external_target",
+      "SourceCensusDataTests.test_postcode_owned_real_FD_parent_swap_is_refused",
+      "SourceCensusDataTests.test_postcode_census_receipt_remains_unaccepted_and_ops_blocked"
+    ],
+    "subtest_variants": {
+      "aliastext": 2,
+      "snapshot": 2,
+      "package": 4,
+      "header": 4,
+      "independentlimits": 3,
+      "outputandsink": 2,
+      "blockedoperations": 5
+    },
+    "actualFDreplays": "ThreeownedFDcases runpostnew+fullDATA; NOFOLLOWpair replays exactswapcase2more. Allrawretained; noadditionalphysicalfixture/probe."
+  },
+  "capture_reuse": {
+    "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static04/precode/capture-source-DATA.py.txt",
+    "size": 9263,
+    "sha256": "5bc7ce6d49a65e23470d9f7fe69799b516166b88cdb4aed118b9f89bd56f4fb9",
+    "changes": "Onlylabels/testpaths/pins+fsize65536+narrowownedFDwritefence, exactgzipstreams; no newcapture/supervisoralgorithm."
+  },
+  "future_source_action": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "300s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--nofile=32",
+    "--nproc=0",
+    "--fsize=8388608",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "--closure-source-census"
+  ],
+  "execution_authorized": false
+}
